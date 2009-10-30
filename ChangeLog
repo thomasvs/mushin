@@ -1,5 +1,11 @@
 2009-10-30  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/things/command/main.py:
+	* python/things/model/couch.py:
+	  Add priority() from yagtd.
+
+2009-10-30  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* . (added):
 	* python (added):
 	* python/things (added):
