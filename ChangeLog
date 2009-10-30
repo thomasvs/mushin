@@ -1,0 +1,11 @@
+2009-10-30  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* . (added):
+	* python (added):
+	* python/things (added):
+	* python/things/model (added):
+	* python/things/common (added):
+	* python/things/command (added):
+	* couchdb (added):
+	  Initial creation
+
