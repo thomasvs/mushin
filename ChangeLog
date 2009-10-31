@@ -1,3 +1,13 @@
+2009-10-31  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/things/common/parse.py (svn:executable):
+	* python/things/common/parse.py (added):
+	  Add parser lifted from yagtd.
+	* python/things/command/main.py:
+	  Add search command.
+	* python/things/model/couch.py:
+	  Add kwargs to view.
+
 2009-10-30  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/things/command/main.py:

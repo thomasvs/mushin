@@ -35,6 +35,7 @@ class Thing(schema.Document):
         """Compute (needed) time in hours."""
 
         # FIXME: what if the delta has days ?
+        # well, it's not a delta anymore is it?
         T = self.time / 60. / 60.
 
         #if __debug__: print "Time=", T
@@ -101,7 +102,7 @@ class Server:
         server = client.Server(uri)
         self.db = server['gtd']
 
-    def view(self, name):
+    def view(self, name, **kwargs):
         # example: open-things
         # include_docs gives us the full docs, so we can recreate Things
-        return Thing.view(self.db, 'gtd/%s' % name, include_docs=True)
+        return Thing.view(self.db, 'gtd/%s' % name, include_docs=True, **kwargs)
