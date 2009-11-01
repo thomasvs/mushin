@@ -3,7 +3,8 @@
 
 import sys
 
-from things.common import log, logcommand
+from things.common import log, logcommand, parse
+from things.model import couch
 
 #from things.command import thing
 
@@ -99,7 +100,14 @@ def main(argv):
 
     return ret
 
-def display(thing, colored=True):
+def display(thing, shortid=True, colored=True):
+    """
+    Return a string for the given thing.
+
+    @param shortid: if True, also show shortid and priority.
+    @param colored: if True, color the return value for output.
+    """
+
     def color(text, code):
         if not colored:
             return text
@@ -114,8 +122,11 @@ def display(thing, colored=True):
         return P_COLORS[int(priority)] + text + DEFAULT_COLOR
 
     blocks = []
-    blocks.append(color('%s' % thing.shortid(), TIME_COLOR))
-    blocks.append(pcolor('(%.2f)' % thing.priority(), thing.priority()))
+
+    if shortid:
+        blocks.append(color('%s' % thing.shortid(), TIME_COLOR))
+        blocks.append(pcolor('(%.2f)' % thing.priority(), thing.priority()))
+
     blocks.append(thing.title)
 
     if thing.contexts:
@@ -200,11 +211,9 @@ class Add(logcommand.LogCommand):
     description = """Adds a thing.\n""" + SYNTAX
 
     def do(self, args):
-        from things.common import parse
         new = parse.parse(" ".join(args))
         print new
 
-        from things.model import couch
         server = couch.Server()
 
         thing = couch.thing_from_dict(new)
@@ -217,7 +226,6 @@ class Delete(logcommand.LogCommand):
     aliases = ['del', ]
 
     def do(self, args):
-        from things.model import couch
         server = couch.Server()
         thing = lookup(server, args[0])
 
@@ -225,11 +233,67 @@ class Delete(logcommand.LogCommand):
             server.delete(thing)
             print 'Deleted thing "%s" (%s)' % (thing.title, thing.id)
 
+class Done(logcommand.LogCommand):
+    summary = "mark a thing as done"
+
+    def do(self, args):
+        server = couch.Server()
+        thing = lookup(server, args[0])
+
+        if thing:
+            if thing.complete == 100:
+                print 'Already done "%s" (%s)' % (thing.title, thing.id)
+            else:
+                thing.complete = 100
+                server.save(thing)
+                print 'Marked "%s" (%s) as done' % (thing.title, thing.id)
+
+class Edit(logcommand.LogCommand):
+    summary = "edit a thing"
+    usage = "#shortid"
+
+    def do(self, args):
+        try:
+            import readline
+        except ImportError:
+            print "Cannot edit without the 'readline' module!"
+            return
+
+        # Parse command line 
+        shortid = args[0]
+
+        if not shortid:
+            return
+
+        server = couch.Server()
+        thing = lookup(server, shortid)
+        if not thing:
+            return
+
+        def pre_input_hook():
+            readline.insert_text(display(thing, shortid=False, colored=False))
+            readline.redisplay()
+
+            # Unset the hook again 
+            readline.set_pre_input_hook(None)
+
+        readline.set_pre_input_hook(pre_input_hook)
+
+        line = raw_input("GTD edit> ")
+        # Remove edited line from history: 
+        #   oddly, get_history_item is 1-based,
+            #   but remove_history_item is 0-based 
+        readline.remove_history_item(readline.get_current_history_length() - 1)
+        d = parse.parse(line)
+        thing.set_from_dict(d)
+
+        server.save(thing)
+        print 'Edited thing "%s" (%s)' % (thing.title, thing.id)
+
 class List(logcommand.LogCommand):
     summary = "list all open things, ordered by priority (?)."
 
     def do(self, args):
-        from things.model import couch
         server = couch.Server()
 
         # FIXME: make the view calculate and sort by priority
@@ -244,7 +308,6 @@ class Search(logcommand.LogCommand):
         filter = parse.parse(" ".join(args))
         self.debug('parsed filter: %r' % filter)
 
-        from things.model import couch
         server = couch.Server()
 
         # pick the view giving us the most resolution
@@ -302,7 +365,6 @@ class Show(logcommand.LogCommand):
     summary = "show one thing"
 
     def do(self, args):
-        from things.model import couch
         server = couch.Server()
         print lookup(server, args[0])
 
@@ -339,7 +401,7 @@ Things gives you a tree of subcommands to work with.
 You can get help on subcommands by using the -h option to the subcommand.
 """
 
-    subCommandClasses = [Add, Delete, List, Search, Show, ]
+    subCommandClasses = [Add, Delete, Done, Edit, List, Search, Show, ]
 
     def addOptions(self):
         # FIXME: is this the right place ?

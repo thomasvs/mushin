@@ -100,8 +100,20 @@ class Thing(schema.Document):
         #if __debug__: print "Piority=", Prio
         return Prio
 
- 
-
+    def set_from_dict(self, d):
+        """
+        Set my attributes from the given dict.
+        """
+        for attr in [
+            'title',
+            'contexts', 'projects', 'statuses', 'references',
+            'urgency', 'importance',
+            'complete',
+            'time', 'recurrence',
+            'start', 'due', 'end'
+        ]:
+            if d.has_key(attr):
+                setattr(self, attr, d[attr])
 
 class Server:
     def __init__(self, uri='http://localhost:5984'):
@@ -129,8 +141,6 @@ def thing_from_dict(d):
     thing = Thing()
     thing.type = 'thing'
 
-    for attr in ['title', 'contexts', 'projects', 'statuses', 'references']:
-        if d.has_key(attr):
-            setattr(thing, attr, d[attr])
+    thing.set_from_dict(d)
 
     return thing
