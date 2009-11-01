@@ -1,3 +1,13 @@
+2009-11-01  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/things/command/main.py:
+	* python/things/common/parse.py:
+	* python/things/model/couch.py:
+	  Add add and delete commands.
+	  Add command interpreter.
+	  Update Thing so we can calculate priority even if fields are
+	  missing.
+
 2009-10-31  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/things/common/parse.py (svn:executable):

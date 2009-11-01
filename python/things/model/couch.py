@@ -30,13 +30,16 @@ class Thing(schema.Document):
     end = schema.DateTimeField()
     recurrence = schema.IntegerField() # in seconds
 
+    def shortid(self):
+        return self.id[:6]
+
     # lifted from yagtd.py
     def _needed_hours(self):
         """Compute (needed) time in hours."""
 
         # FIXME: what if the delta has days ?
         # well, it's not a delta anymore is it?
-        T = self.time / 60. / 60.
+        T = (self.time or 0) / 60. / 60.
 
         #if __debug__: print "Time=", T
         return T
@@ -77,7 +80,7 @@ class Thing(schema.Document):
                 P = 1
 
         else:  # == urgency
-            P = self.urgency
+            P = self.urgency or 0
 
         #if __debug__: print "Pressure=", P
         return P
@@ -85,17 +88,20 @@ class Thing(schema.Document):
     def priority(self):
         """Compute priority."""
 
-        I = self.importance
+        I = self.importance or 0
 
-        P = min(self.urgency+2, self._schedule_pressure())
+        P = min((self.urgency or 0) + 2, self._schedule_pressure())
         U = max(self.urgency, P)
 
         E = self._effort()
 
-        Prio = math.sqrt(2*U*U+2*I*I+E*E)/math.sqrt(5)
+        Prio = math.sqrt(2*U*U + 2*I*I + E*E) / math.sqrt(5)
 
         #if __debug__: print "Piority=", Prio
         return Prio
+
+ 
+
 
 class Server:
     def __init__(self, uri='http://localhost:5984'):
@@ -106,3 +112,25 @@ class Server:
         # example: open-things
         # include_docs gives us the full docs, so we can recreate Things
         return Thing.view(self.db, 'gtd/%s' % name, include_docs=True, **kwargs)
+
+    def save(self, thing):
+        return thing.store(self.db)    
+
+    def delete(self, thing):
+        return self.db.delete(thing)
+
+def thing_from_dict(d):
+    """
+    Load object from a given dict, yagtd style.
+    """
+    if not d['title']:
+        raise ValueError('No title given.')
+
+    thing = Thing()
+    thing.type = 'thing'
+
+    for attr in ['title', 'contexts', 'projects', 'statuses', 'references']:
+        if d.has_key(attr):
+            setattr(thing, attr, d[attr])
+
+    return thing

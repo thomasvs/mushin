@@ -53,6 +53,15 @@ DUE_REGEXP        = re.compile(DUE_CHAR + DATE_MATCH, re.IGNORECASE)
 END_REGEXP        = re.compile(END_CHAR + DATE_MATCH, re.IGNORECASE)
 
 
+def pluralize(word):
+    """
+    Pluralize the given word.  Used to set the proper attribute on the dict.
+    """
+    if word[-1] == 's':
+        return word + 'es'
+
+    return word + 's'
+
 def parse(line):
     """Return a dictionary (task mapping) from 'line' parsing."""
 
@@ -65,7 +74,7 @@ def parse(line):
 
         matches = eval(attr.upper() + '_REGEXP').findall(line)
         if matches:
-            t[attr] = matches
+            t[pluralize(attr)] = matches
 
     # Parse additional properties
     for attr in ['urgency', 'importance', 'complete']:

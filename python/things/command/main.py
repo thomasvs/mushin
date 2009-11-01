@@ -7,6 +7,24 @@ from things.common import log, logcommand
 
 #from things.command import thing
 
+SYNTAX = """
+When adding or searching for things, the following syntax is used:
+
+ - text         title
+ - p:project    project named 'project'
+ - @context     context named @context
+ - !status      status flags like someday, waitingfor, nextaction
+ - U:x          urgency x
+ - I:x          importance i
+ - C:x          % complete
+ - R:xxx[WDHM]  xxx weeks/days/hours/minutes
+ - T:xxx[WDHM]  xxx weeks/days/hours/minutes
+ - S:YYYY-MM-HH start date
+ - D:YYYY-MM-HH due date
+ - E:YYYY-MM-HH end date
+
+"""
+
 def main(argv):
     c = GTD()
     try:
@@ -28,7 +46,7 @@ def main(argv):
 def display(thing):
     # FIXME: colorize
     blocks = []
-    blocks.append('%s:(%.2f)' % (thing.id[:4], thing.priority()))
+    blocks.append('%s:(%.2f)' % (thing.shortid(), thing.priority()))
     blocks.append(thing.title)
 
     if thing.contexts:
@@ -66,6 +84,36 @@ def display_things(result):
 
     print '%d open things' % count
 
+class Add(logcommand.LogCommand):
+    summary = "Add a thing"
+
+    description = """Adds a thing.\n""" + SYNTAX
+
+    def do(self, args):
+        from things.common import parse
+        new = parse.parse(" ".join(args))
+        print new
+
+        from things.model import couch
+        server = couch.Server()
+
+        thing = couch.thing_from_dict(new)
+        server.save(thing)
+
+        print 'Added thing "%s" (%s)' % (thing.title, thing.id)
+
+class Delete(logcommand.LogCommand):
+    summary = "delete one thing"
+    aliases = ['del', ]
+
+    def do(self, args):
+        from things.model import couch
+        server = couch.Server()
+        thing = lookup(server, args[0])
+
+        if thing:
+            server.delete(thing)
+            print 'Deleted thing "%s" (%s)' % (thing.title, thing.id)
 
 class List(logcommand.LogCommand):
     summary = "list all open things, ordered by priority (?)."
@@ -79,10 +127,8 @@ class List(logcommand.LogCommand):
 
 class Search(logcommand.LogCommand):
     summary = "search for things"
+    description = """Search for things.\n""" + SYNTAX
 
-    description = """
-    p:(project) search for things in the given project
-    """
     def do(self, args):
         from things.common import parse
         filter = parse.parse(" ".join(args))
@@ -112,15 +158,29 @@ class Search(logcommand.LogCommand):
                 result = [t for t in result if str(t[attribute]).find(str(filter[attribute])) > -1]
 
         # separate because filter has singular, Thing has plural
-        for attribute in ['project', 'context']:
+        for attribute in ['projects', 'contexts']:
             if filter.has_key(attribute) and attribute != fattribute:
-                self.debug('filtering on %s' % attribute)
-                # FIXME: pluralize to map to couchdb Thing will not work for
-                # statuses
-                result = [t for t in result if str(t[attribute + 's']).find(str(filter[attribute])) > -1]
+                self.debug('filtering on %s: %s' % (
+                    attribute, filter[attribute]))
+
+                projects = filter[attribute]
+                new = []
+                for t in result:
+                    # multiple values for an attribute should be anded
+                    match = True
+                    for p in projects:
+                        if str(t[attribute]).find(p) == -1:
+                            match = False
+                            break
+                    if match:
+                        new.append(t)
+
+                result = new
+
          
         # now filter on title
         if filter['title']:
+            self.debug('filtering on title %s' % filter['title'])
             result = [t for t in result if t.title.find(filter['title']) > -1]
 
         display_things(result)
@@ -131,14 +191,20 @@ class Show(logcommand.LogCommand):
     def do(self, args):
         from things.model import couch
         server = couch.Server()
+        print lookup(server, args[0])
 
+def lookup(server, shortid):
         # convert argument, which is shortened _id, to start/end range
-        startkey = args[0]
+        startkey = shortid
         endkey = hex(int(startkey, 16) + 1)[2:]
-        self.debug('Looking up from %s to %s' % (startkey, endkey))
+        # leading 0's are now dropped, so readd them
+        endkey = '0' * (len(startkey) - len(endkey)) + endkey
+
+        log.debug('lookup', 'Looking up from %s to %s' % (startkey, endkey))
 
         # FIXME: make the view calculate and sort by priority
-        things = list(server.view('things-by-id', startkey=startkey, endkey=endkey))
+        things = list(server.view('things-by-id',
+            startkey=startkey, endkey=endkey))
         if len(things) == 0:
             print "No thing found."
         elif len(things) > 1:
@@ -146,21 +212,21 @@ class Show(logcommand.LogCommand):
                 print display(t)
             print "%d things found, please be more specific." % len(things)
         else:
-            print display(things[0])
+            return things[0]
 
 
 
 class GTD(logcommand.LogCommand):
     # FIXME: this causes doc.py to list commands as being doc.py
     usage = "%prog %command"
-    usage = "gtd %command"
+    #usage = "gtd %command"
     description = """Get things done.
 
 Things gives you a tree of subcommands to work with.
 You can get help on subcommands by using the -h option to the subcommand.
 """
 
-    subCommandClasses = [List, Search, Show, ]
+    subCommandClasses = [Add, Delete, List, Search, Show, ]
 
     def addOptions(self):
         # FIXME: is this the right place ?
@@ -177,4 +243,7 @@ You can get help on subcommands by using the -h option to the subcommand.
             sys.exit(0)
 
     def do(self, args):
-        print 'start command line interpreter'
+        cmd = logcommand.command.commandToCmd(self)
+        cmd.prompt = 'GTD> '
+        while not cmd.exited:
+            cmd.cmdloop()
