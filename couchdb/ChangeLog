@@ -1,0 +1,75 @@
+2009-10-31  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* views/open-things-by-urgency (added):
+	* views/open-things-by-urgency/map.js (added):
+	* views/things-by-id (added):
+	* views/things-by-id/map.js (added):
+	  Add two more views for command line client.
+
+2009-10-26  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* templates/index/tail.html:
+	  Switch to our prettyDate.
+
+2009-10-26  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* _attachments/jquery.gtd.js:
+	  Also add formatting of dates in the future, otherwise everything
+	  due is 'just now'.
+	* templates/thing.html:
+	  Use our prettyDate.
+
+2009-10-26  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* views/recent-things (added):
+	* views/recent-things/map.js (added):
+	  recent things view.
+
+2009-10-26  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* vendor/mustache (added):
+	* vendor/mustache/mustache.js (added):
+	* lists/index.js (added):
+	* templates/index (added):
+	* templates/index/head.html (added):
+	* templates/index/row.html (added):
+	* templates/index/tail.html (added):
+	  Add mustache for templating so we can have conditional html code
+	  for for example due date.
+	  Add list view on tasks.
+
+2009-10-25  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* views/projects (added):
+	* views/projects/reduce.js (added):
+	* views/projects/map.js (added):
+	* views/things (added):
+	* views/things/reduce.js (added):
+	* views/things/map.js (added):
+	  Add views on projects and things.
+
+2009-10-25  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* _attachments/thing.js:
+	* shows/thing.js (added):
+	* templates/thing.html (added):
+	  Add files to show/edit a thing.
+
+2009-10-24  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* shows/edit.js (added):
+	* _attachments/account.html (added):
+	* _attachments/thing.js (added):
+	* _attachments/textile.js (added):
+	* _attachments/jquery.scrollTo.js (added):
+	* templates (added):
+	* templates/edit.html (added):
+	  Add a bunch of files for a first edit page.
+
+2009-10-24  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* vendor/couchapp/_attachments/jquery.couchapp.js:
+	* vendor/couchapp/path.js:
+
+	  Adapt with newer versions so that sofa-copied code actually works.
+

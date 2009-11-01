@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>GTD</title>
+    <link rel="stylesheet" href="../../screen.css" type="text/css">
+  </head>
+  <body>
+    <div id="header">
+      <a id="edit" href="<%= editThingPath %>">Edit this thing</a>
+      <h2><a href="<%= index %>">GTD</a></h2>
+    </div>
+    <div id="content">
+      <h1>GTD</h1>
+      <div id="thing">
+        <div class="body"><%= thing.description %></div>
+        <div class="start">
+          started <span class="date"><%= thing.start %></span>
+        </div>
+        <div class="due">
+          due <span class="date"><%= thing.due %></span>
+        </div>
+      </div>
+      <div id="projects">projects: <%= thing.projects %></div>
+      <div id="contexts">contexts: <%= thing.contexts %></div>
+    </div>    
+  </body>
+  <script src="/_utils/script/json2.js"></script>
+  <script src="/_utils/script/jquery.js?1.2.6"></script>
+  <script src="/_utils/script/jquery.couch.js?0.8.0"></script>
+  <script src="<%= assets %>/jquery.gtd.js"></script>
+  <script src="<%= assets %>/thing.js"></script>
+  <script type="text/javascript" charset="utf-8">
+  $.GTDApp(function(app) {
+      var docid = document.location.pathname.split('/').pop();
+      var B = new Thing(app);
+      
+      // format date nicely
+      $('.date').each(function() {
+        $(this).text(app.prettyDate(this.innerHTML));
+      });
+      
+    });
+  </script>
+</html>
