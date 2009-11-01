@@ -30,6 +30,14 @@
 	* python/things/model/couch.py:
 	  Add kwargs to view.
 
+2009-10-31  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* couchdb/views/open-things-by-urgency (added):
+	* couchdb/views/open-things-by-urgency/map.js (added):
+	* couchdb/views/things-by-id (added):
+	* couchdb/views/things-by-id/map.js (added):
+	  Add two more views for command line client.
+
 2009-10-30  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/things/command/main.py:
@@ -46,4 +54,76 @@
 	* python/things/command (added):
 	* couchdb (added):
 	  Initial creation
+
+2009-10-26  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* couchdb/templates/index/tail.html:
+	  Switch to our prettyDate.
+
+2009-10-26  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* couchdb/_attachments/jquery.gtd.js:
+	  Also add formatting of dates in the future, otherwise everything
+	  due is 'just now'.
+	* couchdb/templates/thing.html:
+	  Use our prettyDate.
+
+2009-10-26  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* couchdb/views/recent-things (added):
+	* couchdb/views/recent-things/map.js (added):
+	  recent things view.
+
+2009-10-26  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* couchdb/vendor/mustache (added):
+	* couchdb/vendor/mustache/mustache.js (added):
+	* couchdb/lists/index.js (added):
+	* couchdb/templates/index (added):
+	* couchdb/templates/index/head.html (added):
+	* couchdb/templates/index/row.html (added):
+	* couchdb/templates/index/tail.html (added):
+	  Add mustache for templating so we can have conditional html code
+	  for for example due date.
+	  Add list view on tasks.
+
+2009-10-25  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* couchdb/views/projects (added):
+	* couchdb/views/projects/reduce.js (added):
+	* couchdb/views/projects/map.js (added):
+	* couchdb/views/things (added):
+	* couchdb/views/things/reduce.js (added):
+	* couchdb/views/things/map.js (added):
+	  Add views on projects and things.
+
+2009-10-25  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* couchdb/_attachments/thing.js:
+	* couchdb/shows/thing.js (added):
+	* couchdb/templates/thing.html (added):
+	  Add files to show/edit a thing.
+
+2009-10-24  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* couchdb/shows/edit.js (added):
+	* couchdb/_attachments/account.html (added):
+	* couchdb/_attachments/thing.js (added):
+	* couchdb/_attachments/textile.js (added):
+	* couchdb/_attachments/jquery.scrollTo.js (added):
+	* couchdb/templates (added):
+	* couchdb/templates/edit.html (added):
+	  Add a bunch of files for a first edit page.
+
+2009-10-24  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* couchdb/vendor/couchapp/_attachments/jquery.couchapp.js:
+	* couchdb/vendor/couchapp/path.js:
+
+	  Adapt with newer versions so that sofa-copied code actually works.
+
+
+
+
+
 
