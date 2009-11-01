@@ -5,3 +5,52 @@ mizu
 mind like water
 miliwa
 mlw
+
+COMMANDS
+
+from yagtd:
+ - general
+   - lists
+     - contexts
+     - deadlines
+     - la/listall
+     - list/ls
+     - listpri/sort
+     - listref/lr
+     - order
+     - overdue
+     - search
+     - searchall
+     - status/summary
+   - manipulate
+     - add
+     - archive (archives completed tasks)
+     - load
+     - print (outputs .rst file)
+     - save
+
+ - on a task (id as first arg)
+   - flags
+     - waitingfor
+     - maybe/someday
+   - set properties
+     - complete
+     - due # date (wrong in yagtd help, # is missing)
+     - end # date (same bug)
+     - importance
+     - recurrence
+     - start (same bug) 
+     - time
+     - urgency
+   - manipulate
+     - append
+     - modify (diff with append not clear)
+     - close/done
+     - del/rm
+     - edit
+     - extend/notes (adds to title, not description)
+     - ref
+   - replace/sub
+   - show
+
+ 
