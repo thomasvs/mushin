@@ -1,6 +1,12 @@
 2009-11-01  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/things/command/main.py:
+	  Colorize output like yagtd, except we use prioritized color
+	  according to the priority.
+
+2009-11-01  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/things/command/main.py:
 	* python/things/common/parse.py:
 	* python/things/model/couch.py:
 	  Add add and delete commands.
