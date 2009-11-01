@@ -1,6 +1,12 @@
 2009-11-01  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/things/command/main.py:
+	* python/things/command/replicate.py (added):
+	  Add a command to set up two way replication.
+
+2009-11-01  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/things/command/main.py:
 	* python/things/model/couch.py:
 	  Implemented done and edit.
 

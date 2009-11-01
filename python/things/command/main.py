@@ -5,6 +5,7 @@ import sys
 
 from things.common import log, logcommand, parse
 from things.model import couch
+from things.command import replicate
 
 #from things.command import thing
 
@@ -401,7 +402,8 @@ Things gives you a tree of subcommands to work with.
 You can get help on subcommands by using the -h option to the subcommand.
 """
 
-    subCommandClasses = [Add, Delete, Done, Edit, List, Search, Show, ]
+    subCommandClasses = [Add, Delete, Done, Edit, List,
+        replicate.Replicate, Search, Show, ]
 
     def addOptions(self):
         # FIXME: is this the right place ?
