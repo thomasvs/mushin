@@ -134,9 +134,41 @@ def display(thing, colored=True):
         blocks.append(color('I:%d', IMPORTANCE_COLOR) % thing.importance)
 
     # FIXME: format with H/M/S/...
+    def _format_time(seconds):
+        week = 60 * 60 * 24 * 7
+        weeks = seconds / week
+        seconds %= week
+
+        day = 60 * 60 * 24
+        days = seconds / day
+        seconds %= day
+
+        hour = 60 * 60
+        hours = seconds / hour
+        seconds %= hour
+
+        minute = 60
+        minutes = seconds / minute
+        seconds %= minute
+
+        blocks = []
+        if weeks:
+            blocks.append('%dW' % weeks)
+        if days:
+            blocks.append('%dD' % days)
+        if hours:
+            blocks.append('%dH' % hours)
+        if minutes:
+            blocks.append('%dM' % minutes)
+
+        return "".join(blocks)
+
     if thing.time is not None:
         blocks.append(color(
-            'T:%d' % thing.time, TIME_COLOR))
+            'T:%s' % _format_time(thing.time), TIME_COLOR))
+    if thing.recurrence is not None:
+        blocks.append(color(
+            'R:%s' % _format_time(thing.recurrence), RECURRENCE_COLOR))
 
     if thing.start is not None:
         blocks.append(color(
@@ -210,6 +242,7 @@ class Search(logcommand.LogCommand):
     def do(self, args):
         from things.common import parse
         filter = parse.parse(" ".join(args))
+        self.debug('parsed filter: %r' % filter)
 
         from things.model import couch
         server = couch.Server()

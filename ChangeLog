@@ -1,6 +1,12 @@
 2009-11-01  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/things/command/main.py:
+	* python/things/common/parse.py:
+	  Do proper time/recurrence parsing and formatting.
+
+2009-11-01  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/things/command/main.py:
 	  Colorize output like yagtd, except we use prioritized color
 	  according to the priority.
 

@@ -117,7 +117,8 @@ def parse(line):
                 else:
                     pass  # invalid time range indicator
 
-            t[attr] = datetime.timedelta(hours=hours, minutes=minutes)
+            t[attr] = hours * 60 * 60 + minutes * 60
+            # before: datetime.timedelta(hours=hours, minutes=minutes)
     
     # Parse dates
     for attr in ['start', 'due', 'end']:
