@@ -5,9 +5,7 @@ import sys
 
 from things.common import log, logcommand, parse
 from things.model import couch
-from things.command import replicate
-
-#from things.command import thing
+from things.command import display, list as llist, replicate, thing
 
 SYNTAX = """
 When adding or searching for things, the following syntax is used:
@@ -26,62 +24,6 @@ When adding or searching for things, the following syntax is used:
  - E:YYYY-MM-HH end date
 
 """
-# Colorization
-COLOR_CODES = ( { 'none': "",
-                  'default': "\033[0m",
-                  # primary colors
-                  'black': "\033[0;30m",
-                  'grey': "\033[0;37m",
-                  'red': "\033[0;31m",
-                  'green': "\033[0;32m",
-                  'blue': "\033[0;34m",
-                  'purple': "\033[0;35m",
-                  'cyan': "\033[0;36m",
-                  'yellow': "\033[0;33m",
-                  # bold colors
-                  'white': "\033[1;37m",
-                  'dark_grey': "\033[1;30m",
-                  'dark_red': "\033[1;31m",
-                  'dark_green': "\033[1;32m",
-                  'dark_blue': "\033[1;34m",
-                  'dark_purple': "\033[1;35m",
-                  'dark_cyan': "\033[1;36m",
-                  'dark_yellow': "\033[1;33m",
-                  # other colors                  
-                  'normal': "\x1b[0;37;40m",
-                  'title': "\x1b[1;32;40m",
-                  'heading': "\x1b[1;35;40m",
-                  'bold': "\x1b[1;35;40m",
-                  'important': "\x1b[1;31;40m",
-                  'error': "\x1b[1;31;40m",
-                  'reverse': "\x1b[0;7m",
-                  'row0': "\x1b[0;35;40m",
-                  'row1': "\x1b[0;36;40m" } )
-
-# Default colors
-DEFAULT_COLOR    = COLOR_CODES['default']
-CONTEXT_COLOR    = COLOR_CODES['dark_yellow']
-PROJECT_COLOR    = COLOR_CODES['dark_purple']
-STATUS_COLOR     = COLOR_CODES['dark_green']
-REFERENCE_COLOR  = COLOR_CODES['dark_blue']
-URGENCY_COLOR    = COLOR_CODES['red']
-IMPORTANCE_COLOR = COLOR_CODES['red']
-COMPLETE_COLOR   = COLOR_CODES['white']
-TIME_COLOR       = COLOR_CODES['cyan']
-RECURRENCE_COLOR = COLOR_CODES['cyan']
-START_COLOR      = COLOR_CODES['red']
-DUE_COLOR        = COLOR_CODES['red']
-END_COLOR        = COLOR_CODES['green']
-
-# priority colors; from 0 to 5
-P_COLORS = [
-  COLOR_CODES['dark_green'],
-  COLOR_CODES['yellow'],
-  COLOR_CODES['dark_yellow'],
-  COLOR_CODES['red'],
-  COLOR_CODES['dark_red'],
-  COLOR_CODES['dark_purple'],
-]
 
 def main(argv):
     c = GTD()
@@ -100,111 +42,6 @@ def main(argv):
         return 0
 
     return ret
-
-def display(thing, shortid=True, colored=True):
-    """
-    Return a string for the given thing.
-
-    @param shortid: if True, also show shortid and priority.
-    @param colored: if True, color the return value for output.
-    """
-
-    def color(text, code):
-        if not colored:
-            return text
-
-        return code + text + DEFAULT_COLOR
-
-    def pcolor(text, priority):
-        # color according to priority
-        if not colored:
-            return text
-
-        return P_COLORS[int(priority)] + text + DEFAULT_COLOR
-
-    blocks = []
-
-    if shortid:
-        blocks.append(color('%s' % thing.shortid(), TIME_COLOR))
-        blocks.append(pcolor('(%.2f)' % thing.priority(), thing.priority()))
-
-    blocks.append(thing.title)
-
-    if thing.contexts:
-        blocks.extend([color('@%s' % c, CONTEXT_COLOR)
-            for c in thing.contexts]) 
-    if thing.projects:
-        blocks.extend([color('p:%s' % p, PROJECT_COLOR)
-            for p in thing.projects]) 
-    if thing.statuses:
-        blocks.extend([color('!%s' % s, STATUS_COLOR)
-             for s in thing.statuses]) 
-
-    if thing.urgency is not None:
-        blocks.append(color('U:%d', URGENCY_COLOR) % thing.urgency)
-    if thing.importance is not None:
-        blocks.append(color('I:%d', IMPORTANCE_COLOR) % thing.importance)
-
-    # FIXME: format with H/M/S/...
-    def _format_time(seconds):
-        week = 60 * 60 * 24 * 7
-        weeks = seconds / week
-        seconds %= week
-
-        day = 60 * 60 * 24
-        days = seconds / day
-        seconds %= day
-
-        hour = 60 * 60
-        hours = seconds / hour
-        seconds %= hour
-
-        minute = 60
-        minutes = seconds / minute
-        seconds %= minute
-
-        blocks = []
-        if weeks:
-            blocks.append('%dW' % weeks)
-        if days:
-            blocks.append('%dD' % days)
-        if hours:
-            blocks.append('%dH' % hours)
-        if minutes:
-            blocks.append('%dM' % minutes)
-
-        return "".join(blocks)
-
-    if thing.time is not None:
-        blocks.append(color(
-            'T:%s' % _format_time(thing.time), TIME_COLOR))
-    if thing.recurrence is not None:
-        blocks.append(color(
-            'R:%s' % _format_time(thing.recurrence), RECURRENCE_COLOR))
-
-    if thing.start is not None:
-        blocks.append(color(
-            'S:%s' % thing.start.strftime('%Y-%m-%d'), START_COLOR))
-    if thing.due is not None:
-        blocks.append(color(
-            'D:%s' % thing.due.strftime('%Y-%m-%d'), DUE_COLOR))
-    if thing.end is not None:
-        blocks.append(color(
-            'E:%s' % thing.due.strftime('%Y-%m-%d'), END_COLOR))
-
-    if thing.complete:
-        blocks.append(color('C:%s' % thing.complete, COMPLETE_COLOR))
-
-    return " ".join(blocks)
-
-def display_things(result):
-    count = 0
-
-    for thing in result:
-        print display(thing)
-        count += 1
-
-    print '%d open things' % count
 
 class Add(logcommand.LogCommand):
     summary = "Add a thing"
@@ -272,7 +109,8 @@ class Edit(logcommand.LogCommand):
             return
 
         def pre_input_hook():
-            readline.insert_text(display(thing, shortid=False, colored=False))
+            readline.insert_text(display.display(
+                thing, shortid=False, colored=False))
             readline.redisplay()
 
             # Unset the hook again 
@@ -290,15 +128,6 @@ class Edit(logcommand.LogCommand):
 
         server.save(thing)
         print 'Edited thing "%s" (%s)' % (thing.title, thing.id)
-
-class List(logcommand.LogCommand):
-    summary = "list all open things, ordered by priority (?)."
-
-    def do(self, args):
-        server = couch.Server()
-
-        # FIXME: make the view calculate and sort by priority
-        display_things(server.view('open-things'))
 
 class Search(logcommand.LogCommand):
     summary = "search for things"
@@ -360,7 +189,7 @@ class Search(logcommand.LogCommand):
             self.debug('filtering on title %s' % filter['title'])
             result = [t for t in result if t.title.find(filter['title']) > -1]
 
-        display_things(result)
+        display.display_things(result)
 
 class Show(logcommand.LogCommand):
     summary = "show one thing"
@@ -385,7 +214,7 @@ def lookup(server, shortid):
             print "No thing found."
         elif len(things) > 1:
             for t in things:
-                print display(t)
+                print display.display(t)
             print "%d things found, please be more specific." % len(things)
         else:
             return things[0]
@@ -402,8 +231,9 @@ Things gives you a tree of subcommands to work with.
 You can get help on subcommands by using the -h option to the subcommand.
 """
 
-    subCommandClasses = [Add, Delete, Done, Edit, List,
-        replicate.Replicate, Search, Show, ]
+    subCommandClasses = [Add, Delete, Done, Edit, llist.List,
+        replicate.Replicate, Search, Show, 
+        thing.Thing]
 
     def addOptions(self):
         # FIXME: is this the right place ?

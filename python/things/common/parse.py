@@ -126,8 +126,7 @@ def parse(line):
 
         matches = eval(attr.upper() + '_REGEXP').findall(line)
         if matches:
-            year, month, day = matches[-1].split('-')  # keep only last!
-            t[attr] = datetime.datetime(int(year), int(month), int(day))
+            t[attr] = parse_date(matches[-1])
 
     # Post-processing
     if t.has_key('end') or t.has_key('reference'):  # ignore completed and archived tasks
@@ -137,3 +136,9 @@ def parse(line):
     t['title'] = " ".join(title.split())  # remove useless blank chars too
     
     return t
+
+def parse_date(text):
+    year, month, day = text.split('-')  # keep only last!
+    return datetime.datetime(int(year), int(month), int(day))
+
+

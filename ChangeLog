@@ -1,5 +1,21 @@
 2009-11-02  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/things/common/parse.py:
+	  extract a parse_date so we can use it in two places.
+	* couchdb/views/open-things-due (added):
+	* couchdb/views/open-things-due/map.js (added):
+	  Add a view to support list due/overdue/today
+	* python/things/command/thing.py (added):
+	  Add a thing subcommand, and thing due to change the due date.
+	* python/things/command/list.py (added):
+	  Add a list subcommand, and due/overdue/today
+	* python/things/command/display.py (added):
+	  Extract display code to a separate module.
+	* python/things/command/main.py:
+	  Add the commands with subcommands.
+
+2009-11-02  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/things/model/couch.py:
 	  Work with things without time.
 
