@@ -63,7 +63,7 @@ class Thing(schema.Document):
 
         if self.due:
             # Compute delta from now and target date (- needed time)
-            delta = (self.due - now) - datetime.timedelta(self.time)
+            delta = (self.due - now) - datetime.timedelta(self.time or 0)
             #print "delta=", delta
 
             if delta < datetime.timedelta(0):  # overdue

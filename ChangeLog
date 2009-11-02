@@ -1,3 +1,8 @@
+2009-11-02  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/things/model/couch.py:
+	  Work with things without time.
+
 2009-11-01  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/things/command/main.py:
