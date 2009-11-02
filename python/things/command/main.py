@@ -1,6 +1,7 @@
 # -*- Mode: Python -*-
 # vi:si:et:sw=4:sts=4:ts=4
 
+import datetime
 import sys
 
 from things.common import log, logcommand, parse
@@ -50,14 +51,13 @@ class Add(logcommand.LogCommand):
 
     def do(self, args):
         new = parse.parse(" ".join(args))
-        print new
 
         server = couch.Server()
 
         thing = couch.thing_from_dict(new)
         server.save(thing)
 
-        print 'Added thing "%s" (%s)' % (thing.title, thing.id)
+        self.stdout.write('Added thing "%s" (%s)\n' % (thing.title, thing.id))
 
 class Delete(logcommand.LogCommand):
     summary = "delete one thing"
@@ -69,7 +69,8 @@ class Delete(logcommand.LogCommand):
 
         if thing:
             server.delete(thing)
-            print 'Deleted thing "%s" (%s)' % (thing.title, thing.id)
+            self.stdout.write('Deleted thing "%s" (%s)\n' % (
+                thing.title, thing.id))
 
 class Done(logcommand.LogCommand):
     summary = "mark a thing as done"
@@ -80,11 +81,26 @@ class Done(logcommand.LogCommand):
 
         if thing:
             if thing.complete == 100:
-                print 'Already done "%s" (%s)' % (thing.title, thing.id)
+                self.stdout.write('Already done "%s" (%s)\n' % (
+                    thing.title, thing.id))
             else:
-                thing.complete = 100
-                server.save(thing)
-                print 'Marked "%s" (%s) as done' % (thing.title, thing.id)
+                if thing.recurrence:
+                    self.debug('done recurring thing, rescheduling')
+                    if not thing.due:
+                        thing.due = datetime.datetime.now()
+
+                    thing.start = thing.due
+                    thing.due = thing.start + \
+                        datetime.timedelta(seconds=thing.recurrence)
+                    server.save(thing)
+                    self.stdout.write('Rescheduling for %s "%s" (%s)\n' % (
+                        thing.due, thing.title, thing.id))
+                else:
+                    thing.complete = 100
+                    thing.end = datetime.datetime.now()
+                    server.save(thing)
+                    self.stdout.write('Marked "%s" (%s) as done\n' % (
+                        thing.title, thing.id))
 
 class Edit(logcommand.LogCommand):
     summary = "edit a thing"
@@ -94,7 +110,7 @@ class Edit(logcommand.LogCommand):
         try:
             import readline
         except ImportError:
-            print "Cannot edit without the 'readline' module!"
+            self.stdout.write("Cannot edit without the 'readline' module!\n")
             return
 
         # Parse command line 
@@ -127,7 +143,7 @@ class Edit(logcommand.LogCommand):
         thing.set_from_dict(d)
 
         server.save(thing)
-        print 'Edited thing "%s" (%s)' % (thing.title, thing.id)
+        self.stdout.write('Edited thing "%s" (%s)\n' % (thing.title, thing.id))
 
 class Search(logcommand.LogCommand):
     summary = "search for things"
@@ -196,7 +212,8 @@ class Show(logcommand.LogCommand):
 
     def do(self, args):
         server = couch.Server()
-        print lookup(server, args[0])
+        # FIXME: format nicer
+        self.stdout.write("%s\n" % lookup(server, args[0]))
 
 def lookup(server, shortid):
         # convert argument, which is shortened _id, to start/end range
@@ -211,11 +228,12 @@ def lookup(server, shortid):
         things = list(server.view('things-by-id',
             startkey=startkey, endkey=endkey))
         if len(things) == 0:
-            print "No thing found."
+            self.stdout.write("No thing found.\n")
         elif len(things) > 1:
             for t in things:
-                print display.display(t)
-            print "%d things found, please be more specific." % len(things)
+                self.stdout.write("%s\n" % display.display(t))
+            self.stdout.write("%d things found, please be more specific.\n" % 
+                len(things))
         else:
             return things[0]
 

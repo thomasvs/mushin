@@ -81,5 +81,6 @@ class List(logcommand.LogCommand):
     #usage = "gtd %command"
     description = """List things.
 """
+    aliases = ['l', ]
 
     subCommandClasses = [Due, Open, Overdue, Today, ]

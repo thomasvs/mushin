@@ -13,15 +13,18 @@ class Due(logcommand.LogCommand):
 
     def do(self, args):
         shortid = args[0]
+        # I often type it as D:YYYY-MM-DD ...
+        if args[1].startswith('D:'):
+            args[1] = args[1][2:]
         date = parse.parse_date(args[1])
         server = couch.Server()
 
-        print 'Change due date to', date
         thing = display.lookup(server, args[0])
         if thing:
             thing.due = date
             server.save(thing)
-            print 'Changed thing "%s" (%s)' % (thing.title, thing.id)
+            print 'Changed due date to %s on "%s" (%s)' % (
+                thing.due, thing.title, thing.id)
 
 
 
