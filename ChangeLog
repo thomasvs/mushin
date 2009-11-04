@@ -1,3 +1,9 @@
+2009-11-04  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/things/command/display.py:
+	  Since we can't parse times like 4W2D correctly, only print times
+	  in one unit, picking the biggest one that doesn't give a remainder.
+
 2009-11-03  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/things/command/list.py:

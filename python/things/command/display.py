@@ -136,33 +136,19 @@ def display(thing, shortid=True, colored=True, due=False):
 
     # FIXME: format with H/M/S/...
     def _format_time(seconds):
-        week = 60 * 60 * 24 * 7
-        weeks = seconds / week
-        seconds %= week
-
-        day = 60 * 60 * 24
-        days = seconds / day
-        seconds %= day
-
-        hour = 60 * 60
-        hours = seconds / hour
-        seconds %= hour
-
         minute = 60
-        minutes = seconds / minute
-        seconds %= minute
+        hour = minute * 60
+        day = hour * 24
+        week = day * 7
 
-        blocks = []
-        if weeks:
-            blocks.append('%dW' % weeks)
-        if days:
-            blocks.append('%dD' % days)
-        if hours:
-            blocks.append('%dH' % hours)
-        if minutes:
-            blocks.append('%dM' % minutes)
-
-        return "".join(blocks)
+        if seconds % week == 0:
+            return '%dW' % (seconds / week)
+        elif seconds % day == 0:
+            return '%dD' % (seconds / day)
+        elif seconds % hour == 0:
+            return '%dH' % (seconds / hour)
+        else:
+            return '%dM' % (seconds / minute)
 
     if thing.time is not None:
         blocks.append(color(
