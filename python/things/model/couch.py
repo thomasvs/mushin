@@ -91,7 +91,7 @@ class Thing(schema.Document):
         I = self.importance or 0
 
         P = min((self.urgency or 0) + 2, self._schedule_pressure())
-        U = max(self.urgency, P)
+        U = max(self.urgency or 0, P)
 
         E = self._effort()
 

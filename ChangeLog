@@ -1,3 +1,14 @@
+2009-11-05  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/things/model/couch.py:
+	  Also handle self.urgency not being set.
+	* python/things/command/list.py:
+	  Add list priority/pri to list open things by priority.
+	* couchdb/views/open-things-by-priority (added):
+	* couchdb/views/open-things-by-priority/map.js (added):
+	  Add a view for priority, reimplementing yagtd's priority estimation
+	  algorithm in Javascript.
+
 2009-11-04  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/things/command/display.py:

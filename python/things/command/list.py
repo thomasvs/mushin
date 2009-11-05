@@ -58,6 +58,24 @@ bottom.
         things = [t for t in things if t.due < dayend]
         display.display_things(things, due=True)
 
+class Priority(logcommand.LogCommand):
+    summary = "list all open things, ordered by priority."
+    aliases = ['pri', ]
+
+    def do(self, args):
+        server = couch.Server()
+
+        view = 'open-things-by-priority'
+        kwargs = {'descending': 'true'}
+        if args:
+            count = int(args[0])
+            self.debug('limiting result to %d things' % count)
+            kwargs['limit'] = count
+        result = server.view(view, **kwargs)
+
+        display.display_things(result)
+
+
 class Today(logcommand.LogCommand):
     summary = "list all open things due today"
 
@@ -83,4 +101,4 @@ class List(logcommand.LogCommand):
 """
     aliases = ['l', ]
 
-    subCommandClasses = [Due, Open, Overdue, Today, ]
+    subCommandClasses = [Due, Open, Overdue, Priority, Today, ]
