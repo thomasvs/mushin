@@ -65,7 +65,7 @@ class Delete(logcommand.LogCommand):
 
     def do(self, args):
         server = couch.Server()
-        thing = lookup(server, args[0])
+        thing = lookup(self, server, args[0])
 
         if thing:
             server.delete(thing)
@@ -77,7 +77,7 @@ class Done(logcommand.LogCommand):
 
     def do(self, args):
         server = couch.Server()
-        thing = lookup(server, args[0])
+        thing = lookup(self, server, args[0])
 
         if thing:
             if thing.complete == 100:
@@ -120,7 +120,7 @@ class Edit(logcommand.LogCommand):
             return
 
         server = couch.Server()
-        thing = lookup(server, shortid)
+        thing = lookup(self, server, shortid)
         if not thing:
             return
 
@@ -213,9 +213,9 @@ class Show(logcommand.LogCommand):
     def do(self, args):
         server = couch.Server()
         # FIXME: format nicer
-        self.stdout.write("%s\n" % lookup(server, args[0]))
+        self.stdout.write("%s\n" % lookup(self, server, args[0]))
 
-def lookup(server, shortid):
+def lookup(command, server, shortid):
         # convert argument, which is shortened _id, to start/end range
         startkey = shortid
         endkey = hex(int(startkey, 16) + 1)[2:]
@@ -228,11 +228,11 @@ def lookup(server, shortid):
         things = list(server.view('things-by-id',
             startkey=startkey, endkey=endkey))
         if len(things) == 0:
-            self.stdout.write("No thing found.\n")
+            command.stdout.write("No thing found.\n")
         elif len(things) > 1:
             for t in things:
-                self.stdout.write("%s\n" % display.display(t))
-            self.stdout.write("%d things found, please be more specific.\n" % 
+                command.stdout.write("%s\n" % display.display(t))
+            command.stdout.write("%d things found, please be more specific.\n" % 
                 len(things))
         else:
             return things[0]

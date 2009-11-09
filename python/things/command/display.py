@@ -165,7 +165,7 @@ def display(thing, shortid=True, colored=True, due=False):
             'D:%s' % thing.due.strftime('%Y-%m-%d'), DUE_COLOR))
     if thing.end is not None:
         blocks.append(color(
-            'E:%s' % thing.due.strftime('%Y-%m-%d'), END_COLOR))
+            'E:%s' % thing.end.strftime('%Y-%m-%d'), END_COLOR))
 
     if thing.complete:
         blocks.append(color('C:%s' % thing.complete, COMPLETE_COLOR))

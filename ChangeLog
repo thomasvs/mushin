@@ -1,3 +1,10 @@
+2009-11-09  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/things/command/display.py:
+	  Fix display of end of thing, was showing due before.
+	* python/things/command/main.py:
+	  Pass command to lookup so it can write to stdout/stderr.
+
 2009-11-05  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/things/model/couch.py:
