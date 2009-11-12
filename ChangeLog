@@ -1,3 +1,8 @@
+2009-11-12  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/things/model/couch.py:
+	  Set always, even if a field is not present, so edit can clear them.
+
 2009-11-09  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/things/command/display.py:

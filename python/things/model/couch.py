@@ -112,8 +112,7 @@ class Thing(schema.Document):
             'time', 'recurrence',
             'start', 'due', 'end'
         ]:
-            if d.has_key(attr):
-                setattr(self, attr, d[attr])
+            setattr(self, attr, d.get(attr, None))
 
 class Server:
     def __init__(self, uri='http://localhost:5984'):
