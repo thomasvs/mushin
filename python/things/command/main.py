@@ -6,7 +6,7 @@ import sys
 
 from things.common import log, logcommand, parse
 from things.model import couch
-from things.command import display, list as llist, replicate, thing
+from things.command import project, display, list as llist, replicate, thing
 
 SYNTAX = """
 When adding or searching for things, the following syntax is used:
@@ -163,13 +163,14 @@ class Search(logcommand.LogCommand):
             if filter.has_key(fattribute):
                 self.debug('viewing on %s' % fattribute)
                 result = server.view('open-things-by-%s' % fattribute,
+                    include_docs=True,
                     key=filter[fattribute])
                 break
 
         # fall back to getting all
         if not result:
             self.debug('getting all open things')
-            result = server.view('open-things')
+            result = server.view('open-things', include_docs=True)
 
         # now apply all filters in a row
         for attribute in ['urgency', 'importance', 'time']:
@@ -225,7 +226,7 @@ def lookup(command, server, shortid):
         log.debug('lookup', 'Looking up from %s to %s' % (startkey, endkey))
 
         # FIXME: make the view calculate and sort by priority
-        things = list(server.view('things-by-id',
+        things = list(server.view('things-by-id', include_docs=True,
             startkey=startkey, endkey=endkey))
         if len(things) == 0:
             command.stdout.write("No thing found.\n")
@@ -250,7 +251,7 @@ You can get help on subcommands by using the -h option to the subcommand.
 """
 
     subCommandClasses = [Add, Delete, Done, Edit, llist.List,
-        replicate.Replicate, Search, Show, 
+        project.Project, replicate.Replicate, Search, Show, 
         thing.Thing]
 
     def addOptions(self):

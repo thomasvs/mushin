@@ -1,5 +1,21 @@
 2009-11-16  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* couchdb/views/open-projects-by-priority (added):
+	* couchdb/views/open-projects-by-priority/reduce.js (added):
+	* couchdb/views/open-projects-by-priority/map.js (added):
+	  Add a new view to show open projects by priority, completion status,
+	  and the thing id giving it the priority.
+	* python/things/model/couch.py:
+	  Don't default to include_docs=True
+	  Add a load to load things by id.
+	* python/things/command/list.py:
+	  Add include_docs=True where needed.
+	* python/things/command/main.py:
+	* python/things/command/project.py (added):
+	  Add project subcommand.
+
+2009-11-16  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* couchdb/vendor/couchapp/priority.js (added):
 	  Factor out a priority function.
 	* couchdb/views/open-things-by-priority/map.js:

@@ -24,7 +24,8 @@ bottom.
         now = datetime.datetime.now()
         daystart = datetime.datetime(year=now.year, month=now.month,
             day=now.day)
-        things = server.view('open-things-due', descending=True)
+        things = server.view('open-things-due', include_docs=True,
+            descending=True)
         things = [t for t in things if t.due >= daystart]
         display.display_things(things, due=True)
 
@@ -35,7 +36,7 @@ class Open(logcommand.LogCommand):
         server = couch.Server()
 
         # FIXME: make the view calculate and sort by priority
-        display.display_things(server.view('open-things'))
+        display.display_things(server.view('open-things', include_docs=True))
 
 class Overdue(logcommand.LogCommand):
     summary = "list all overdue open things, reverse-ordered by due date."
@@ -54,7 +55,7 @@ bottom.
         daystart = datetime.datetime(year=now.year, month=now.month,
             day=now.day)
         dayend = daystart + datetime.timedelta(days=1)
-        things = server.view('open-things-due')
+        things = server.view('open-things-due', include_docs=True)
         things = [t for t in things if t.due < dayend]
         display.display_things(things, due=True)
 
@@ -71,7 +72,7 @@ class Priority(logcommand.LogCommand):
             count = int(args[0])
             self.debug('limiting result to %d things' % count)
             kwargs['limit'] = count
-        result = server.view(view, **kwargs)
+        result = server.view(view, include_docs=True, **kwargs)
 
         display.display_things(result)
 
@@ -87,7 +88,7 @@ class Today(logcommand.LogCommand):
         daystart = datetime.datetime(year=now.year, month=now.month,
             day=now.day)
         dayend = daystart + datetime.timedelta(days=1)
-        things = server.view('open-things-due')
+        things = server.view('open-things-due', include_docs=True)
         things = [t for t in things if daystart <= t.due < dayend]
         display.display_things(things, due=True)
 

@@ -122,7 +122,10 @@ class Server:
     def view(self, name, **kwargs):
         # example: open-things
         # include_docs gives us the full docs, so we can recreate Things
-        return Thing.view(self.db, 'gtd/%s' % name, include_docs=True, **kwargs)
+        return Thing.view(self.db, 'gtd/%s' % name, **kwargs)
+
+    def load(self, thingid):
+        return Thing.load(self.db, thingid)
 
     def save(self, thing):
         return thing.store(self.db)    
