@@ -109,6 +109,8 @@ class Displayer(object):
 
         return P_COLORS[int(priority)] + text + DEFAULT_COLOR
 
+    def shortid(self, s):
+        return self._color('%s' % s, TIME_COLOR)
 
     def display(self, thing, shortid=True, due=False):
         """
@@ -121,7 +123,7 @@ class Displayer(object):
         blocks = []
 
         if shortid:
-            blocks.append(self._color('%s' % thing.shortid(), TIME_COLOR))
+            blocks.append(self.shortid(thing.shortid()))
             blocks.append(self.priority(
                 '(%.2f)' % thing.priority(), thing.priority()))
 

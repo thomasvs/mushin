@@ -1,6 +1,12 @@
 2009-11-16  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/things/command/display.py:
+	* python/things/command/project.py:
+	  Colorize short id display too.
+
+2009-11-16  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/things/command/display.py:
 	  Extract Displayer._color()
 	  Add Displayer.project()
 	* python/things/command/project.py:

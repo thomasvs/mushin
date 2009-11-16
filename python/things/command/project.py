@@ -23,7 +23,9 @@ class List(logcommand.LogCommand):
                 doc = server.load(docid)
                 orderable.append((priority, (float(completed) / total), 
                     # FIXME: the %-30s includes the ansi codes
-                    "%s (%2d %%) %s %s\n" % (
+                    "%s %s (%2d %%) %s %s\n" % (
+                    # FIXME: hardcode cut off point
+                    displayer.shortid(docid[:6]),
                     displayer.priority("(%.2f)" % priority, priority),
                     int(completed * 100.0 / total),
                     displayer.project(project.key),
