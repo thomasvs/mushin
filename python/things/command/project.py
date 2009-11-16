@@ -13,6 +13,7 @@ class List(logcommand.LogCommand):
 
     def do(self, args):
         server = couch.Server()
+        displayer = display.Displayer()
 
         projects = server.db.view('gtd/open-projects-by-priority', group=True)
         orderable = []
@@ -21,8 +22,8 @@ class List(logcommand.LogCommand):
             if completed != total:
                 doc = server.load(docid)
                 orderable.append((priority, (float(completed) / total), 
-                    "%s %d %% done - p:%s %s\n" % (
-                    display.display_priority("(%.2f)" % priority, priority),
+                    "%s %2d %% done - p:%s %s\n" % (
+                    displayer.priority("(%.2f)" % priority, priority),
                     int(completed * 100.0 / total),
                     project.key,
                     doc.title,

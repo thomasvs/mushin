@@ -206,7 +206,7 @@ class Search(logcommand.LogCommand):
             self.debug('filtering on title %s' % filter['title'])
             result = [t for t in result if t.title.find(filter['title']) > -1]
 
-        display.display_things(result)
+        display.Displayer().display_things(result)
 
 class Show(logcommand.LogCommand):
     summary = "show one thing"

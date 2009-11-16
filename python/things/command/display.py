@@ -89,102 +89,112 @@ def _get_deadline_string(due):
 
     return s
 
-def display_priority(text, priority, colored=True):
-    # color according to priority
-    if not colored:
-        return text
-
-    return P_COLORS[int(priority)] + text + DEFAULT_COLOR
+class Displayer(object):
+    def __init__(self, colored=True):
+        self._colored = colored
 
 
-def display(thing, shortid=True, colored=True, due=False):
-    """
-    Return a string for the given thing.
-
-    @param shortid: if True, also show shortid and priority.
-    @param colored: if True, color the return value for output.
-    @param due:     whether to show additional due info.
-    """
-    def color(text, code):
-        if not colored:
+    def priority(self, text, priority):
+        # color according to priority
+        if not self._colored:
             return text
 
-        return code + text + DEFAULT_COLOR
-
-    blocks = []
-
-    if shortid:
-        blocks.append(color('%s' % thing.shortid(), TIME_COLOR))
-        blocks.append(display_priority(
-            '(%.2f)' % thing.priority(), thing.priority(), colored))
-
-    blocks.append(thing.title)
-
-    if thing.contexts:
-        blocks.extend([color('@%s' % c, CONTEXT_COLOR)
-            for c in thing.contexts]) 
-    if thing.projects:
-        blocks.extend([color('p:%s' % p, PROJECT_COLOR)
-            for p in thing.projects]) 
-    if thing.statuses:
-        blocks.extend([color('!%s' % s, STATUS_COLOR)
-             for s in thing.statuses]) 
-
-    if thing.urgency is not None:
-        blocks.append(color('U:%d', URGENCY_COLOR) % thing.urgency)
-    if thing.importance is not None:
-        blocks.append(color('I:%d', IMPORTANCE_COLOR) % thing.importance)
-
-    # FIXME: format with H/M/S/...
-    def _format_time(seconds):
-        minute = 60
-        hour = minute * 60
-        day = hour * 24
-        week = day * 7
-
-        if seconds % week == 0:
-            return '%dW' % (seconds / week)
-        elif seconds % day == 0:
-            return '%dD' % (seconds / day)
-        elif seconds % hour == 0:
-            return '%dH' % (seconds / hour)
-        else:
-            return '%dM' % (seconds / minute)
-
-    if thing.time is not None:
-        blocks.append(color(
-            'T:%s' % _format_time(thing.time), TIME_COLOR))
-    if thing.recurrence is not None:
-        blocks.append(color(
-            'R:%s' % _format_time(thing.recurrence), RECURRENCE_COLOR))
-
-    if thing.start is not None:
-        blocks.append(color(
-            'S:%s' % thing.start.strftime('%Y-%m-%d'), START_COLOR))
-    if thing.due is not None:
-        blocks.append(color(
-            'D:%s' % thing.due.strftime('%Y-%m-%d'), DUE_COLOR))
-    if thing.end is not None:
-        blocks.append(color(
-            'E:%s' % thing.end.strftime('%Y-%m-%d'), END_COLOR))
-
-    if thing.complete:
-        blocks.append(color('C:%s' % thing.complete, COMPLETE_COLOR))
-
-    if due and thing.due:
-        blocks.append(_get_deadline_string(thing.due))
+        return P_COLORS[int(priority)] + text + DEFAULT_COLOR
 
 
-    return " ".join(blocks)
+    def display(self, thing, shortid=True, due=False):
+        """
+        Return a string for the given thing.
 
-def display_things(result, due=False):
-    count = 0
+        @param shortid: if True, also show shortid and priority.
+        @param colored: if True, color the return value for output.
+        @param due:     whether to show additional due info.
+        """
+        def color(text, code):
+            if not self._colored:
+                return text
 
-    for thing in result:
-        print display(thing, due=due)
-        count += 1
+            return code + text + DEFAULT_COLOR
 
-    print '%d open things' % count
+        blocks = []
+
+        if shortid:
+            blocks.append(color('%s' % thing.shortid(), TIME_COLOR))
+            blocks.append(self.priority(
+                '(%.2f)' % thing.priority(), thing.priority()))
+
+        blocks.append(thing.title)
+
+        if thing.contexts:
+            blocks.extend([color('@%s' % c, CONTEXT_COLOR)
+                for c in thing.contexts]) 
+        if thing.projects:
+            blocks.extend([color('p:%s' % p, PROJECT_COLOR)
+                for p in thing.projects]) 
+        if thing.statuses:
+            blocks.extend([color('!%s' % s, STATUS_COLOR)
+                 for s in thing.statuses]) 
+
+        if thing.urgency is not None:
+            blocks.append(color('U:%d', URGENCY_COLOR) % thing.urgency)
+        if thing.importance is not None:
+            blocks.append(color('I:%d', IMPORTANCE_COLOR) % thing.importance)
+
+        # FIXME: format with H/M/S/...
+        def _format_time(seconds):
+            minute = 60
+            hour = minute * 60
+            day = hour * 24
+            week = day * 7
+
+            if seconds % week == 0:
+                return '%dW' % (seconds / week)
+            elif seconds % day == 0:
+                return '%dD' % (seconds / day)
+            elif seconds % hour == 0:
+                return '%dH' % (seconds / hour)
+            else:
+                return '%dM' % (seconds / minute)
+
+        if thing.time is not None:
+            blocks.append(color(
+                'T:%s' % _format_time(thing.time), TIME_COLOR))
+        if thing.recurrence is not None:
+            blocks.append(color(
+                'R:%s' % _format_time(thing.recurrence), RECURRENCE_COLOR))
+
+        if thing.start is not None:
+            blocks.append(color(
+                'S:%s' % thing.start.strftime('%Y-%m-%d'), START_COLOR))
+        if thing.due is not None:
+            blocks.append(color(
+                'D:%s' % thing.due.strftime('%Y-%m-%d'), DUE_COLOR))
+        if thing.end is not None:
+            blocks.append(color(
+                'E:%s' % thing.end.strftime('%Y-%m-%d'), END_COLOR))
+
+        if thing.complete:
+            blocks.append(color('C:%s' % thing.complete, COMPLETE_COLOR))
+
+        if due and thing.due:
+            blocks.append(_get_deadline_string(thing.due))
+
+
+        return " ".join(blocks)
+
+    def display_things(self, result, due=False):
+        count = 0
+
+        for thing in result:
+            print self.display(thing, due=due)
+            count += 1
+
+        print '%d open things' % count
+
+# compat method; should be removed
+def display(thing, shortid=True, due=False, colored=True):
+    displayer = Displayer(colored=colored)
+    return displayer.display(thing, shortid, due)
 
 def lookup(server, shortid):
         # convert argument, which is shortened _id, to start/end range
