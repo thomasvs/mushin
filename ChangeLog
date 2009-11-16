@@ -1,6 +1,14 @@
 2009-11-16  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/things/command/display.py:
+	  Extract Displayer._color()
+	  Add Displayer.project()
+	* python/things/command/project.py:
+	  Use it to colorize the project list output.
+
+2009-11-16  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/things/command/display.py:
 	  Create a Displayer class, that knows about coloring.
 	* python/things/command/main.py:
 	* python/things/command/project.py:

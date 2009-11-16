@@ -22,10 +22,11 @@ class List(logcommand.LogCommand):
             if completed != total:
                 doc = server.load(docid)
                 orderable.append((priority, (float(completed) / total), 
-                    "%s %2d %% done - p:%s %s\n" % (
+                    # FIXME: the %-30s includes the ansi codes
+                    "%s (%2d %%) %s %s\n" % (
                     displayer.priority("(%.2f)" % priority, priority),
                     int(completed * 100.0 / total),
-                    project.key,
+                    displayer.project(project.key),
                     doc.title,
                 )))
 
