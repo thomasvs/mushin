@@ -1,3 +1,8 @@
+2009-11-16  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/things/command/display.py:
+	  Factor out a command to display priority.
+
 2009-11-12  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/things/model/couch.py:

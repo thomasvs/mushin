@@ -89,6 +89,13 @@ def _get_deadline_string(due):
 
     return s
 
+def display_priority(text, priority, colored=True):
+    # color according to priority
+    if not colored:
+        return text
+
+    return P_COLORS[int(priority)] + text + DEFAULT_COLOR
+
 
 def display(thing, shortid=True, colored=True, due=False):
     """
@@ -104,18 +111,12 @@ def display(thing, shortid=True, colored=True, due=False):
 
         return code + text + DEFAULT_COLOR
 
-    def pcolor(text, priority):
-        # color according to priority
-        if not colored:
-            return text
-
-        return P_COLORS[int(priority)] + text + DEFAULT_COLOR
-
     blocks = []
 
     if shortid:
         blocks.append(color('%s' % thing.shortid(), TIME_COLOR))
-        blocks.append(pcolor('(%.2f)' % thing.priority(), thing.priority()))
+        blocks.append(display_priority(
+            '(%.2f)' % thing.priority(), thing.priority(), colored))
 
     blocks.append(thing.title)
 
