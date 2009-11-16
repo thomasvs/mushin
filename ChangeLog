@@ -1,5 +1,12 @@
 2009-11-16  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* couchdb/vendor/couchapp/priority.js (added):
+	  Factor out a priority function.
+	* couchdb/views/open-things-by-priority/map.js:
+	  Use it.
+
+2009-11-16  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/things/command/display.py:
 	  Factor out a command to display priority.
 
