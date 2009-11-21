@@ -18,21 +18,10 @@
 //    ...
 // });
 
+// this needs vendor/couchapp/date.js loaded first
+
 (function($) {
 
-  function f(n) {    // Format integers to have at least two digits.
-      return n < 10 ? '0' + n : n;
-  }
-
-  Date.prototype.toJSON = function() {
-      return this.getUTCFullYear()   + '/' +
-           f(this.getUTCMonth() + 1) + '/' +
-           f(this.getUTCDate())      + ' ' +
-           f(this.getUTCHours())     + ':' +
-           f(this.getUTCMinutes())   + ':' +
-           f(this.getUTCSeconds())   + ' +0000';
-  };
-  
   function Design(db, name) {
     this.view = function(view, opts) {
       db.view(name+'/'+view, opts);
@@ -43,12 +32,11 @@
   
   function init(app) {
     $(function() {
-      function prettyDate(time){
-      	var date = new Date(time),
-      		diff = (((new Date()).getTime() - date.getTime()) / 1000),
-      		day_diff = Math.floor(diff / 86400);
-
-        // if ( isNaN(day_diff) || day_diff < 0 || day_diff >= 31 ) return;
+      // This function takes strings of the form 2009-11-21T22:49:58Z
+      function prettyDate(time) {
+      	var date = new Date().setRFC3339(time);
+      	var diff = ((new Date()).getTime() - date.getTime()) / 1000;
+      	var day_diff = Math.floor(diff / 86400);
 
       	return day_diff < -730 && Math.ceil(-day_diff / -365) + " years from now" ||
                day_diff < -45 && Math.ceil(-day_diff / 31) + " months from now" ||

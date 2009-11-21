@@ -1,5 +1,25 @@
 2009-11-21  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* HACKING:
+	  Add notes on date stuff.
+	* couchdb/_attachments/jquery.gtd.js:
+	  Comment that we need date.js loaded.
+	  Remove unused function.
+	  Comment prettyDate.
+	* couchdb/vendor/couchapp/date.js:
+	  Add Date.setRFC3339()
+	* couchdb/vendor/couchapp/_attachments/date.js:
+	  Create a symlink so that we can also serve date.js to browser.
+	* couchdb/views/recent-things/map.js:
+	  Only emit docs with a start date.  
+	* couchdb/templates/index/row.html:
+	  It's title, not description.
+	* couchdb/templates/thing.html:
+	* couchdb/templates/index/tail.html:
+	  Make sure we include date.js before jquery.gtd.js
+
+2009-11-21  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/things/command/replicate.py:
 	  Handle replication setup failures.
 

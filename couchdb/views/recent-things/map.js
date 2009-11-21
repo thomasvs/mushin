@@ -1,7 +1,7 @@
 function(doc) {
-  if (doc.type == "thing") {
+  if (doc.type == "thing" && doc.start !== null) {
     emit(doc.start, {
-      description : doc.description,
+      title : doc.title,
       start : doc.start,
       due : doc.due || null
     });    

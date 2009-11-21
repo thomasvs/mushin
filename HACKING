@@ -60,3 +60,13 @@ couchdb part:
 
 couchapp push couchdb gtd http://thomas:pass@localhost:5984/gtd/
 
+QUESTIONS
+
+ - where to store .js code that you want to use both server-side and
+   client-side ? For example, date.js and its setRFC3339 function.
+   e.g. http://localhost:5984/gtd/_design/gtd/jquery.gtd.js
+   is stored at couchdb/_attachments/jquery.gtd.js
+   e.g. http://localhost:5984/gtd/_design/gtd/vendor/couchapp/jquery.couchapp.js
+   is stored at couchdb/vendor/couchapp/_attachments/jquery.couchapp.js
+   For now, we created a symlink
+   
