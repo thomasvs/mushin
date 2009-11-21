@@ -1,5 +1,10 @@
 2009-11-21  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/things/command/list.py:
+	  More display fixes.
+
+2009-11-21  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* couchdb/shows/edit.js:
 	* couchdb/templates/edit.html:
 	  Allow passing description as a GET parameter
