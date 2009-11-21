@@ -54,3 +54,9 @@ from yagtd:
    - show
 
  
+INSTALL
+
+couchdb part:
+
+couchapp push couchdb gtd http://thomas:pass@localhost:5984/gtd/
+
