@@ -27,11 +27,17 @@ class Add(logcommand.LogCommand):
             self.debug('json string: %s', s)
             conn.request('POST', '/_replicate', s,
                 {"Content-Type": "application/json"})
-            r = conn.getresponse()
+            try:
+                r = conn.getresponse()
+            except httplib.ResponseNotReady:
+                print 'FAILED: local server failed for source %s' % source
+                return
+
             if r.status / 100 == 2:
                 print json.decode(r.read())
             else:
                 print 'FAILED: status code', r.status
+                return
 
 class Replicate(logcommand.LogCommand):
     description = """Manage replication.

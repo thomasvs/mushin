@@ -1,5 +1,10 @@
 2009-11-21  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/things/command/replicate.py:
+	  Handle replication setup failures.
+
+2009-11-21  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/things/command/list.py:
 	  More display fixes.
 
