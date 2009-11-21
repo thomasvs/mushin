@@ -4,10 +4,12 @@ function(doc, req) {
   // !code vendor/couchapp/template.js
 
   // we only show html
+
   return template(templates.edit, {
     doc: doc,
     docid: toJSON((doc && doc._id) || null), 
     assets: assetPath(),
-    index: listPath('index','recent-things', {descending: true, limit: 8})
+    index: listPath('index','recent-things', {descending: true, limit: 8}),
+    description: req.query['description'] || '',
   });
 }

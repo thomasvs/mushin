@@ -1,3 +1,9 @@
+2009-11-21  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* couchdb/shows/edit.js:
+	* couchdb/templates/edit.html:
+	  Allow passing description as a GET parameter
+
 2009-11-16  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/things/command/display.py:
