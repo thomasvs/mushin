@@ -31,8 +31,8 @@ function(head, req) {
       };
 
       key = row.key;
-        send(Mustache.to_html(templates.index.row, {
-        description : thing.description,
+      send(Mustache.to_html(templates.index.row, {
+        title : thing.title || "",
         start : thing.start,
         due : thing.due || null,
         notempty : notempty,
