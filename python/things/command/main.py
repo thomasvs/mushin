@@ -139,7 +139,13 @@ class Edit(logcommand.LogCommand):
         #   oddly, get_history_item is 1-based,
             #   but remove_history_item is 0-based 
         readline.remove_history_item(readline.get_current_history_length() - 1)
-        d = parse.parse(line)
+        try:
+            d = parse.parse(line)
+        except ValueError, e:
+            self.stderr.write('Could not parse line: %s\n' %
+                log.getExceptionMessage(e))
+            return 3
+
         thing.set_from_dict(d)
 
         server.save(thing)
@@ -216,7 +222,7 @@ class Show(logcommand.LogCommand):
         # FIXME: format nicer
         self.stdout.write("%s\n" % lookup(self, server, args[0]))
 
-def lookup(command, server, shortid):
+def lookup(cmd, server, shortid):
         # convert argument, which is shortened _id, to start/end range
         startkey = shortid
         endkey = hex(int(startkey, 16) + 1)[2:]
@@ -229,11 +235,11 @@ def lookup(command, server, shortid):
         things = list(server.view('things-by-id', include_docs=True,
             startkey=startkey, endkey=endkey))
         if len(things) == 0:
-            command.stdout.write("No thing found.\n")
+            cmd.stdout.write("No thing found.\n")
         elif len(things) > 1:
             for t in things:
-                command.stdout.write("%s\n" % display.display(t))
-            command.stdout.write("%d things found, please be more specific.\n" % 
+                cmd.stdout.write("%s\n" % display.display(t))
+            cmd.stdout.write("%d things found, please be more specific.\n" % 
                 len(things))
         else:
             return things[0]
