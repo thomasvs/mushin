@@ -1,5 +1,13 @@
 2009-12-08  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/maemo (added):
+	* python/mushin/maemo/things.py (added):
+	* python/mushin/maemo/__init__.py (added):
+	* python/mushin/maemo/main.py (added):
+	  Add a first stab at a widget to display things.
+
+2009-12-08  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* bin/gtd:
 	  Another rename.
 
