@@ -1,5 +1,10 @@
 2009-12-08  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* bin/gtd:
+	  Another rename.
+
+2009-12-08  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/command/project.py:
 	* python/mushin/command/replicate.py:
 	* python/mushin/model/couch.py:

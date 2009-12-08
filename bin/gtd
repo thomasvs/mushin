@@ -4,18 +4,18 @@
 
 import sys
 
-# first try to import things
+# first try to import mushin
 try:
-    import things
+    import mushin
 except ImportError:
     sys.stderr.write('''The rip binary cannot find its python package.
-This means that the 'things' directory containing __init__.py is not on your
+This means that the 'mushin' directory containing __init__.py is not on your
 PYTHONPATH.
 Typically this is due to a broken install.
 Please fix the problem, and verify that it is fixed by starting python and
 typing:
 
->>> import things
+>>> import mushin
 
 and assure it doesn't raise an exception.
 
@@ -24,7 +24,7 @@ and assure it doesn't raise an exception.
 
 # now load the main function
 try:
-    from things.command import main
+    from mushin.command import main
     sys.exit(main.main(sys.argv[1:]))
 except ImportError, e:
     raise
