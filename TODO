@@ -4,3 +4,4 @@ TODO:
  - Figure out what to do with docs without start date - maybe we have a bug
    introducing these ?
  - add something to create the database first time
+ - handle 404 on replication when target doesn't have that db name
