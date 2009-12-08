@@ -23,7 +23,7 @@ class ThingsWindow(hildon.StackableWindow):
         # align left
         button.set_alignment(0.0, 0.5, 1.0, 0.0)
         
-        self._vbox.pack_start(button)
+        self._vbox.pack_start(button, False, False, 0)
 
         button.set_title(thing.title)
         value = []
@@ -48,9 +48,7 @@ def main():
 
     window.show_all()
 
-    # FIXME: why does showing less than 6 items show all buttons and
-    # put text wrong ?
-    for i in range(10):
+    for i in range(3):
         t = Thing()
         t.title = 'thing %d' % i
         window.add_thing(t)
