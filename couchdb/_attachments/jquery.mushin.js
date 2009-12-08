@@ -11,9 +11,9 @@
 // the License.
 
 // Usage: The passed in function is called when the page is ready.
-// GTDApp passes in the app object, which takes care of linking to 
-// the proper database, and provides access to the GTDApp helpers.
-// $.GTDApp(function(app) {
+// MushinApp passes in the app object, which takes care of linking to 
+// the proper database, and provides access to the MushinApp helpers.
+// $.MushinApp(function(app) {
 //    app.db.view(...)
 //    ...
 // });
@@ -69,6 +69,6 @@
     });
   };
 
-  $.GTDApp = $.GTDApp || init;
+  $.MushinApp = $.MushinApp || init;
 
 })(jQuery);

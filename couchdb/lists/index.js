@@ -15,7 +15,7 @@ function(head, req) {
   provides("html", function() {
     // render the html head using a template
     send(template(templates.index.head, {
-      title : req.query.title || "GTD",
+      title : req.query.title || "Mushin",
       newPostPath : showPath("edit"),
       index : indexPath,
       assets : assetPath()

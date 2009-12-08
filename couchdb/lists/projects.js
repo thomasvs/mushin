@@ -18,7 +18,7 @@ function(head, req) {
   provides("html", function() {
     // render the html head using a template
     send(template(templates.projects.head, {
-      title : "GTD Projects",
+      title : "Mushin Projects",
       newPostPath : showPath("edit"),
       index : indexPath,
       assets : assetPath()
