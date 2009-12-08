@@ -117,12 +117,12 @@ class Thing(schema.Document):
 class Server:
     def __init__(self, uri='http://localhost:5984'):
         server = client.Server(uri)
-        self.db = server['gtd']
+        self.db = server['mushin']
 
     def view(self, name, **kwargs):
         # example: open-things
         # include_docs gives us the full docs, so we can recreate Things
-        return Thing.view(self.db, 'gtd/%s' % name, **kwargs)
+        return Thing.view(self.db, 'mushin/%s' % name, **kwargs)
 
     def load(self, thingid):
         return Thing.load(self.db, thingid)

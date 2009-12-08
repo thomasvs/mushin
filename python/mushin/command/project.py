@@ -15,7 +15,8 @@ class List(logcommand.LogCommand):
         server = couch.Server()
         displayer = display.Displayer()
 
-        projects = server.db.view('gtd/open-projects-by-priority', group=True)
+        projects = server.db.view('mushin/open-projects-by-priority',
+            group=True)
         orderable = []
         for project in projects:
             completed, total, priority, docid = project.value

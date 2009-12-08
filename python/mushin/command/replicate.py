@@ -15,8 +15,8 @@ class Add(logcommand.LogCommand):
         conn = httplib.HTTPConnection('localhost:5984')
 
         dbs = [
-          "gtd",
-          "http://%s:5984/gtd" % args[0],
+          "mushin",
+          "http://%s:5984/mushin" % args[0],
         ]
 
         for source, target in [(dbs[0], dbs[1]), (dbs[1], dbs[0])]:

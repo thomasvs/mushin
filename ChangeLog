@@ -1,5 +1,12 @@
 2009-12-08  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/command/project.py:
+	* python/mushin/command/replicate.py:
+	* python/mushin/model/couch.py:
+	  More renames.
+
+2009-12-08  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/command/display.py:
 	* python/mushin/command/list.py:
 	* python/mushin/command/main.py:
