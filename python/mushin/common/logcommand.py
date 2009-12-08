@@ -24,8 +24,8 @@
 Logging Command.
 """
 
-from things.extern.command import command
-from things.common import log
+from mushin.extern.command import command
+from mushin.common import log
 
 class LogCommand(command.Command, log.Loggable):
     def __init__(self, parentCommand=None, **kwargs):

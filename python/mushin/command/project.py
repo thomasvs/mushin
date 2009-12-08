@@ -4,9 +4,9 @@
 import sys
 import datetime
 
-from things.common import log, logcommand, parse
-from things.model import couch
-from things.command import display
+from mushin.common import log, logcommand, parse
+from mushin.model import couch
+from mushin.command import display
 
 class List(logcommand.LogCommand):
     summary = "list all open projects"

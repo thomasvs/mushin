@@ -1,7 +1,7 @@
 # -*- Mode: Python -*-
 # vi:si:et:sw=4:sts=4:ts=4
 
-from things.common import logcommand
+from mushin.common import logcommand
 
 class Add(logcommand.LogCommand):
     summary = "Add another database to replicate with"

@@ -4,9 +4,9 @@
 import datetime
 import sys
 
-from things.common import log, logcommand, parse
-from things.model import couch
-from things.command import project, display, list as llist, replicate, thing
+from mushin.common import log, logcommand, parse
+from mushin.model import couch
+from mushin.command import project, display, list as llist, replicate, thing
 
 SYNTAX = """
 When adding or searching for things, the following syntax is used:
@@ -156,7 +156,7 @@ class Search(logcommand.LogCommand):
     description = """Search for things.\n""" + SYNTAX
 
     def do(self, args):
-        from things.common import parse
+        from mushin.common import parse
         filter = parse.parse(" ".join(args))
         self.debug('parsed filter: %r' % filter)
 
@@ -270,7 +270,7 @@ You can get help on subcommands by using the -h option to the subcommand.
 
     def handleOptions(self, options):
         if options.version:
-            #from things.configure import configure
+            #from mushin.configure import configure
             #print "rip %s" % configure.version
             sys.exit(0)
 

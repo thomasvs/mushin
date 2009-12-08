@@ -24,8 +24,8 @@
 Logging
 """
 
-from things.extern.log import log as externlog
-from things.extern.log.log import *
+from mushin.extern.log import log as externlog
+from mushin.extern.log.log import *
 
 def init():
     externlog.init('GTD_DEBUG')
