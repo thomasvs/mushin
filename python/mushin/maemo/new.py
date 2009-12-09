@@ -5,6 +5,7 @@ import gobject
 import gtk
 import hildon
 
+# FIXME: currently also used for context
 class ProjectSelector(hildon.TouchSelector):
     # FIXME: would be nice to combine TouchSelectorEntry's mode with multiselect
 
