@@ -1,5 +1,19 @@
 2009-12-09  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/extern/paisley (added):
+	* python/mushin/extern/paisley/mapping.py (added):
+	* python/mushin/extern/paisley/tests (added):
+	* python/mushin/extern/paisley/tests/test_mapping.py (added):
+	* python/mushin/extern/paisley/tests/test_views.py (added):
+	* python/mushin/extern/paisley/tests/__init__.py (added):
+	* python/mushin/extern/paisley/tests/test_couchdb.py (added):
+	* python/mushin/extern/paisley/views.py (added):
+	* python/mushin/extern/paisley/__init__.py (added):
+	* python/mushin/extern/paisley/couchdb.py (added):
+	  Do an import of our paisley branch.
+
+2009-12-09  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/maemo/main.py:
 	  Tie some windows together to get an idea of program flow.
 
