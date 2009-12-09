@@ -1,10 +1,15 @@
 # -*- Mode: Python -*-
 # vi:si:et:sw=4:sts=4:ts=4
 
+import gobject
 import gtk
 import hildon
 
 class ThingsWindow(hildon.StackableWindow):
+    __gsignals__ = {
+        'selected': (gobject.SIGNAL_RUN_LAST, None, (object, ))
+    }
+
     def __init__(self):
         hildon.StackableWindow.__init__(self)
 
@@ -34,6 +39,13 @@ class ThingsWindow(hildon.StackableWindow):
         button.set_value(" - ".join(value))
 
         button.show()
+
+        button.connect('clicked', self._button_clicked_cb, thing)
+
+        button.show()
+
+    def _button_clicked_cb(self, button, thing):
+        self.emit('selected', thing)
 
 def main():
     gtk.set_application_name('example list of things')
