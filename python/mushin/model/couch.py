@@ -4,31 +4,33 @@
 import datetime
 import math
 
-from couchdb import client, schema
+from mushin.common import mapping
 
-class Thing(schema.Document):
-    type = schema.TextField()
+from couchdb import client
 
-    title = schema.TextField()
-    description = schema.TextField()
+class Thing(mapping.Document):
+    type = mapping.TextField()
+
+    title = mapping.TextField()
+    description = mapping.TextField()
 
     # attributes from Getting Things Done, David Allen
-    projects = schema.ListField(schema.TextField())
-    contexts = schema.ListField(schema.TextField())
-    statuses = schema.ListField(schema.TextField())
-    references = schema.ListField(schema.TextField())
+    projects = mapping.ListField(mapping.TextField())
+    contexts = mapping.ListField(mapping.TextField())
+    statuses = mapping.ListField(mapping.TextField())
+    references = mapping.ListField(mapping.TextField())
 
     # attributes from Seven Habits of Highly Effective People, Stephen Covey
-    urgency = schema.IntegerField()
-    importance = schema.IntegerField()
+    urgency = mapping.IntegerField()
+    importance = mapping.IntegerField()
 
-    time = schema.IntegerField()     # in seconds
-    complete = schema.IntegerField() # percentage of completion
+    time = mapping.IntegerField()     # in seconds
+    complete = mapping.IntegerField() # percentage of completion
 
-    start = schema.DateTimeField(default=datetime.datetime.now())
-    due = schema.DateTimeField()
-    end = schema.DateTimeField()
-    recurrence = schema.IntegerField() # in seconds
+    start = mapping.DateTimeField(default=datetime.datetime.now())
+    due = mapping.DateTimeField()
+    end = mapping.DateTimeField()
+    recurrence = mapping.IntegerField() # in seconds
 
     def shortid(self):
         return self.id[:6]
@@ -113,6 +115,14 @@ class Thing(schema.Document):
             'start', 'due', 'end'
         ]:
             setattr(self, attr, d.get(attr, None))
+
+    # method for paisley View objectFactory
+    def fromDict(self, d):
+        # a dict from Paisley
+        # FIXME: this is poking at internals of python-couchdb
+        # FIXME: do we need copy ?
+        self._data = d['doc'].copy()
+        return
 
 class Server:
     def __init__(self, uri='http://localhost:5984'):
