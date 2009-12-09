@@ -1,5 +1,10 @@
 2009-12-09  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/common/mapping.py (added):
+	  Add a temporary compatibility layer.
+
+2009-12-09  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/extern/paisley (added):
 	* python/mushin/extern/paisley/mapping.py (added):
 	* python/mushin/extern/paisley/tests (added):
