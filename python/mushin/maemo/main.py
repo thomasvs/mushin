@@ -6,6 +6,20 @@ import hildon
 
 from mushin.maemo import new, things
 
+class Server:
+    def __init__(self):
+        from mushin.extern.paisley import couchdb, views
+        self._couch = couchdb.CouchDB('localhost')
+
+    def getThings(self):
+        from mushin.extern.paisley import couchdb, views
+        from mushin.model import couch
+        view = views.View(self._couch, 'mushin', 'mushin',
+            'open-things-due?include_docs=true', couch.Thing)
+        d = view.queryView()
+        return d
+
+
 class MainWindow(hildon.StackableWindow):
     def __init__(self):
         hildon.StackableWindow.__init__(self)
@@ -44,10 +58,23 @@ class MainWindow(hildon.StackableWindow):
         button.show()
         button.connect('clicked', self._new_clicked_cb)
 
+    def _get_data(self):
+        server = Server()
+        d = server.getThings()
+        return d
+
 
     def _list_clicked_cb(self, button):
         print 'button clicked'
         w = things.ThingsWindow()
+        hildon.hildon_gtk_window_set_progress_indicator(w, 1)
+        d = self._get_data()
+
+        def _get_dataCb(result):
+            for thing in result:
+                w.add_thing(thing)
+            hildon.hildon_gtk_window_set_progress_indicator(w, 0)
+        d.addCallback(_get_dataCb)
 
         w.show_all()
 
@@ -65,11 +92,11 @@ def start():
     window = MainWindow()
     window.connect('destroy', lambda _: gtk.main_quit())
 
-
 def main(argv):
     from twisted.internet import gtk2reactor
     gtk2reactor.install()
     from twisted.internet import reactor
 
     reactor.callWhenRunning(start)
+
     reactor.run()
