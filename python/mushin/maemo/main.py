@@ -4,6 +4,8 @@
 import gtk
 import hildon
 
+from mushin.maemo import new, things
+
 class MainWindow(hildon.StackableWindow):
     def __init__(self):
         hildon.StackableWindow.__init__(self)
@@ -45,9 +47,16 @@ class MainWindow(hildon.StackableWindow):
 
     def _list_clicked_cb(self, button):
         print 'button clicked'
+        w = things.ThingsWindow()
+
+        w.show_all()
+
 
     def _new_clicked_cb(self, button):
         print 'button clicked'
+        w = new.NewWindow()
+
+        w.show_all()
 
 
 def start():

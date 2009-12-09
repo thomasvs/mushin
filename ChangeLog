@@ -1,6 +1,11 @@
 2009-12-09  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/maemo/main.py:
+	  Tie some windows together to get an idea of program flow.
+
+2009-12-09  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/maemo/main.py:
 	* python/mushin/maemo/things.py:
 	  Fixed some ui bugs.
 	* python/mushin/maemo/new.py (added):
