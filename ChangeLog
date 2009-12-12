@@ -1,5 +1,12 @@
 2009-12-12  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/common/format.py (added):
+	  Extract and refactor a deadline string.
+	* python/mushin/command/display.py:
+	  Use that now.
+
+2009-12-12  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/common/app.py:
 	  add methods to get things and their count by due/overdue/today
 	* python/mushin/maemo/show.py:

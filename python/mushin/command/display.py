@@ -1,7 +1,7 @@
 # -*- Mode: Python -*-
 # vi:si:et:sw=4:sts=4:ts=4
 
-from mushin.common import log
+from mushin.common import log, format
 
 import datetime
 
@@ -63,31 +63,7 @@ P_COLORS = [
 ]
 
 def _get_deadline_string(due):
-    now = datetime.datetime.now()
-    daystart = datetime.datetime(year=now.year, month=now.month,
-        day=now.day)
-    dayend = daystart + datetime.timedelta(days=1)
-
-    s = ""
-    if not due:
-        return s
-
-    left = due - daystart
-    if due < daystart:
-        days = -left.days
-        if days == 1:
-            s = "[overdue one day]"
-        else:
-            s = "[overdue %s days]" % days
-    elif due < dayend:
-        s = "[due today]"
-    else:
-        if left.days == 1:
-            s = "[one day left]"
-        else:
-            s = "[%s days left]" % left.days
-
-    return s
+    return "[%s]" % format.deadline(due)
 
 class Displayer(object):
     def __init__(self, colored=True):
