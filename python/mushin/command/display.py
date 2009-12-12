@@ -63,7 +63,10 @@ P_COLORS = [
 ]
 
 def _get_deadline_string(due):
-    return "[%s]" % format.deadline(due)
+    deadline = format.deadline(due)
+    if not deadline:
+        return deadline
+    return "[%s]" % deadline
 
 class Displayer(object):
     def __init__(self, colored=True):
