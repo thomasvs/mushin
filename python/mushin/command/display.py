@@ -199,27 +199,3 @@ class Displayer(object):
 def display(thing, shortid=True, due=False, colored=True):
     displayer = Displayer(colored=colored)
     return displayer.display(thing, shortid, due)
-
-def lookup(server, shortid):
-        # convert argument, which is shortened _id, to start/end range
-        startkey = shortid
-        endkey = hex(int(startkey, 16) + 1)[2:]
-        # leading 0's are now dropped, so readd them
-        endkey = '0' * (len(startkey) - len(endkey)) + endkey
-
-        log.debug('lookup', 'Looking up from %s to %s' % (startkey, endkey))
-
-        # FIXME: make the view calculate and sort by priority
-        things = list(server.view('things-by-id',
-            startkey=startkey, endkey=endkey))
-        if len(things) == 0:
-            print "No thing found."
-        elif len(things) > 1:
-            for t in things:
-                print display.display(t)
-            print "%d things found, please be more specific." % len(things)
-        else:
-            return things[0]
-
-
-

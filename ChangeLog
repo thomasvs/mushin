@@ -1,5 +1,10 @@
 2009-12-12  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/command/display.py:
+	  Remove unused function.
+
+2009-12-12  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* couchdb/views/open-things-by-urgency/map.js:
 	  Don't emit whole doc.
 
