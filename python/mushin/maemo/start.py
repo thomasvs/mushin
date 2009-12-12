@@ -4,6 +4,9 @@
 import gtk
 import hildon
 
+
+from twisted.internet import defer
+
 from mushin.common import app
 
 from mushin.maemo import new, things, lists, show
@@ -59,32 +62,44 @@ class StartWindow(hildon.StackableWindow):
         w = lists.ListsWindow()
         hildon.hildon_gtk_window_set_progress_indicator(w, 1)
 
-        d = self._server.getThingsDueCount()
-        def _cb(result):
-            w.add_list('Due', result)
-            hildon.hildon_gtk_window_set_progress_indicator(w, 0)
-        d.addCallback(_cb)
+        d = defer.Deferred()
+
+        methods = [
+            ('Overdue', self._server.getThingsOverdueCount),
+            ('Today', self._server.getThingsTodayCount),
+            ('Due', self._server.getThingsDueCount),
+        ]
+
+        for name, method in methods:
+            d.addCallback(lambda _, m: m(), method)
+            def _cb(result):
+                w.add_list(name, result)
+            d.addCallback(lambda result, n: w.add_list(n, result), name)
+
+        d.addCallback(lambda _:
+            hildon.hildon_gtk_window_set_progress_indicator(w, 0))
+
+        d.callback(None)
 
         w.connect('selected', self._lists_selected_cb)
         w.show_all()
 
     def _lists_selected_cb(self, lw, list_name):
-        if list_name == 'Due':
+        methods = {
+            'Due': self._server.getThingsDue,
+            'Overdue': self._server.getThingsOverdue,
+            'Today': self._server.getThingsToday,
+        }
+        if list_name in methods.keys():
             w = things.ThingsWindow()
             hildon.hildon_gtk_window_set_progress_indicator(w, 1)
 
-            d = self._server.getThingsDue()
+            d = methods[list_name]()
             def _cb(result):
                 for thing in result:
                     w.add_thing(thing)
                 hildon.hildon_gtk_window_set_progress_indicator(w, 0)
             d.addCallback(_cb)
-
-            def _get_dataCb(result):
-                for thing in result:
-                    w.add_thing(thing)
-                hildon.hildon_gtk_window_set_progress_indicator(w, 0)
-            d.addCallback(_get_dataCb)
 
             w.connect('selected', self._thing_selected_cb)
             w.show_all()

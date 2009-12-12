@@ -5,6 +5,9 @@ import gobject
 import gtk
 import hildon
 
+from mushin.model import couch
+from mushin.common import format
+
 class ShowWindow(hildon.StackableWindow):
     # Show a thing
     def __init__(self, thing):
@@ -45,22 +48,43 @@ class ShowWindow(hildon.StackableWindow):
         add_list("Contexts:", thing.contexts)
 
         # flags
+        add_list("Status:", thing.statuses)
+
         # covey
+        covey = "%.2f" % thing.priority()
+        how = {
+            1: 'not very',
+            2: 'a little',
+            3: '',
+            4: 'quite',
+            5: 'very',
+        }
+        if thing.urgency:
+            covey += ', %s urgent' % how[thing.urgency]
+        if thing.importance:
+            covey += ', %s important' % how[thing.importance]
+
+        add_label('Priority:', covey)
+
         # dates
-        add_label('Due:', thing.due)
+        add_label('Due:', format.deadline(thing.due))
+        add_label('Started:', format.ago(thing.start))
 
         self.show_all()
 
 def main():
+    import datetime
+
     gtk.set_application_name('show a thing')
 
-    class Thing(object):
-        title = 'a thing'
-        projects = ['mushin', ]
-        contexts = ['home', 'hacking']
-        due = '1902'
-        
-    thing = Thing()
+    thing = couch.Thing(
+        title='a thing',
+        projects=['mushin', ],
+        contexts=['home', 'hacking'],
+        statuses=['waitingfor'],
+        start=datetime.datetime(year=2009, month=1, day=1),
+        due=datetime.datetime(year=2035, month=1, day=1),
+        )
     window = ShowWindow(thing)
     window.connect('destroy', lambda _: gtk.main_quit())
 

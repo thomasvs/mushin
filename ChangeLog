@@ -1,5 +1,14 @@
 2009-12-12  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/common/app.py:
+	  add methods to get things and their count by due/overdue/today
+	* python/mushin/maemo/show.py:
+	  show more things, like covey items, flags, due, ...
+	* python/mushin/maemo/start.py:
+	  Add 3 lists.
+
+2009-12-12  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/model/couch.py:
 	  move import in.
 
