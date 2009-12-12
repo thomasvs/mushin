@@ -6,8 +6,6 @@ import math
 
 from mushin.common import mapping
 
-from couchdb import client
-
 class Thing(mapping.Document):
     type = mapping.TextField()
 
@@ -126,6 +124,7 @@ class Thing(mapping.Document):
 
 class Server:
     def __init__(self, uri='http://localhost:5984'):
+        from couchdb import client
         server = client.Server(uri)
         self.db = server['mushin']
 
