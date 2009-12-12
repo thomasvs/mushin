@@ -1,3 +1,8 @@
+2009-12-12  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* couchdb/views/open-things-by-urgency/map.js:
+	  Don't emit whole doc.
+
 2009-12-10  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/maemo/main.py:
