@@ -248,7 +248,9 @@ class CouchDB(object):
         """
         # Responses: 
         # 500 Internal Server Error (illegal database name)
-        uri = "/%s/_view/%s/%s" % (dbName, docId, viewId)
+        # 0.9 style
+        # uri = "/%s/_view/%s/%s" % (dbName, docId, viewId)
+        uri = "/%s/_design/%s/_view/%s" % (dbName, docId, viewId)
 
         if kwargs:
             uri += "?%s" % (urlencode(kwargs),)

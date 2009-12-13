@@ -1,5 +1,11 @@
 2009-12-13  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/extern/paisley/couchdb.py:
+	  Merged revision 24 of my object-views branch, updating view
+	  URL to 0.10
+
+2009-12-13  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* couchdb/views/contexts (added):
 	* couchdb/views/contexts/reduce.js (added):
 	* couchdb/views/contexts/map.js (added):
