@@ -16,6 +16,15 @@ class Count(object):
         # key, value, id
         pass
 
+class Project(object):
+    name = None
+    things = None
+
+    def fromDict(self, d):
+        # key, value, id
+        self.name = d['key']
+        self.things = d['value']
+
 class Server:
     def __init__(self):
         self._couch = couchdb.CouchDB('localhost')
@@ -188,4 +197,26 @@ class Server:
         d.addCallback(lambda r: len(list(r)))
         return d
 
+    def getContexts(self):
+        """
+        @returns: a deferred for a generator that generates
+                  contexts
+        @rtype:   L{defer.Deferred} of generator
+        """
+        view = views.View(self._couch, 'mushin', 'mushin',
+            'contexts?group=true', Project)
 
+        d = view.queryView()
+        return d
+
+    def getProjects(self):
+        """
+        @returns: a deferred for a generator that generates
+                  projects
+        @rtype:   L{defer.Deferred} of generator
+        """
+        view = views.View(self._couch, 'mushin', 'mushin',
+            'projects?group=true', Project)
+
+        d = view.queryView()
+        return d

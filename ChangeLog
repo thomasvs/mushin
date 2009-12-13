@@ -1,5 +1,18 @@
 2009-12-13  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* couchdb/views/contexts (added):
+	* couchdb/views/contexts/reduce.js (added):
+	* couchdb/views/contexts/map.js (added):
+	  Add a list of contexts.
+	* python/mushin/common/app.py:
+	  Add functions to get contexts and projects.
+	* python/mushin/maemo/new.py:
+	  Query list of projects and contexts for selector.
+	* python/mushin/maemo/start.py:
+	  Add add_projects/contexts; use them to set examples from main.
+
+2009-12-13  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* couchdb/views/by-status/map.js:
 	* python/mushin/common/app.py:
 	* python/mushin/maemo/start.py:

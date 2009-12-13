@@ -55,10 +55,8 @@ class NewWindow(hildon.StackableWindow):
         project_picker = hildon.PickerButton(gtk.HILDON_SIZE_AUTO,
             hildon.BUTTON_ARRANGEMENT_VERTICAL)
         project_picker.set_title("Add to project")
-        selector = ProjectSelector()
-        for project in ['mushin', 'moap', 'mach']:
-            selector.add_text(project)
-        project_picker.set_selector(selector)
+        self._project_selector = ProjectSelector()
+        project_picker.set_selector(self._project_selector)
 
         self._vbox.pack_start(project_picker, False, False, 0)
 
@@ -66,15 +64,20 @@ class NewWindow(hildon.StackableWindow):
         context_picker = hildon.PickerButton(gtk.HILDON_SIZE_AUTO,
             hildon.BUTTON_ARRANGEMENT_VERTICAL)
         context_picker.set_title("Add to context")
-        selector = ProjectSelector()
-        for context in ['hack', 'shop', 'work', 'home']:
-            selector.add_text(context)
-        context_picker.set_selector(selector)
+        self._context_selector = ProjectSelector()
+        context_picker.set_selector(self._context_selector)
 
         self._vbox.pack_start(context_picker, False, False, 0)
 
-
         self.show_all()
+
+    def add_contexts(self, contexts):
+        for context in contexts:
+            self._context_selector.add_text(context)
+
+    def add_projects(self, projects):
+        for project in projects:
+            self._project_selector.add_text(project)
 
     def add_thing(self, thing):
         button = hildon.Button(gtk.HILDON_SIZE_FINGER_HEIGHT,
@@ -103,6 +106,8 @@ def main():
         contexts = ['home', 'hacking']
         
     window = NewWindow()
+    window.set_contexts(['hack', 'shop', 'work', 'home'])
+    window.set_projects(['mushin', 'moap', 'mach'])
     window.connect('destroy', lambda _: gtk.main_quit())
 
     window.show_all()

@@ -58,7 +58,6 @@ class StartWindow(hildon.StackableWindow):
 
 
     def _lists_clicked_cb(self, button):
-        print 'lists button clicked'
         w = lists.ListsWindow()
         hildon.hildon_gtk_window_set_progress_indicator(w, 1)
 
@@ -113,7 +112,24 @@ class StartWindow(hildon.StackableWindow):
             w.show_all()
 
     def _new_clicked_cb(self, button):
-        print 'button clicked'
         w = new.NewWindow()
 
-        w.show_all()
+        hildon.hildon_gtk_window_set_progress_indicator(w, 1)
+
+        d = defer.Deferred()
+
+        d.addCallback(lambda _: self._server.getProjects())
+        def _cb(result):
+            w.add_projects([p.name for p in list(result)])
+        d.addCallback(_cb)
+
+        d.addCallback(lambda _: self._server.getContexts())
+        def _cb(result):
+            w.add_contexts([p.name for p in list(result)])
+        d.addCallback(_cb)
+
+        d.addCallback(lambda _:
+            hildon.hildon_gtk_window_set_progress_indicator(w, 0))
+
+        d.addCallback(lambda _: w.show_all())
+        d.callback(None)
