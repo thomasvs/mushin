@@ -134,7 +134,7 @@ class Server:
         d.addCallback(lambda r: len(list(r)))
         return d
 
-    def getThingsByStatus(self, status, factory, include_docs=True):
+    def _getThingsByStatus(self, status, factory, include_docs=True):
         """
         Returns: a deferred for a generator that generates the things.
 
@@ -144,10 +144,29 @@ class Server:
             include_docs and 'true' or 'false')
         
         view = views.View(self._couch, 'mushin', 'mushin',
-            'by-status?key=%s' % status,
+            'by-status?%s&startkey="%s"&endkey="%s"' % (args, status, status),
             factory)
 
         d = view.queryView()
+        return d
+
+    def getThingsNextAction(self):
+        """
+        @returns: a deferred for a generator that generates
+                  things to do next
+        @rtype:   L{defer.Deferred} of generator
+        """
+        d = self._getThingsByStatus('next', couch.Thing)
+        return d
+
+    def getThingsNextActionCount(self):
+        """
+        @returns: a deferred for a count of
+                  things to do next
+        @rtype:   L{defer.Deferred} of int
+        """
+        d = self._getThingsByStatus('next', Count, include_docs=False)
+        d.addCallback(lambda r: len(list(r)))
         return d
 
     def getThingsWaitingFor(self):
@@ -160,7 +179,7 @@ class Server:
         return d
 
     def getThingsWaitingForCount(self):
-         """
+        """
         @returns: a deferred for a count of
                   things being waited for
         @rtype:   L{defer.Deferred} of int

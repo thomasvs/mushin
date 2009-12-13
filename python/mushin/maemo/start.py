@@ -68,6 +68,8 @@ class StartWindow(hildon.StackableWindow):
             ('Overdue', self._server.getThingsOverdueCount),
             ('Today', self._server.getThingsTodayCount),
             ('Due', self._server.getThingsDueCount),
+            ('Waiting for', self._server.getThingsWaitingForCount),
+            ('Next action', self._server.getThingsNextActionCount),
         ]
 
         for name, method in methods:
@@ -89,6 +91,8 @@ class StartWindow(hildon.StackableWindow):
             'Due': self._server.getThingsDue,
             'Overdue': self._server.getThingsOverdue,
             'Today': self._server.getThingsToday,
+            'Waiting for': self._server.getThingsWaitingFor,
+            'Next action': self._server.getThingsNextAction,
         }
         if list_name in methods.keys():
             w = things.ThingsWindow()

@@ -1,6 +1,13 @@
 2009-12-13  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* couchdb/views/by-status/map.js:
+	* python/mushin/common/app.py:
+	* python/mushin/maemo/start.py:
+	  Fix up status, add next action.
+
+2009-12-13  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* couchdb/views/by-status/map.js:
 	  Add a new view.
 	* python/mushin/common/app.py:
 	  Add waitingfor getters.
