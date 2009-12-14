@@ -1,3 +1,15 @@
+2009-12-15  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/common/app.py:
+	  Add a limit kwarg for due and overdue so we can get shorter lists.
+	  Remove duplicate functions.
+	* python/mushin/maemo/things.py:
+	  Add deadline info to list of things.
+	* python/mushin/maemo/start.py:
+	  Add lists for due this week.
+	* python/mushin/maemo/show.py:
+	  Show tasks in 4 columns so we can fit more things in.
+
 2009-12-13  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/extern/paisley/couchdb.py:

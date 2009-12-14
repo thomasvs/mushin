@@ -63,16 +63,18 @@ class StartWindow(hildon.StackableWindow):
 
         d = defer.Deferred()
 
+        # an array because we want this order
         methods = [
-            ('Overdue', self._server.getThingsOverdueCount),
-            ('Today', self._server.getThingsTodayCount),
-            ('Due', self._server.getThingsDueCount),
-            ('Waiting for', self._server.getThingsWaitingForCount),
-            ('Next action', self._server.getThingsNextActionCount),
+            ('Today', self._server.getThingsTodayCount, {}),
+            ('Due this week', self._server.getThingsDueCount, {'limit' :7}),
+            ('Overdue', self._server.getThingsOverdueCount, {}),
+            ('Due', self._server.getThingsDueCount, {}),
+            ('Waiting for', self._server.getThingsWaitingForCount, {}),
+            ('Next action', self._server.getThingsNextActionCount, {}),
         ]
 
-        for name, method in methods:
-            d.addCallback(lambda _, m: m(), method)
+        for name, method, kwargs in methods:
+            d.addCallback(lambda _, m, kw: m(**kw), method, kwargs)
             def _cb(result):
                 w.add_list(name, result)
             d.addCallback(lambda result, n: w.add_list(n, result), name)
@@ -87,17 +89,19 @@ class StartWindow(hildon.StackableWindow):
 
     def _lists_selected_cb(self, lw, list_name):
         methods = {
-            'Due': self._server.getThingsDue,
-            'Overdue': self._server.getThingsOverdue,
-            'Today': self._server.getThingsToday,
-            'Waiting for': self._server.getThingsWaitingFor,
-            'Next action': self._server.getThingsNextAction,
+            'Today': (self._server.getThingsToday, {}),
+            'Due this week': (self._server.getThingsDue, {'limit': 7}),
+            'Due': (self._server.getThingsDue, {}),
+            'Overdue': (self._server.getThingsOverdue, {}),
+            'Waiting for': (self._server.getThingsWaitingFor, {}),
+            'Next action': (self._server.getThingsNextAction, {}),
         }
         if list_name in methods.keys():
             w = things.ThingsWindow()
             hildon.hildon_gtk_window_set_progress_indicator(w, 1)
 
-            d = methods[list_name]()
+            method, kwargs = methods[list_name]
+            d = method(**kwargs)
             def _cb(result):
                 for thing in result:
                     w.add_thing(thing)

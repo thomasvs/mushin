@@ -5,6 +5,8 @@ import gobject
 import gtk
 import hildon
 
+from mushin.common import format
+
 class ThingsWindow(hildon.StackableWindow):
     __gsignals__ = {
         'selected': (gobject.SIGNAL_RUN_LAST, None, (object, ))
@@ -36,6 +38,9 @@ class ThingsWindow(hildon.StackableWindow):
             value.append('projects: %s' % ', '.join(thing.projects))
         if thing.contexts:
             value.append('contexts: %s' % ', '.join(thing.contexts))
+        if thing.due:
+            value.append(format.deadline(thing.due))
+
         button.set_value(" - ".join(value))
 
         button.show()

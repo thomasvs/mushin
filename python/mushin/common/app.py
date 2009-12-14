@@ -29,11 +29,15 @@ class Server:
     def __init__(self):
         self._couch = couchdb.CouchDB('localhost')
 
-    def _getThingsByDue(self, which, factory, include_docs=True):
+    def _getThingsByDue(self, which, factory, limit=None, include_docs=True):
         """
         Returns: a deferred for a generator that generates the things.
 
-        @param which: one of 'due', 'today', 'overdue'
+        @param which:   one of 'due', 'today', 'overdue'
+        @type  which:   str
+        @param limit:   if specified,
+                        the number of days to limit due or overdue to
+        @param factory: an object factory method (for example, constructor)
         """
         now = datetime.datetime.now()
         daystart = datetime.datetime(year=now.year, month=now.month,
@@ -44,12 +48,26 @@ class Server:
             include_docs and 'true' or 'false')
         
         # FIXME: due dates, and hence keys, can possibly end with Z
-        if which in ['today', 'due']:
-            args += '&startkey="%s"' % \
-                daystart.strftime('%Y-%m-%dT%H:%M:%S')
-        if which in ['today', 'overdue']:
-            args += '&endkey="%s"' % \
-                dayend.strftime('%Y-%m-%dT%H:%M:%S')
+        startkey = endkey = None
+
+        if which == 'today':
+            startkey = daystart.strftime('%Y-%m-%dT%H:%M:%S')
+            endkey = dayend.strftime('%Y-%m-%dT%H:%M:%S')
+        elif which == 'due':
+            startkey = daystart.strftime('%Y-%m-%dT%H:%M:%S')
+            if limit:
+                end = daystart + datetime.timedelta(days=limit)
+                endkey = end.strftime('%Y-%m-%dT%H:%M:%S')
+        elif which == 'overdue':
+            endkey = dayend.strftime('%Y-%m-%dT%H:%M:%S')
+            if limit:
+                start = dayend - datetime.timedelta(days=limit)
+                startkey = start.strftime('%Y-%m-%dT%H:%M:%S')
+        
+        if startkey:
+            args += '&startkey="%s"' % startkey
+        if endkey:
+            args += '&endkey="%s"' % endkey
 
         view = views.View(self._couch, 'mushin', 'mushin',
             'open-things-due?%s' % args,
@@ -65,62 +83,43 @@ class Server:
         d = view.queryView()
         return d
 
-    def getThingsDue(self):
-        """
-        Returns: a deferred for a generator that generates the due things.
-        """
-        view = views.View(self._couch, 'mushin', 'mushin',
-            'open-things-due?include_docs=true', couch.Thing)
-        d = view.queryView()
-        return d
-
-    def getThingsDueCount(self):
-        """
-        Returns: a deferred that will fire the number of due items.
-        """
-        # FIXME: there has to be a better way
-        view = views.View(self._couch, 'mushin', 'mushin',
-            'open-things-due', Count)
-        d = view.queryView()
-        d.addCallback(lambda r: len(list(r)))
-        return d
-
-    def getThingsDue(self):
+    def getThingsDue(self, limit=None):
         """
         @returns: a deferred for a generator that generates
                   uncompleted due (up to end of today) things
         @rtype:   L{defer.Deferred} of generator
         """
-        d = self._getThingsByDue('due', couch.Thing)
+        d = self._getThingsByDue('due', couch.Thing, limit=limit)
         return d
 
-    def getThingsDueCount(self):
+    def getThingsDueCount(self, limit=None):
         """
         @returns: a deferred for a count of
                   uncompleted due (up to end of today) things
         @rtype:   L{defer.Deferred} of int
         """
-        d = self._getThingsByDue('due', Count, include_docs=False)
+        d = self._getThingsByDue('due', Count, limit=limit, include_docs=False)
         d.addCallback(lambda r: len(list(r)))
         return d
 
 
-    def getThingsOverdue(self):
+    def getThingsOverdue(self, limit=None):
         """
         @returns: a deferred for a generator that generates
                   uncompleted overdue (since start of today) things
         @rtype:   L{defer.Deferred} of generator
         """
-        d = self._getThingsByDue('overdue', couch.Thing)
+        d = self._getThingsByDue('overdue', couch.Thing, limit=limit)
         return d
 
-    def getThingsOverdueCount(self):
+    def getThingsOverdueCount(self, limit=None):
         """
         @returns: a deferred for a count of
                   uncompleted overdue (since start of today) things
         @rtype:   L{defer.Deferred} of int
         """
-        d = self._getThingsByDue('overdue', Count, include_docs=False)
+        d = self._getThingsByDue('overdue', Count, limit=limit,
+            include_docs=False)
         d.addCallback(lambda r: len(list(r)))
         return d
 

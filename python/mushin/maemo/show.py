@@ -15,7 +15,7 @@ class ShowWindow(hildon.StackableWindow):
 
         self._panarea = hildon.PannableArea()
 
-        self._table = gtk.Table(rows=8, columns=2)
+        self._table = gtk.Table(rows=8, columns=4)
 
         self._panarea.add_with_viewport(self._table)
         self.add(self._panarea)
@@ -23,23 +23,29 @@ class ShowWindow(hildon.StackableWindow):
         label = gtk.Label(thing.title)
         label.single_line_mode = False
         label.wrap = True
-        self._table.attach(label, 0, 2, 0, 1, xoptions=0, yoptions=0)
+        self._table.attach(label, 0, 4, 0, 1, xoptions=0, yoptions=0)
         self._table.props.border_width = 6
         self._table.props.column_spacing = 6
         self._table.props.row_spacing = 6
 
         self._row = 1
+        self._col = 0
 
         def add_label(name, value):
             if value:
                 label = gtk.Label(name)
                 label.set_justify(gtk.JUSTIFY_LEFT)
                 label.props.xalign = 0.0
-                self._table.attach(label, 0, 1, self._row, self._row + 1,
+                self._table.attach(label,
+                    self._col + 0, self._col + 1, self._row, self._row + 1,
                     xoptions=0, yoptions=0)
                 label = gtk.Label(value)
-                self._table.attach(label, 1, 2, self._row, self._row + 1)
-                self._row += 1
+                self._table.attach(label,
+                    self._col + 1, self._col + 2, self._row, self._row + 1)
+                self._col += 2
+                if self._col == 4:
+                    self._row += 1
+                    self._col = 0
 
         def add_list(name, value):
             add_label(name, ", ".join(value))
