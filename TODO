@@ -5,3 +5,6 @@ TODO:
    introducing these ?
  - add something to create the database first time
  - handle 404 on replication when target doesn't have that db name
+
+ - any exception from any gobject callback needs to be handled somehow with
+   a dialog, to inform the user
