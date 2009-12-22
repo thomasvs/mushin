@@ -163,7 +163,7 @@ class Search(logcommand.LogCommand):
         server = couch.Server()
 
         # pick the view giving us the most resolution
-        result = [
+        result = []
         found = False
 
         for fattribute in ['urgency', 'importance']:
