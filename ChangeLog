@@ -1,5 +1,11 @@
 2009-12-22  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/command/display.py:
+	* python/mushin/command/main.py:
+	  Properly handle not having any results at all for title.
+
+2009-12-22  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/command/main.py:
 	  Handle the case where there really are no tasks found anymore for
 	  the given urgency, and so we shouldn't show any open things.

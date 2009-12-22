@@ -95,8 +95,8 @@ class Displayer(object):
         """
         Return a string for the given thing.
 
+        @type  thing:   L{model.Thing}
         @param shortid: if True, also show shortid and priority.
-        @param colored: if True, color the return value for output.
         @param due:     whether to show additional due info.
         """
         blocks = []
@@ -166,6 +166,9 @@ class Displayer(object):
         return " ".join(blocks)
 
     def display_things(self, result, due=False):
+        """
+        @type  result: list of L{model.Thing}
+        """
         count = 0
 
         for thing in result:

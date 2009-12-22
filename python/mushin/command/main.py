@@ -163,7 +163,7 @@ class Search(logcommand.LogCommand):
         server = couch.Server()
 
         # pick the view giving us the most resolution
-        result = None
+        result = [
         found = False
 
         for fattribute in ['urgency', 'importance']:
@@ -210,7 +210,7 @@ class Search(logcommand.LogCommand):
 
          
         # now filter on title
-        if filter['title']:
+        if result and filter['title']:
             self.debug('filtering on title %s' % filter['title'])
             result = [t for t in result if t.title.find(filter['title']) > -1]
 
