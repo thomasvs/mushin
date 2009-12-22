@@ -164,8 +164,10 @@ class Search(logcommand.LogCommand):
 
         # pick the view giving us the most resolution
         result = None
+        found = False
 
         for fattribute in ['urgency', 'importance']:
+            found = True
             if filter.has_key(fattribute):
                 self.debug('viewing on %s' % fattribute)
                 result = server.view('open-things-by-%s' % fattribute,
@@ -174,7 +176,7 @@ class Search(logcommand.LogCommand):
                 break
 
         # fall back to getting all
-        if not result:
+        if not found and result:
             self.debug('getting all open things')
             result = server.view('open-things', include_docs=True)
 
