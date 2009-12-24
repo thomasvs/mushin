@@ -1,3 +1,8 @@
+2009-12-24  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* setup.py (added):
+	  Add a setup.py to package.
+
 2009-12-22  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/command/display.py:
