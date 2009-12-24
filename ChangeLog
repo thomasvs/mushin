@@ -1,5 +1,11 @@
 2009-12-24  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* data (added):
+	* data/mushin-maemo.desktop (added):
+	  Add a desktop file.
+
+2009-12-24  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* setup.py (added):
 	  Add a setup.py to package.
 

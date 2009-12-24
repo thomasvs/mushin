@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=mushin
+GenericName=Getting Things Done
+Comment=Manage tasks using Getting Things Done
+Exec=mushin-maemo
+Terminal=false
+Type=Application
+Categories=Utilities
+StartupWMClass=mushin
