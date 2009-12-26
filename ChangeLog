@@ -1,5 +1,12 @@
 2009-12-26  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* couchdb/shows/thing.js:
+	* couchdb/templates/thing.html:
+	  Use mustache.  Use a dirty trick to do object property access
+	  in templates.
+
+2009-12-26  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/command/replicate.py:
 	  Catch another possible exception.
 
