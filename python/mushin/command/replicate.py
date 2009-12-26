@@ -8,6 +8,7 @@ class Add(logcommand.LogCommand):
     usage = "[host]"
 
     def do(self, args):
+        import socket
         import httplib
         import cjson as json
         import codecs
@@ -25,8 +26,13 @@ class Add(logcommand.LogCommand):
               "target": target,
               "continuous": True})
             self.debug('json string: %s', s)
-            conn.request('POST', '/_replicate', s,
-                {"Content-Type": "application/json"})
+            try:
+                conn.request('POST', '/_replicate', s,
+                    {"Content-Type": "application/json"})
+            except socket.error, e:
+                print 'FAILED: local server failed for source %s' % source
+                print 'Is the server running ?'
+                return
             try:
                 r = conn.getresponse()
             except httplib.ResponseNotReady:
