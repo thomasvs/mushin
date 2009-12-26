@@ -1,5 +1,10 @@
 2009-12-26  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/command/main.py:
+	  Unbreak search for titles.
+
+2009-12-26  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* couchdb/shows/thing.js:
 	* couchdb/templates/thing.html:
 	  Use mustache.  Use a dirty trick to do object property access
