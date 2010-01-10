@@ -219,3 +219,12 @@ class Server:
 
         d = view.queryView()
         return d
+
+    def getThingsByContext(self, context):
+        view = views.View(self._couch, 'mushin', 'mushin',
+            'by-context?startkey="%s"&endkey="%s"&include_docs=true' % (
+                context, context), couch.Thing)
+        d = view.queryView()
+        return d
+
+
