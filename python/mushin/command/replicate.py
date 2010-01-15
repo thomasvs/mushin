@@ -13,11 +13,16 @@ class Add(logcommand.LogCommand):
         import cjson as json
         import codecs
 
+        # FIXME: this hardcodes our own port/server
         conn = httplib.HTTPConnection('localhost:5984')
+
+        jane = args[0]
+        if ':' not in jane:
+            jane += ':5984'
 
         dbs = [
           "mushin",
-          "http://%s:5984/mushin" % args[0],
+          "%s/mushin" % jane,
         ]
 
         for source, target in [(dbs[0], dbs[1]), (dbs[1], dbs[0])]:

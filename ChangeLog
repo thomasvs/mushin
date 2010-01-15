@@ -1,3 +1,8 @@
+2010-01-15  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/command/replicate.py:
+	  Allow specifying the port.
+
 2009-12-26  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/command/main.py:
