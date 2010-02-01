@@ -1,3 +1,10 @@
+2010-02-01  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/model/couch.py:
+	  Don't invoke datetime.datetime.now() in the class definition,
+	  since that makes us create tasks with a start date of when the
+	  program was started, not now.
+
 2010-01-15  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/command/replicate.py:

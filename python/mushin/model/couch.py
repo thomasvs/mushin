@@ -25,7 +25,7 @@ class Thing(mapping.Document):
     time = mapping.IntegerField()     # in seconds
     complete = mapping.IntegerField() # percentage of completion
 
-    start = mapping.DateTimeField(default=datetime.datetime.now())
+    start = mapping.DateTimeField(default=datetime.datetime.now)
     due = mapping.DateTimeField()
     end = mapping.DateTimeField()
     recurrence = mapping.IntegerField() # in seconds
