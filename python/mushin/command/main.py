@@ -51,6 +51,8 @@ class Add(logcommand.LogCommand):
 
     def do(self, args):
         new = parse.parse(" ".join(args))
+        if not new.has_key('start'):
+            new['start'] = datetime.datetime.now()
 
         server = couch.Server()
 

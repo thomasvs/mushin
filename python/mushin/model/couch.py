@@ -25,7 +25,13 @@ class Thing(mapping.Document):
     time = mapping.IntegerField()     # in seconds
     complete = mapping.IntegerField() # percentage of completion
 
-    start = mapping.DateTimeField(default=datetime.datetime.now)
+    # tasks should always have a start date set when created
+    # however, setting a default here makes it use that default in those
+    # cases where it (wrongly) doesn't have one as soon as you access it
+    # with .start
+    # We choose to not set a default
+    # start = mapping.DateTimeField(default=datetime.datetime.now)
+    start = mapping.DateTimeField()
     due = mapping.DateTimeField()
     end = mapping.DateTimeField()
     recurrence = mapping.IntegerField() # in seconds
