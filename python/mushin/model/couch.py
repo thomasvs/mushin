@@ -7,7 +7,7 @@ import math
 from mushin.common import mapping
 
 class Thing(mapping.Document):
-    type = mapping.TextField()
+    type = mapping.TextField(default='thing')
 
     title = mapping.TextField()
     description = mapping.TextField()
@@ -156,7 +156,8 @@ def thing_from_dict(d):
         raise ValueError('No title given.')
 
     thing = Thing()
-    thing.type = 'thing'
+    # now set by default
+    # thing.type = 'thing'
 
     thing.set_from_dict(d)
 
