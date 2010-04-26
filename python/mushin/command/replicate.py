@@ -22,7 +22,7 @@ class Add(logcommand.LogCommand):
 
         dbs = [
           "mushin",
-          "%s/mushin" % jane,
+          "http://%s/mushin" % jane,
         ]
 
         for source, target in [(dbs[0], dbs[1]), (dbs[1], dbs[0])]:

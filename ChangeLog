@@ -1,3 +1,9 @@
+2010-04-26  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/command/replicate.py:
+	  Add http:// to target URL.  Allows doing
+	  gtd replicate add level
+
 2010-03-07  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/maemo/new.py:
