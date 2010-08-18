@@ -1,5 +1,11 @@
 2010-08-18  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* couchdb/views/by-context (added):
+	* couchdb/views/by-context/map.js (added):
+	  Add a view to get things by context.
+
+2010-08-18  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/maemo/error.py (added):
 	  Add a window to show an error.
 	  Ugly right now, improve later.
