@@ -8,3 +8,4 @@ TODO:
 
  - any exception from any gobject callback needs to be handled somehow with
    a dialog, to inform the user
+ - why does by-projects view also emit date in key ?
