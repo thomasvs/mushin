@@ -1,5 +1,12 @@
 2010-08-18  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/maemo/new.py:
+	  Make due date button/unsetting work.
+	  Start implementing add_thing so we can reuse dialog for
+	  editing existing things.
+
+2010-08-18  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/maemo/start.py:
 	  Add error dialog.
 	  Only show list of things if we didn't have an error.

@@ -1,7 +1,9 @@
 # -*- Mode: Python -*-
 # vi:si:et:sw=4:sts=4:ts=4
 
+import sys
 import datetime
+
 import gobject
 import gtk
 import hildon
@@ -49,12 +51,15 @@ class NewWindow(hildon.StackableWindow):
         self._panarea.add_with_viewport(self._vbox)
         self.add(self._panarea)
 
+        self._date_button = None # either a normal or date button
+        self._title_entry = None
+
         ### first line: title
         hbox = gtk.HBox()
         label = gtk.Label("Title:")
-        self._entry = hildon.Entry(gtk.HILDON_SIZE_FINGER_HEIGHT)
+        self._title_entry = hildon.Entry(gtk.HILDON_SIZE_FINGER_HEIGHT)
         hbox.pack_start(label)
-        hbox.pack_start(self._entry)
+        hbox.pack_start(self._title_entry)
 
         self._vbox.pack_start(hbox, False, False, 0)
 
@@ -87,9 +92,7 @@ class NewWindow(hildon.StackableWindow):
 
         #button.set_title('New ...')
 
-        ### third line: context
-
-        hbox = gtk.HBox()
+        ### second part second line: context
 
         # Add to context
         self._vbox.pack_start(hbox, False, True, 0)
@@ -114,45 +117,123 @@ class NewWindow(hildon.StackableWindow):
         
         hbox.pack_start(button, False, False, 0)
 
-        ### due date
+        ### next line: due date
 
         hbox = gtk.HBox()
 
         self._vbox.pack_start(hbox, False, True, 0)
 
         # start with a normal button that changes to a Date button
+        # FIXME: make remove button only show when one is set
+        # FIXME: make into optional date selector ?
+        def _reset_date_button(hbox):
+            self._date_button = hildon.Button(gtk.HILDON_SIZE_FINGER_HEIGHT,
+                hildon.BUTTON_ARRANGEMENT_VERTICAL)
+            button = self._date_button
+
+            button.set_title('Due Date')
+            # align left
+            button.set_alignment(0.0, 0.5, 1.0, 0.0)
+            hbox.pack_start(button, False, False, 0)
+            button.show()
+
+            def _due_date_cb(button, parent):
+                # replaces normal button with date button
+                assert button == self._date_button
+
+                parent.remove(button)
+
+                self._date_button = hildon.DateButton(
+                    gtk.HILDON_SIZE_FINGER_HEIGHT,
+                    hildon.BUTTON_ARRANGEMENT_VERTICAL)
+                self._date_button.set_title('Due Date')
+                self._date_button.clicked()
+                parent.pack_start(self._date_button, False, False, 0)
+                parent.show_all()
+                self._date_button.connect('clicked', _due_date_cb, hbox)
+
+            button.connect('clicked', _due_date_cb, hbox)
+
+        _reset_date_button(hbox)
+
+        # remove button
+        # FIXME: make image
         button = hildon.Button(gtk.HILDON_SIZE_FINGER_HEIGHT,
             hildon.BUTTON_ARRANGEMENT_VERTICAL)
-        # align left
-        button.set_alignment(0.0, 0.5, 1.0, 0.0)
-        button.set_title('Due Date')
-        def _due_date_cb(button):
-            hbox.remove(button)
-            self._date_button = hildon.DateButton(gtk.HILDON_SIZE_FINGER_HEIGHT,
+
+        button.set_title('Remove Due Date')
+
+        def _remove_clicked_cb(button, hbox):
+            hbox.remove(self._date_button)
+            _reset_date_button(hbox)
+
+        button.connect('clicked', _remove_clicked_cb, hbox)
+        hbox.pack_end(button, False, False, 0)
+
+        ### next line: urgency and priority
+        hbox = gtk.HBox()
+        self._vbox.pack_start(hbox, False, False, 0)
+
+        def add_u_i(hbox, label):
+            label = gtk.Label(label)
+            button = hildon.PickerButton(
+                gtk.HILDON_SIZE_FINGER_HEIGHT,
                 hildon.BUTTON_ARRANGEMENT_VERTICAL)
-            self._date_button.set_title('Due Date')
-            self._date_button.clicked()
-            hbox.pack_start(self._date_button, False, False, 0)
-            hbox.show_all()
+            hbox.pack_start(label, False, False)
+            hbox.pack_start(button, True, False)
+            s = hildon.TouchSelector(text=True)
+            button.set_selector(s)
 
-        button.connect('clicked', _due_date_cb)
+            #s.append_text("None")
+            for i in range(1, 6):
+                s.append_text(str(i))
 
-        #self._date_button = hildon.DateButton(gtk.HILDON_SIZE_FINGER_HEIGHT,
-        #    hildon.BUTTON_ARRANGEMENT_VERTICAL)
-        #self._date_button.set_title('Due Date')
+            return button
 
-        hbox.pack_start(button, False, False, 0)
+        self._urgency_button = add_u_i(hbox, "Urgency:")
+        self._importance_button = add_u_i(hbox, "Importance:")
+        
+        ### next line: duration and recurrence
+        hbox = gtk.HBox()
+        self._vbox.pack_start(hbox, False, False, 0)
 
+        def _add_d_r(label, default):
+            label = gtk.Label(label)
+            hbox.pack_start(label, False, False)
+
+            entry = hildon.Entry(gtk.HILDON_SIZE_FINGER_HEIGHT)
+            hbox.pack_start(entry)
+            button = hildon.PickerButton(
+                gtk.HILDON_SIZE_FINGER_HEIGHT,
+                hildon.BUTTON_ARRANGEMENT_VERTICAL)
+            hbox.pack_start(button, True, False)
+            s = hildon.TouchSelector(text=True)
+            button.set_selector(s)
+            s.append_text('minutes')
+            s.append_text('hours')
+            s.append_text('days')
+            s.append_text('weeks')
+            # default to hours; assuming arguments are column, value ?
+            s.set_active(0, default)
+            return entry, s
+
+        self._duration_entry, self._duration_selector = _add_d_r('Duration', 1)
+        self._recurrence_entry, self._recurrence_selector = _add_d_r(
+            'Recurs every', 2)
+ 
 
         ### last line: add button
+        hbox = gtk.HBox()
+        self._vbox.pack_start(hbox, False, True, 0)
+
         button = hildon.Button(gtk.HILDON_SIZE_FINGER_HEIGHT,
             hildon.BUTTON_ARRANGEMENT_VERTICAL)
         # align left
-        button.set_alignment(0.0, 0.5, 1.0, 0.0)
+        #button.set_alignment(0.0, 0.5, 1.0, 0.0)
         button.set_title('Add')
         button.connect('clicked', self._add_cb)
 
-        self._vbox.pack_start(button, False, True, 0)
+        hbox.pack_start(button, True, False, 0)
  
         self.show_all()
 
@@ -161,12 +242,13 @@ class NewWindow(hildon.StackableWindow):
 
     # access the data
     def get_due(self):
-        (year, month, day) =  self._date_button.get_date()
-        # March is returned as month 2, so add 1
-        return datetime.datetime(year, month + 1, day)
+        if hasattr(self._date_button, 'get_date'):
+            (year, month, day) =  self._date_button.get_date()
+            # March is returned as month 2, so add 1
+            return datetime.datetime(year, month + 1, day)
 
     def get_title(self):
-        return self._entry.get_text()
+        return self._title_entry.get_text()
 
     def get_projects(self):
         """
@@ -206,6 +288,7 @@ class NewWindow(hildon.StackableWindow):
             self._project_selector.add_text(project)
 
     def add_thing(self, thing):
+        self._title_entry.set_text(thing.title)
         button = hildon.Button(gtk.HILDON_SIZE_FINGER_HEIGHT,
             hildon.BUTTON_ARRANGEMENT_VERTICAL)
         # align left
@@ -292,6 +375,10 @@ class AddWindow(hildon.StackableWindow):
     def _add_cb(self, button):
         self.hide()
 
+    def _get_u_i_value(self, value):
+        if not value: return None
+        if value == 'None': return None
+        return int(value)
  
 def main():
     gtk.set_application_name('add a new thing')
@@ -311,6 +398,12 @@ def main():
         window.destroy()
 
     window = NewWindow()
+
+    if len(sys.argv) > 1:
+        # run in edit mode
+        t = Thing()
+        window.add_thing(t)
+
     window.add_contexts(['hack', 'shop', 'work', 'home'])
     window.add_projects(['mushin', 'moap', 'mach'])
     window.connect('done', done_cb)
