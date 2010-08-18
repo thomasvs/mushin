@@ -70,3 +70,16 @@ QUESTIONS
    is stored at couchdb/vendor/couchapp/_attachments/jquery.couchapp.js
    For now, we created a symlink
    
+maemo
+=====
+
+program flow
+------------
+bin/mushin-maemo
+  calls mushin.maemo.main.main
+    creates mushin.maemo.start.StartWindow()
+      uses mushin.common.app.Server object
+
+error handling
+--------------
+- queryView can get a 404 errback; how to handle this ?
