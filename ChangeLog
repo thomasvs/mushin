@@ -1,3 +1,9 @@
+2010-08-18  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/maemo/error.py (added):
+	  Add a window to show an error.
+	  Ugly right now, improve later.
+
 2010-04-26  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/command/replicate.py:
