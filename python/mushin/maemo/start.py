@@ -1,6 +1,7 @@
 # -*- Mode: Python -*-
 # vi:si:et:sw=4:sts=4:ts=4
 
+import datetime
 import gtk
 import hildon
 
@@ -8,8 +9,9 @@ import hildon
 from twisted.internet import defer
 
 from mushin.common import app
+from mushin.model import couch
 
-from mushin.maemo import new, things, lists, show
+from mushin.maemo import new, things, lists, show, error
 
 class StartWindow(hildon.StackableWindow):
     def __init__(self):
@@ -99,20 +101,30 @@ class StartWindow(hildon.StackableWindow):
             'Shop': (self._server.getThingsByContext, {'context': 'shop'}),
         }
         if list_name in methods.keys():
-            w = things.ThingsWindow()
-            hildon.hildon_gtk_window_set_progress_indicator(w, 1)
+            hildon.hildon_gtk_window_set_progress_indicator(lw, 1)
 
             method, kwargs = methods[list_name]
             d = method(**kwargs)
             def _cb(result):
+                w = things.ThingsWindow()
                 for thing in result:
                     if thing.complete != 100:
                         w.add_thing(thing)
-                hildon.hildon_gtk_window_set_progress_indicator(w, 0)
+                hildon.hildon_gtk_window_set_progress_indicator(lw, 0)
+                w.connect('selected', self._thing_selected_cb)
+                w.show_all()
             d.addCallback(_cb)
 
-            w.connect('selected', self._thing_selected_cb)
-            w.show_all()
+            def _eb(failure):
+                hildon.hildon_gtk_window_set_progress_indicator(lw, 0)
+                ew = error.ErrorWindow(failure)
+                ew.show_all()
+
+                # close previous things window
+                #w.destroy()
+
+            d.addErrback(_eb)
+
 
     def _thing_selected_cb(self, tw, thing):
             w = show.ShowWindow(thing)
@@ -120,6 +132,7 @@ class StartWindow(hildon.StackableWindow):
 
     def _new_clicked_cb(self, button):
         w = new.NewWindow()
+        w.connect('done', self._new_done_cb)
 
         hildon.hildon_gtk_window_set_progress_indicator(w, 1)
 
@@ -140,3 +153,25 @@ class StartWindow(hildon.StackableWindow):
 
         d.addCallback(lambda _: w.show_all())
         d.callback(None)
+
+    def _new_done_cb(self, window):
+        print 'Title:', window.get_title()
+        print 'Projects:', window.get_projects()
+        print 'Contexts:', window.get_contexts()
+
+        thing = couch.Thing()
+        thing.title = window.get_title()
+        thing.projects = window.get_projects()
+        thing.contexts = window.get_contexts()
+        thing.start = datetime.datetime.now()
+
+        hildon.hildon_gtk_window_set_progress_indicator(window, 1)
+        d = self._server.add(thing)
+        d.addCallback(lambda _:
+            hildon.hildon_gtk_window_set_progress_indicator(window, 0))
+        d.addCallback(lambda _: window.destroy())
+
+        return d
+
+
+        
