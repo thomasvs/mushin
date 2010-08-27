@@ -1,5 +1,10 @@
 2010-08-27  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/maemo/main.py:
+	  Activate debug logging.
+
+2010-08-27  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/maemo/start.py:
 	  Make StartWindow loggable.
 	  Handle failures when getting lists or adding to show CouchDB

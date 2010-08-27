@@ -12,9 +12,15 @@ def start():
     window.connect('destroy', lambda _: gtk.main_quit())
 
 def main(argv):
+    from mushin.common import log
+    log.init()
+    log.debug('maemo', 'main')
+
     from twisted.internet import gtk2reactor
     gtk2reactor.install()
     from twisted.internet import reactor
+
+    log.logTwisted()
 
     reactor.callWhenRunning(start)
 
