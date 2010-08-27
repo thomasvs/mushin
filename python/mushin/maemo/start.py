@@ -8,12 +8,15 @@ import hildon
 
 from twisted.internet import defer
 
-from mushin.common import app
+from mushin.common import app, log
 from mushin.model import couch
 
 from mushin.maemo import new, things, lists, show, error
 
-class StartWindow(hildon.StackableWindow):
+class StartWindow(hildon.StackableWindow, log.Loggable):
+
+    logCategory = 'startwindow'
+
     def __init__(self):
         hildon.StackableWindow.__init__(self)
 
@@ -53,11 +56,27 @@ class StartWindow(hildon.StackableWindow):
         button.show()
         button.connect('clicked', self._new_clicked_cb)
 
-    def _get_data(self):
-        server = app.Server()
-        d = server.getThings()
-        return d
+    def _handle_failure_eb(self, failure, window):
+        # only show one error dialog by setting a shown attribute on failure
+        hildon.hildon_gtk_window_set_progress_indicator(window, 0)
+        msg = log.getFailureMessage(failure)
 
+        self.debug(msg)
+
+        from twisted.internet import error as tierror
+        if failure.check(tierror.ConnectionRefusedError):
+            msg = 'Fatal error: CouchDB is not running.'
+
+        if not hasattr(failure, 'shown'):
+            ew = error.ErrorWindow(msg)
+    
+            ew.show_all()
+            failure.shown = True
+
+        # close previous things window
+        window.destroy()
+
+        raise failure
 
     def _lists_clicked_cb(self, button):
         w = lists.ListsWindow()
@@ -73,14 +92,15 @@ class StartWindow(hildon.StackableWindow):
             ('Due', self._server.getThingsDueCount, {}),
             ('Waiting for', self._server.getThingsWaitingForCount, {}),
             ('Next action', self._server.getThingsNextActionCount, {}),
-            ('Shop', self._server.getThingsNextActionCount, {}),
+            ('Shop', self._server.getThingsByContextCount, {'context': 'shop'}),
         ]
 
         for name, method, kwargs in methods:
             d.addCallback(lambda _, m, kw: m(**kw), method, kwargs)
-            def _cb(result):
-                w.add_list(name, result)
             d.addCallback(lambda result, n: w.add_list(n, result), name)
+
+            d.addErrback(self._handle_failure_eb, w)
+
 
         d.addCallback(lambda _:
             hildon.hildon_gtk_window_set_progress_indicator(w, 0))
@@ -118,6 +138,7 @@ class StartWindow(hildon.StackableWindow):
             def _eb(failure):
                 hildon.hildon_gtk_window_set_progress_indicator(lw, 0)
                 ew = error.ErrorWindow(failure)
+		
                 ew.show_all()
 
                 # close previous things window
@@ -142,11 +163,13 @@ class StartWindow(hildon.StackableWindow):
         def _cb(result):
             w.add_projects([p.name for p in list(result)])
         d.addCallback(_cb)
+        d.addErrback(self._handle_failure_eb, w)
 
         d.addCallback(lambda _: self._server.getContexts())
         def _cb(result):
             w.add_contexts([p.name for p in list(result)])
         d.addCallback(_cb)
+        d.addErrback(self._handle_failure_eb, w)
 
         d.addCallback(lambda _:
             hildon.hildon_gtk_window_set_progress_indicator(w, 0))
@@ -170,6 +193,7 @@ class StartWindow(hildon.StackableWindow):
         d.addCallback(lambda _:
             hildon.hildon_gtk_window_set_progress_indicator(window, 0))
         d.addCallback(lambda _: window.destroy())
+        d.addErrback(self._handle_failure_eb, window)
 
         return d
 

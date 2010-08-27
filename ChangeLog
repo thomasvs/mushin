@@ -1,5 +1,14 @@
 2010-08-27  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/maemo/start.py:
+	  Make StartWindow loggable.
+	  Handle failures when getting lists or adding to show CouchDB
+	  is not running.
+	  Fix shopping list count by getting by context, although we're
+	  still wrong since we count closed shopping items too.
+
+2010-08-27  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/common/app.py:
 	  Add 'add' to add a thing.
 	  Add getThingsByContext functions.
