@@ -5,6 +5,7 @@ import datetime
 
 from mushin.extern.paisley import couchdb, views
 
+from mushin.common import log
 from mushin.model import couch
 
 """
@@ -25,7 +26,17 @@ class Project(object):
         self.name = d['key']
         self.things = d['value']
 
-class Server:
+class Server(log.Loggable):
+    """
+    Abstracts communication with the couchdb server.
+
+    The get methods can return failure objects; for example
+    twisted.web.error.Error: 404 Object Not Found
+    twisted.internet.error.ConnectionRefusedError
+    """
+
+    logCategory = 'server'
+
     def __init__(self):
         self._couch = couchdb.CouchDB('localhost')
 
@@ -72,6 +83,7 @@ class Server:
         view = views.View(self._couch, 'mushin', 'mushin',
             'open-things-due?%s' % args,
             factory)
+        self.debug('getThingsByDue: view %r' % view)
 
         d = view.queryView()
         return d
@@ -80,6 +92,8 @@ class Server:
     def getThings(self):
         view = views.View(self._couch, 'mushin', 'mushin',
             'open-things-due?include_docs=true', couch.Thing)
+        self.debug('getThings: view %r' % view)
+
         d = view.queryView()
         return d
 
@@ -154,6 +168,7 @@ class Server:
         view = views.View(self._couch, 'mushin', 'mushin',
             'by-status?%s&startkey="%s"&endkey="%s"' % (args, status, status),
             factory)
+        self.debug('getThingsByStatus: view %r' % view)
 
         d = view.queryView()
         return d
@@ -204,6 +219,7 @@ class Server:
         """
         view = views.View(self._couch, 'mushin', 'mushin',
             'contexts?group=true', Project)
+        self.debug('getContexts: view %r' % view)
 
         d = view.queryView()
         return d
@@ -216,15 +232,51 @@ class Server:
         """
         view = views.View(self._couch, 'mushin', 'mushin',
             'projects?group=true', Project)
+        self.debug('getProjects: view %r' % view)
 
         d = view.queryView()
         return d
+
+    def _getThingsByContext(self, context, factory, include_docs=True):
+        """
+        Returns: a deferred for a generator that generates the things.
+
+        @param context: the context
+        """
+        args = 'include_docs=%s' % (
+            include_docs and 'true' or 'false')
+        
+        view = views.View(self._couch, 'mushin', 'mushin',
+            'by-context?%s&startkey="%s"&endkey="%s"' % (
+                args, context, context),
+            factory)
+        self.debug('getThingsByContext: view %r' % view)
+
+        d = view.queryView()
+        return d
+
 
     def getThingsByContext(self, context):
-        view = views.View(self._couch, 'mushin', 'mushin',
-            'by-context?startkey="%s"&endkey="%s"&include_docs=true' % (
-                context, context), couch.Thing)
-        d = view.queryView()
+        return self._getThingsByContext(context, couch.Thing)
+
+    def getThingsByContextCount(self, context):
+        """
+        @returns: a deferred for a count of
+                  things in the given context
+        @rtype:   L{defer.Deferred} of int
+        """
+        d = self._getThingsByContext(context, Count, include_docs=False)
+        d.addCallback(lambda r: len(list(r)))
         return d
 
-
+    def add(self, thing):
+        """
+        @type  thing: L{couch.Thing}
+        """
+        self.debug('adding thing %r', thing)
+        print thing._data
+        d = self._couch.saveDoc('mushin', thing._data)
+        def _saveDoc_cb(result):
+            self.debug('add result %r', result)
+        d.addCallback(_saveDoc_cb)
+        return d
