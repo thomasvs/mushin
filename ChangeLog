@@ -1,5 +1,13 @@
 2010-08-27  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/maemo/new.py:
+	  Add flags.
+	  Allow deleting all items from projects/contexts/flags
+	  Change button to update or add.
+	  Factor out some common functions.
+
+2010-08-27  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/maemo/main.py:
 	  Activate debug logging.
 

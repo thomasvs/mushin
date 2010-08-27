@@ -8,7 +8,7 @@ import gobject
 import gtk
 import hildon
 
-# FIXME: currently also used for context
+# FIXME: currently also used for context, and flag
 class ProjectSelector(hildon.TouchSelector):
     # FIXME: would be nice to combine TouchSelectorEntry's mode with multiselect
 
@@ -40,7 +40,7 @@ class NewWindow(hildon.StackableWindow):
     }
 
     # Create a new thing
-    def __init__(self):
+    def __init__(self, new=True):
         hildon.StackableWindow.__init__(self)
 
         self._panarea = hildon.PannableArea()
@@ -58,7 +58,7 @@ class NewWindow(hildon.StackableWindow):
         hbox = gtk.HBox()
         label = gtk.Label("Title:")
         self._title_entry = hildon.Entry(gtk.HILDON_SIZE_FINGER_HEIGHT)
-        hbox.pack_start(label)
+        hbox.pack_start(label, expand=False, fill=False, padding=6)
         hbox.pack_start(self._title_entry)
 
         self._vbox.pack_start(hbox, False, False, 0)
@@ -66,9 +66,9 @@ class NewWindow(hildon.StackableWindow):
         ### second line: project
 
         hbox = gtk.HBox()
+        self._vbox.pack_start(hbox, False, True, 0)
 
         # Add to project
-        self._vbox.pack_start(hbox, False, True, 0)
 
         project_picker = hildon.PickerButton(gtk.HILDON_SIZE_AUTO,
             hildon.BUTTON_ARRANGEMENT_VERTICAL)
@@ -82,21 +82,29 @@ class NewWindow(hildon.StackableWindow):
         button = hildon.Button(gtk.HILDON_SIZE_FINGER_HEIGHT,
             hildon.BUTTON_ARRANGEMENT_VERTICAL)
         image = gtk.image_new_from_stock(gtk.STOCK_NEW,
-            gtk.HILDON_SIZE_FINGER_HEIGHT)
+            gtk.ICON_SIZE_BUTTON)
         button.add(image)
+
         button.connect('clicked', self._add_project_cb)
-        # align left
-        #button.set_alignment(0.0, 0.5, 1.0, 0.0)
-        
+
         hbox.pack_start(button, False, False, 0)
 
-        #button.set_title('New ...')
+        # unset projects
+        button = hildon.Button(gtk.HILDON_SIZE_FINGER_HEIGHT,
+            hildon.BUTTON_ARRANGEMENT_VERTICAL)
+        image = gtk.image_new_from_stock(gtk.STOCK_DELETE,
+            gtk.ICON_SIZE_BUTTON)
+        button.add(image)
+
+        button.connect('clicked',
+            lambda b: self._project_selector.unselect_all(0))
+
+        hbox.pack_start(button, False, False, 0)
+
 
         ### second part second line: context
 
         # Add to context
-        self._vbox.pack_start(hbox, False, True, 0)
-
         context_picker = hildon.PickerButton(gtk.HILDON_SIZE_AUTO,
             hildon.BUTTON_ARRANGEMENT_VERTICAL)
         context_picker.set_title("Add to context")
@@ -117,11 +125,58 @@ class NewWindow(hildon.StackableWindow):
         
         hbox.pack_start(button, False, False, 0)
 
-        ### next line: due date
+        # unset contexts
+        button = hildon.Button(gtk.HILDON_SIZE_FINGER_HEIGHT,
+            hildon.BUTTON_ARRANGEMENT_VERTICAL)
+        image = gtk.image_new_from_stock(gtk.STOCK_DELETE,
+            gtk.ICON_SIZE_BUTTON)
+        button.add(image)
+
+        button.connect('clicked',
+            lambda b: self._context_selector.unselect_all(0))
+
+        hbox.pack_start(button, False, False, 0)
+
+
+        ### next line: flags, due date
 
         hbox = gtk.HBox()
 
         self._vbox.pack_start(hbox, False, True, 0)
+
+        # Add flag
+        flag_picker = hildon.PickerButton(gtk.HILDON_SIZE_AUTO,
+            hildon.BUTTON_ARRANGEMENT_VERTICAL)
+        flag_picker.set_title("Add flag")
+        self._flag_selector = ProjectSelector()
+        flag_picker.set_selector(self._flag_selector)
+
+        hbox.pack_start(flag_picker, False, False, 0)
+
+        # create new flag
+        button = hildon.Button(gtk.HILDON_SIZE_FINGER_HEIGHT,
+            hildon.BUTTON_ARRANGEMENT_VERTICAL)
+        image = gtk.image_new_from_stock(gtk.STOCK_NEW,
+            gtk.HILDON_SIZE_FINGER_HEIGHT)
+        button.add(image)
+        button.connect('clicked', self._add_flag_cb)
+        # align left
+        #button.set_alignment(0.0, 0.5, 1.0, 0.0)
+        
+        hbox.pack_start(button, False, False, 0)
+
+        # unset flags
+        button = hildon.Button(gtk.HILDON_SIZE_FINGER_HEIGHT,
+            hildon.BUTTON_ARRANGEMENT_VERTICAL)
+        image = gtk.image_new_from_stock(gtk.STOCK_DELETE,
+            gtk.ICON_SIZE_BUTTON)
+        button.add(image)
+
+        button.connect('clicked',
+            lambda b: self._flag_selector.unselect_all(0))
+
+        hbox.pack_start(button, False, False, 0)
+
 
         # start with a normal button that changes to a Date button
         # FIXME: make remove button only show when one is set
@@ -202,6 +257,7 @@ class NewWindow(hildon.StackableWindow):
             hbox.pack_start(label, False, False)
 
             entry = hildon.Entry(gtk.HILDON_SIZE_FINGER_HEIGHT)
+            entry.props.hildon_input_mode = gtk.HILDON_GTK_INPUT_MODE_NUMERIC
             hbox.pack_start(entry)
             button = hildon.PickerButton(
                 gtk.HILDON_SIZE_FINGER_HEIGHT,
@@ -230,7 +286,10 @@ class NewWindow(hildon.StackableWindow):
             hildon.BUTTON_ARRANGEMENT_VERTICAL)
         # align left
         #button.set_alignment(0.0, 0.5, 1.0, 0.0)
-        button.set_title('Add')
+        if new:
+            button.set_title('Add')
+        else:
+            button.set_title('Update')
         button.connect('clicked', self._add_cb)
 
         hbox.pack_start(button, True, False, 0)
@@ -250,7 +309,7 @@ class NewWindow(hildon.StackableWindow):
     def get_title(self):
         return self._title_entry.get_text()
 
-    def get_projects(self):
+    def _get_items(self, selector):
         """
         @rtype: list of str
         """
@@ -259,58 +318,70 @@ class NewWindow(hildon.StackableWindow):
         # print self._project_selector.get_selected(iter, 2)
 
         # for now, work around it
-        text = self._project_selector.get_current_text()
-        projects = text[1:-1].split(',')
+        text = selector.get_current_text()
+        items = text[1:-1].split(',')
         # empty text results in [''] instead of []
-        return projects[0] and projects or []
+        return items[0] and items or []
+
+    def get_projects(self):
+        """
+        @rtype: list of str
+        """
+        return self._get_items(self._project_selector)
 
     def get_contexts(self):
         """
         @rtype: list of str
         """
-        # FIXME: get_selected seems wrapped wrong, needing an Iter instead of
-        # giving us one; fix and recompile python-hildon 0.9.0
-        # print self._context_selector.get_selected(iter, 2)
+        return self._get_items(self._context_selector)
 
-        # for now, work around it
-        text = self._context_selector.get_current_text()
-        contexts = text[1:-1].split(',')
-        # empty text results in [''] instead of []
-        return contexts[0] and contexts or []
-
-
-    def add_contexts(self, contexts):
-        for context in contexts:
-            self._context_selector.add_text(context)
+    def get_flags(self):
+        """
+        @rtype: list of str
+        """
+        return self._get_items(self._flag_selector)
 
     def add_projects(self, projects):
         for project in projects:
             self._project_selector.add_text(project)
 
+    def add_contexts(self, contexts):
+        for context in contexts:
+            self._context_selector.add_text(context)
+
+    def add_flags(self, flags):
+        for flag in flags:
+            self._flag_selector.add_text(flag)
+
     def add_thing(self, thing):
         self._title_entry.set_text(thing.title)
-        button = hildon.Button(gtk.HILDON_SIZE_FINGER_HEIGHT,
-            hildon.BUTTON_ARRANGEMENT_VERTICAL)
-        # align left
-        button.set_alignment(0.0, 0.5, 1.0, 0.0)
-        
-        self._vbox.pack_start(button)
 
-        button.set_title(thing.title)
-        value = []
-        if thing.projects:
-            value.append('projects: %s' % ', '.join(thing.projects))
-        if thing.contexts:
-            value.append('contexts: %s' % ', '.join(thing.contexts))
-        button.set_value(" - ".join(value))
+        def _populate_selector(selector, items):
 
-        button.show()
+            model = selector.get_model(0)
+
+            # map project name to iter in model
+            iters = dict([(row[0], row.iter) for row in model])
+
+            for project in items:
+                # add non-existent project to selector
+                if not project in iters.keys():
+                    selector.append_text(project)
+                    iters[project] = model[-1].iter
+
+                # select the row for this project
+                selector.select_iter(0, iters[project], False)
+
+        _populate_selector(self._project_selector, thing.projects)        
+        _populate_selector(self._context_selector, thing.contexts)        
+        _populate_selector(self._flag_selector, thing.flags)        
 
         self.thing = thing
 
     def _add_project_cb(self, button):
         self._show_add_dialog('Add a project', self._add_project_clicked_cb)
 
+    # TODO: FIXME: why different ?
     def _add_context_cb(self, button):
         d = gtk.Dialog(title='Add a context')
         self._entry = hildon.Entry(gtk.HILDON_SIZE_AUTO)
@@ -318,6 +389,9 @@ class NewWindow(hildon.StackableWindow):
         self._entry.props.activates_default = True
         d.vbox.add(self._entry)
         d.show_all()
+
+    def _add_flag_cb(self, button):
+        self._show_add_dialog('Add a flag', self._add_flag_clicked_cb)
 
     def _show_add_dialog(self, title, callback):
         d = gtk.Dialog(title=title)
@@ -340,10 +414,14 @@ class NewWindow(hildon.StackableWindow):
 
         d.show_all()
 
-
     def _add_project_clicked_cb(self, button, entry):
         project = entry.get_text()
         self.add_projects([project, ])
+
+    def _add_flag_clicked_cb(self, button, entry):
+        flag = entry.get_text()
+        self.add_flags([flag, ])
+
 
     def _add_context_activate_cb(self, entry):
         print 'entry activated', entry.get_text()
@@ -381,12 +459,13 @@ class AddWindow(hildon.StackableWindow):
         return int(value)
  
 def main():
-    gtk.set_application_name('add a new thing')
+    gtk.set_application_name('add/edit thing')
 
     class Thing(object):
         title = 'a thing'
-        projects = ['mushin', ]
+        projects = ['mushin', 'newproject']
         contexts = ['home', 'hacking']
+        flags = ['waitingon']
         
     def done_cb(window):
         # get data out of the window
@@ -397,15 +476,22 @@ def main():
 
         window.destroy()
 
-    window = NewWindow()
-
+    new = True
     if len(sys.argv) > 1:
         # run in edit mode
-        t = Thing()
-        window.add_thing(t)
+        new = False
+
+    window = NewWindow(new)
 
     window.add_contexts(['hack', 'shop', 'work', 'home'])
     window.add_projects(['mushin', 'moap', 'mach'])
+    window.add_flags(['next', ])
+
+    if not new:
+        t = Thing()
+        t.title = sys.argv[1]
+        window.add_thing(t)
+
     window.connect('done', done_cb)
     window.connect('destroy', lambda _: gtk.main_quit())
 
