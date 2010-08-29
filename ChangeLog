@@ -1,5 +1,10 @@
 2010-08-29  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/maemo/new.py:
+	  Rearrange widgets in a table, make stuff look a lot nicer.
+
+2010-08-29  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/model/couch.py:
 	  Add a comment.
 
