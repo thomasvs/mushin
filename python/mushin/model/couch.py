@@ -23,7 +23,7 @@ class Thing(mapping.Document):
     importance = mapping.IntegerField()
 
     time = mapping.IntegerField()     # in seconds
-    complete = mapping.IntegerField() # percentage of completion
+    complete = mapping.IntegerField() # percentage of completion, 0 to 100 ?
 
     # tasks should always have a start date set when created
     # however, setting a default here makes it use that default in those
