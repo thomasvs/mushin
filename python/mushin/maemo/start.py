@@ -126,6 +126,7 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
             method, kwargs = methods[list_name]
             d = method(**kwargs)
             def _cb(result):
+                # show all things in a list
                 w = things.ThingsWindow()
                 for thing in result:
                     if thing.complete != 100:
@@ -136,8 +137,11 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
             d.addCallback(_cb)
 
             def _eb(failure):
+                msg = log.getFailureMessage(failure)
+                self.debug(msg)
+
                 hildon.hildon_gtk_window_set_progress_indicator(lw, 0)
-                ew = error.ErrorWindow(failure)
+                ew = error.ErrorWindow(msg)
 		
                 ew.show_all()
 
@@ -148,8 +152,11 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
 
 
     def _thing_selected_cb(self, tw, thing):
-            w = show.ShowWindow(thing)
+            #w = show.ShowWindow(thing)
+            w = new.NewWindow(new=False)
+            w.add_thing(thing)
             w.show_all()
+            w.connect('done', self._update_done_cb)
 
     def _new_clicked_cb(self, button):
         w = new.NewWindow()
@@ -176,6 +183,17 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
 
         d.addCallback(lambda _: w.show_all())
         d.callback(None)
+
+    def _update_done_cb(self, window):
+        print 'Title:', window.get_title()
+        print 'Projects:', window.get_projects()
+        print 'Contexts:', window.get_contexts()
+
+        d = defer.Deferred()
+        d.addCallback(lambda _: window.destroy())
+        d.callback(None)
+        return d
+
 
     def _new_done_cb(self, window):
         print 'Title:', window.get_title()
