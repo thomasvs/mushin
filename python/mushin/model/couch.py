@@ -4,9 +4,9 @@
 import datetime
 import math
 
-from mushin.common import mapping
+from mushin.common import mapping, log
 
-class Thing(mapping.Document):
+class Thing(mapping.Document, log.Loggable):
     type = mapping.TextField(default='thing')
 
     title = mapping.TextField()
@@ -22,7 +22,7 @@ class Thing(mapping.Document):
     urgency = mapping.IntegerField()
     importance = mapping.IntegerField()
 
-    time = mapping.IntegerField()     # in seconds
+    time = mapping.IntegerField()     # duration, in seconds
     complete = mapping.IntegerField() # percentage of completion, 0 to 100 ?
 
     # tasks should always have a start date set when created
@@ -32,7 +32,7 @@ class Thing(mapping.Document):
     # We choose to not set a default
     # start = mapping.DateTimeField(default=datetime.datetime.now)
     start = mapping.DateTimeField()
-    due = mapping.DateTimeField()
+    due = mapping.DateTimeField() # e.g. 2009-02-20T00:00:00
     end = mapping.DateTimeField()
     recurrence = mapping.IntegerField() # in seconds
 
@@ -105,6 +105,27 @@ class Thing(mapping.Document):
 
         #if __debug__: print "Piority=", Prio
         return Prio
+
+    def finish(self):
+        """
+        Complete a thing.
+        If the thing has recurrence, reschedule.
+
+        return: True if it really is completed, False if rescheduled.
+        """
+        if self.recurrence:
+            self.debug('done recurring thing, rescheduling')
+            self.complete = None
+            if not self.due:
+                self.due = datetime.datetime.now()
+
+            self.start = self.due
+            self.due = self.start + \
+                datetime.timedelta(seconds=self.recurrence)
+        else:
+            self.debug('done non-recurring thing')
+            self.complete = 100
+            self.end = datetime.datetime.now()
 
     def set_from_dict(self, d):
         """

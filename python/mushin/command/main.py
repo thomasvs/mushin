@@ -86,23 +86,15 @@ class Done(logcommand.LogCommand):
                 self.stdout.write('Already done "%s" (%s)\n' % (
                     thing.title, thing.id))
             else:
-                if thing.recurrence:
-                    self.debug('done recurring thing, rescheduling')
-                    if not thing.due:
-                        thing.due = datetime.datetime.now()
-
-                    thing.start = thing.due
-                    thing.due = thing.start + \
-                        datetime.timedelta(seconds=thing.recurrence)
-                    server.save(thing)
-                    self.stdout.write('Rescheduling for %s "%s" (%s)\n' % (
-                        thing.due, thing.title, thing.id))
-                else:
-                    thing.complete = 100
-                    thing.end = datetime.datetime.now()
+                if thing.finish():
                     server.save(thing)
                     self.stdout.write('Marked "%s" (%s) as done\n' % (
                         thing.title, thing.id))
+                else:
+                    server.save(thing)
+                    self.stdout.write('Rescheduling for %s "%s" (%s)\n' % (
+                        thing.due, thing.title, thing.id))
+
 
 class Edit(logcommand.LogCommand):
     summary = "edit a thing"

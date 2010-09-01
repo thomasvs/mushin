@@ -1,3 +1,11 @@
+2010-09-01  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/model/couch.py:
+	  Make a Thing loggable.
+	  Add a finish method that implements rescheduling.
+	* python/mushin/command/main.py:
+	  Use the finish method.
+
 2010-08-30  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/maemo/start.py:
