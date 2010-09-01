@@ -1,6 +1,14 @@
 2010-09-01  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/common/app.py:
+	  Make sure save returns the Deferred.
+	  Make add log a failure when adding/saving.
+	* python/mushin/maemo/start.py:
+	  Show an error on save.
+
+2010-09-01  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/common/app.py:
 	  Add save method that proxies to add for now.
 	* python/mushin/maemo/new.py:
 	  Make NewWindow Loggable.

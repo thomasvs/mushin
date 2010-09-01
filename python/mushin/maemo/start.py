@@ -155,11 +155,13 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
         # first populate lists, otherwise adding the thing adds some
         # items to the beginning of the list out of order
         #w = show.ShowWindow(thing)
+        # FIXME: make uneditable until we have everything 
         w = new.NewWindow(new=False)
         w.show_all()
         d = self._populate_lists(w)
 
         def cb(r):
+            self.debug('Adding thing %r for id %r', id(thing), thing.id)
             w.add_thing(thing)
             w.connect('done', self._update_done_cb)
         d.addCallback(cb)
@@ -222,6 +224,15 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
         d = defer.Deferred()
 
         d.addCallback(lambda _: self._server.save(window.thing))
+        def eb(failure):
+            if not hasattr(failure, 'shown'):
+                msg = log.getFailureMessage(failure)
+                ew = error.ErrorWindow(msg)
+    
+                ew.show_all()
+                failure.shown = True
+
+        d.addErrback(eb)
 
         d.addCallback(lambda _:
             hildon.hildon_gtk_window_set_progress_indicator(window, 0))

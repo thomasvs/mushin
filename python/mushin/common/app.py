@@ -270,16 +270,21 @@ class Server(log.Loggable):
         return d
 
     def save(self, thing):
-        self.add(thing)
+        return self.add(thing)
 
     def add(self, thing):
         """
         @type  thing: L{couch.Thing}
         """
         self.debug('adding thing %r', thing)
-        print thing._data
         d = self._couch.saveDoc('mushin', thing._data)
         def _saveDoc_cb(result):
             self.debug('add result %r', result)
         d.addCallback(_saveDoc_cb)
+        def _saveDoc_eb(failure):
+            self.debug('failure adding thing %r: %r',
+                thing, log.getFailureMessage(failure))
+            return failure
+        d.addErrback(_saveDoc_eb)
+
         return d
