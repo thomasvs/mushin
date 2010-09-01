@@ -152,16 +152,21 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
 
 
     def _thing_selected_cb(self, tw, thing):
-            #w = show.ShowWindow(thing)
-            w = new.NewWindow(new=False)
+        # first populate lists, otherwise adding the thing adds some
+        # items to the beginning of the list out of order
+        #w = show.ShowWindow(thing)
+        w = new.NewWindow(new=False)
+        w.show_all()
+        d = self._populate_lists(w)
+
+        def cb(r):
             w.add_thing(thing)
-            w.show_all()
             w.connect('done', self._update_done_cb)
+        d.addCallback(cb)
 
-    def _new_clicked_cb(self, button):
-        w = new.NewWindow()
-        w.connect('done', self._new_done_cb)
+        return d
 
+    def _populate_lists(self, w):
         hildon.hildon_gtk_window_set_progress_indicator(w, 1)
 
         d = defer.Deferred()
@@ -184,36 +189,51 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
         d.addCallback(lambda _: w.show_all())
         d.callback(None)
 
-    def _update_done_cb(self, window):
-        print 'Title:', window.get_title()
-        print 'Projects:', window.get_projects()
-        print 'Contexts:', window.get_contexts()
-
-        d = defer.Deferred()
-        d.addCallback(lambda _: window.destroy())
-        d.callback(None)
         return d
 
+    def _new_clicked_cb(self, button):
+        w = new.NewWindow()
+        w.connect('done', self._new_done_cb)
 
-    def _new_done_cb(self, window):
-        print 'Title:', window.get_title()
-        print 'Projects:', window.get_projects()
-        print 'Contexts:', window.get_contexts()
+        return self._populate_lists(w)
 
-        thing = couch.Thing()
-        thing.title = window.get_title()
-        thing.projects = window.get_projects()
-        thing.contexts = window.get_contexts()
-        thing.start = datetime.datetime.now()
+    def _update_done_cb(self, window):
+        print 'thing id', window.thing.id
+
+        window.get_thing(window.thing)
+
+        t = window.thing
+
+        print 'Title:', t.title
+        print 'Projects:', t.projects
+        print 'Contexts:', t.contexts
+        print 'Flags:', t.statuses
+        print 'Due date:', t.due
+
+        print 'Urgency:', t.urgency
+        print 'Importance:', t.importance
+        print 'Duration:', t.time
+        print 'Recurrence:', t.recurrence
+        print '% complete:', t.complete
+
 
         hildon.hildon_gtk_window_set_progress_indicator(window, 1)
-        d = self._server.add(thing)
+
+        d = defer.Deferred()
+
+        d.addCallback(lambda _: self._server.save(window.thing))
+
         d.addCallback(lambda _:
             hildon.hildon_gtk_window_set_progress_indicator(window, 0))
+
         d.addCallback(lambda _: window.destroy())
-        d.addErrback(self._handle_failure_eb, window)
+        d.callback(None)
 
         return d
 
-
-        
+    def _new_done_cb(self, window):
+        thing = couch.Thing()
+        window.get_thing(thing)
+        # FIXME: a bit dodgy, should the thing be on the window already ?
+        window.thing = thing
+        return self._update_done_cb(window)

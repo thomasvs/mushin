@@ -1,5 +1,18 @@
 2010-09-01  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/common/app.py:
+	  Add save method that proxies to add for now.
+	* python/mushin/maemo/new.py:
+	  Make NewWindow Loggable.
+	  Use the finish method.
+	  Rework date button resetting.
+	  Add recurrence/duration.
+	  Make complete finish the task, optionally rescheduling.
+	* python/mushin/maemo/start.py:
+	  Actually save the updated version now that everything seems to work.
+
+2010-09-01  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/model/couch.py:
 	  Make a Thing loggable.
 	  Add a finish method that implements rescheduling.

@@ -269,6 +269,9 @@ class Server(log.Loggable):
         d.addCallback(lambda r: len(list(r)))
         return d
 
+    def save(self, thing):
+        self.add(thing)
+
     def add(self, thing):
         """
         @type  thing: L{couch.Thing}

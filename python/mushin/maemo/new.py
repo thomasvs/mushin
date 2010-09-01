@@ -8,6 +8,9 @@ import gobject
 import gtk
 import hildon
 
+from mushin.model import couch
+from mushin.common import log
+
 # FIXME: currently also used for context, and status
 class ProjectSelector(hildon.TouchSelector):
     # FIXME: would be nice to combine TouchSelectorEntry's mode with multiselect
@@ -33,7 +36,7 @@ class ProjectSelector(hildon.TouchSelector):
         self.append_text(text)
 
 
-class NewWindow(hildon.StackableWindow):
+class NewWindow(hildon.StackableWindow, log.Loggable):
 
     __gsignals__ = {
         'done': (gobject.SIGNAL_RUN_LAST, None, ( ))
@@ -167,36 +170,7 @@ class NewWindow(hildon.StackableWindow):
 
         self._table.attach(button, 2, 3, 3, 4)
 
-        # start with a normal button that changes to a Date button
-        # FIXME: make remove button only show when one is set
-        # FIXME: make into optional date selector ?
-        def _reset_date_button():
-            self._date_button = hildon.Button(gtk.HILDON_SIZE_FINGER_HEIGHT,
-                hildon.BUTTON_ARRANGEMENT_VERTICAL)
-            button = self._date_button
-
-            button.set_title('Due Date')
-            self._table.attach(button, 0, 1, 4, 5)
-
-            def _due_date_cb(button):
-                # replaces normal button with date button
-                assert button == self._date_button
-
-                self._table.remove(button)
-
-                self._date_button = hildon.DateButton(
-                    gtk.HILDON_SIZE_FINGER_HEIGHT,
-                    hildon.BUTTON_ARRANGEMENT_VERTICAL)
-                self._date_button.set_title('Due Date')
-                self._date_button.clicked()
-                self._table.attach(self._date_button, 0, 1, 4, 5)
-                self._date_button.connect('clicked', _due_date_cb)
-                self._date_button.show()
-
-            button.connect('clicked', _due_date_cb)
-            button.show()
-
-        _reset_date_button()
+        self._reset_date_button()
 
         # remove button
         # FIXME: make image
@@ -208,7 +182,7 @@ class NewWindow(hildon.StackableWindow):
 
         def _remove_clicked_cb(button):
             self._table.remove(self._date_button)
-            _reset_date_button()
+            self._reset_date_button()
 
         button.connect('clicked', _remove_clicked_cb)
         self._table.attach(button, 2, 3, 4, 5)
@@ -295,12 +269,49 @@ class NewWindow(hildon.StackableWindow):
         self._table.attach(button, 5, 6, 6, 7)
 
         def _complete_clicked_cb(button):
-            self._complete_entry.set_text('100')
+            self.thing.finish()
+            self.add_thing(self.thing)
+
+            # self._complete_entry.set_text('100')
 
         button.connect('clicked', _complete_clicked_cb)
  
 
         self.show_all()
+
+    # start with a normal button that changes to a Date button
+    # FIXME: make remove button only show when one is set
+    # FIXME: make into optional date selector ?
+    def _reset_date_button(self):
+        if self._date_button:
+            self._table.remove(self._date_button)
+
+        self._date_button = hildon.Button(gtk.HILDON_SIZE_FINGER_HEIGHT,
+            hildon.BUTTON_ARRANGEMENT_VERTICAL)
+
+        self._date_button.set_title('Due Date')
+        self._table.attach(self._date_button, 0, 1, 4, 5)
+
+        def _clicked_cb(button):
+            self._set_date_button()
+            self._date_button.clicked()
+
+        self._date_button.connect('clicked', _clicked_cb)
+
+        self._date_button.show()
+
+    # set to an actual date button
+    def _set_date_button(self):
+        if self._date_button:
+            self._table.remove(self._date_button)
+
+        self._date_button = hildon.DateButton(
+            gtk.HILDON_SIZE_FINGER_HEIGHT,
+            hildon.BUTTON_ARRANGEMENT_VERTICAL)
+        self._date_button.set_title('Due Date')
+        self._table.attach(self._date_button, 0, 1, 4, 5)
+        self._date_button.show()
+
 
     def _add_cb(self, button):
         self.emit('done')
@@ -395,12 +406,24 @@ class NewWindow(hildon.StackableWindow):
         @rtype:   int or None
         """
         return self._get_d_r(self._duration_entry, self._duration_selector)
-        
+
+    def get_recurrence(self):
+        """
+        @returns: recurrence in seconds
+        @rtype:   int or None
+        """
+        return self._get_d_r(self._recurrence_entry, self._recurrence_selector)
+         
     def get_complete(self):
         """
-        @rtype: int
+        @rtype: int or None
         """
-        return int(self._complete_entry.get_text())
+        t = self._complete_entry.get_text()
+
+        if not t:
+            return None
+
+        return int(t)
 
     def add_projects(self, projects):
         for project in projects:
@@ -414,32 +437,90 @@ class NewWindow(hildon.StackableWindow):
         for status in statuses:
             self._status_selector.add_text(status)
 
+    def _set_d_r(self, entry, button, value):
+        if value is None:
+            return
+
+        minutes = value / 60
+        hours = minutes / 60
+        days = hours / 24
+        weeks = days / 7
+
+        if hours * 60 != minutes:
+            button.set_active(0, 0)
+            entry.set_text(str(minutes))
+        elif days * 24 != hours:
+            button.set_active(0, 1)
+            entry.set_text(str(hours))
+        elif weeks * 7 != days:
+            button.set_active(0, 2)
+            entry.set_text(str(days))
+        else:
+            button.set_active(0, 3)
+            entry.set_text(str(weeks))
+
+    # FIXME: rename to set_thing ?
     def add_thing(self, thing):
         self._title_entry.set_text(thing.title)
 
         def _populate_selector(selector, items):
+            self.debug('populating %r with items %r', selector, items)
 
             model = selector.get_model(0)
 
             # map project name to iter in model
             iters = dict([(row[0], row.iter) for row in model])
 
-            for project in items:
+            for item in items:
                 # add non-existent project to selector
-                if not project in iters.keys():
-                    selector.append_text(project)
-                    iters[project] = model[-1].iter
+                if not item in iters.keys():
+                    self.debug('adding item %r', item)
+                    selector.add_text(item)
+                    iters[item] = model[-1].iter
 
-                # select the row for this project
-                selector.select_iter(0, iters[project], False)
+                # select the row for this item
+                self.debug('selecting %r', item)
+                selector.select_iter(0, iters[item], False)
 
         _populate_selector(self._project_selector, thing.projects)        
         _populate_selector(self._context_selector, thing.contexts)        
         _populate_selector(self._status_selector, thing.statuses)        
 
+        if thing.due:
+            self._set_date_button()
+            # month starts from 0, so subtract one
+            self._date_button.set_date(
+                thing.due.year, thing.due.month - 1, thing.due.day)
+
+        if thing.urgency:
+            self._urgency_button.set_active(thing.urgency - 1)
+        if thing.importance:
+            self._importance_button.set_active(thing.importance - 1)
+
+        self._set_d_r(
+            self._duration_entry, self._duration_selector, thing.time)
+        self._set_d_r(
+            self._recurrence_entry, self._recurrence_selector, thing.recurrence)
+
         self._complete_entry.set_text(str(thing.complete))
 
         self.thing = thing
+
+    def get_thing(self, thing):
+        """
+        Fill in values from the window into the given thing.
+        """
+        thing.title =  self.get_title()
+        thing.projects = self.get_projects()
+        thing.contexts = self.get_contexts()
+        thing.statuses = self.get_statuses()
+        thing.due = self.get_due()
+
+        thing.urgency = self.get_urgency()
+        thing.importance = self.get_importance()
+        thing.time = self.get_duration()
+        thing.recurrence = self.get_recurrence()
+        thing.complete = self.get_complete()
 
     def _add_project_cb(self, button):
         self._show_add_dialog('Add a project', self._add_project_clicked_cb)
@@ -525,38 +606,46 @@ def main():
     gtk.set_application_name('add/edit thing')
 
     # compare with mushin.model.couch.Thing
-    # FIXME: statuses or statuses ? 
+    # FIXME: flags or statuses ? 
 
     class Thing(object):
+        pass
+
+    class OldThing(couch.Thing):
         title = 'a thing'
-        projects = ['mushin', 'newproject']
-        contexts = ['home', 'hacking']
-        statuses = ['waitingon']
-        due = None
+        projects = [u'mushin', u'newproject']
+        contexts = [u'home', u'hacking']
+        statuses = [u'waitingon']
+        # march
+        due = datetime.datetime(2011, 3, 20)
         complete = 50
         urgency = 2
         importance = 4
+
+        time = 3600
+        recurrence = 60 * 60 * 24 * 7
         
     def done_cb(window):
-        # get data out of the window
-        print 'Title:', window.get_title()
-        print 'Projects:', window.get_projects()
-        print 'Contexts:', window.get_contexts()
-        print 'Flags:', window.get_statuses()
-        print 'Due date:', window.get_due()
+        t = Thing()
+        window.get_thing(t)
 
-        print 'Urgency:', window.get_urgency()
-        print 'Importance:', window.get_importance()
-        print 'Duration:', window.get_duration()
-        print 'Recurrence:',
-        print '% complete:', window.get_complete()
+        print 'Title:', t.title
+        print 'Projects:', t.projects
+        print 'Contexts:', t.contexts
+        print 'Flags:', t.statuses
+        print 'Due date:', t.due
+
+        print 'Urgency:', t.urgency
+        print 'Importance:', t.importance
+        print 'Duration:', t.time
+        print 'Recurrence:', t.recurrence
+        print '% complete:', t.complete
 
         window.destroy()
 
-    new = True
+    new = False
     if len(sys.argv) > 1:
-        # run in edit mode
-        new = False
+        new = True
 
     window = NewWindow(new)
 
@@ -565,8 +654,7 @@ def main():
     window.add_statuses(['next', ])
 
     if not new:
-        t = Thing()
-        t.title = sys.argv[1]
+        t = OldThing()
         window.add_thing(t)
 
     window.connect('done', done_cb)
@@ -575,5 +663,6 @@ def main():
     window.show_all()
 
 if __name__ == "__main__":
+    log.init()
     main()
     gtk.main()
