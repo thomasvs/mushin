@@ -9,3 +9,14 @@ TODO:
  - any exception from any gobject callback needs to be handled somehow with
    a dialog, to inform the user
  - why does by-projects view also emit date in key ?
+
+- new dialog:
+  - no way to unset project/flag/... done does not click
+
+- maemo version:
+  - when completing a task, you go back to a list view where that task is still in there because it was not updated
+
+- couchdb part:
+  - by-*: agree on whether they list open or closed things
+
+- decide on flags versus statuses
