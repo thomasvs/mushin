@@ -28,6 +28,7 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
         self.add(self._vbox)
         self.show_all()
 
+        # list
         button = hildon.Button(gtk.HILDON_SIZE_FINGER_HEIGHT,
             hildon.BUTTON_ARRANGEMENT_VERTICAL)
         # align left
@@ -42,6 +43,37 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
         button.show()
         button.connect('clicked', self._lists_clicked_cb)
 
+        # projects
+        button = hildon.Button(gtk.HILDON_SIZE_FINGER_HEIGHT,
+            hildon.BUTTON_ARRANGEMENT_VERTICAL)
+        # align left
+        #button.set_alignment(0.0, 0.5, 1.0, 0.0)
+        
+        image = gtk.image_new_from_stock(gtk.STOCK_INDEX, gtk.ICON_SIZE_BUTTON)
+        button.set_image(image)
+
+        button.set_title('Projects')
+
+        self._vbox.pack_start(button, False, False, 0)
+        button.show()
+        button.connect('clicked', self._projects_clicked_cb)
+
+        # contexts
+        button = hildon.Button(gtk.HILDON_SIZE_FINGER_HEIGHT,
+            hildon.BUTTON_ARRANGEMENT_VERTICAL)
+        # align left
+        #button.set_alignment(0.0, 0.5, 1.0, 0.0)
+        
+        image = gtk.image_new_from_stock(gtk.STOCK_INDEX, gtk.ICON_SIZE_BUTTON)
+        button.set_image(image)
+
+        button.set_title('Contexts')
+
+        self._vbox.pack_start(button, False, False, 0)
+        button.show()
+        button.connect('clicked', self._contexts_clicked_cb)
+
+        # new
         button = hildon.Button(gtk.HILDON_SIZE_FINGER_HEIGHT,
             hildon.BUTTON_ARRANGEMENT_VERTICAL)
         # align left
@@ -59,6 +91,7 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
     def _handle_failure_eb(self, failure, window):
         # only show one error dialog by setting a shown attribute on failure
         hildon.hildon_gtk_window_set_progress_indicator(window, 0)
+        print failure
         msg = log.getFailureMessage(failure)
 
         self.debug(msg)
@@ -93,6 +126,7 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
             ('Waiting for', self._server.getThingsWaitingForCount, {}),
             ('Next action', self._server.getThingsNextActionCount, {}),
             ('Shop', self._server.getThingsByContextCount, {'context': 'shop'}),
+            ('Phone', self._server.getThingsByContextCount, {'context': 'phone'}),
         ]
 
         for name, method, kwargs in methods:
@@ -119,6 +153,7 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
             'Waiting for': (self._server.getThingsWaitingFor, {}),
             'Next action': (self._server.getThingsNextAction, {}),
             'Shop': (self._server.getThingsByContext, {'context': 'shop'}),
+            'Phone': (self._server.getThingsByContext, {'context': 'phone'}),
         }
         if list_name in methods.keys():
             hildon.hildon_gtk_window_set_progress_indicator(lw, 1)
@@ -126,7 +161,10 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
             method, kwargs = methods[list_name]
             d = method(**kwargs)
             def _cb(result):
-                # show all things in a list
+                # show all things in a list, but in reverse order
+                result = list(result)
+                result.reverse()
+
                 w = things.ThingsWindow()
                 for thing in result:
                     if thing.complete != 100:
@@ -151,6 +189,7 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
             d.addErrback(_eb)
 
 
+    # show a window to edit the selected thing
     def _thing_selected_cb(self, tw, thing):
         # first populate lists, otherwise adding the thing adds some
         # items to the beginning of the list out of order
@@ -163,12 +202,14 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
         def cb(r):
             self.debug('Adding thing %r for id %r', id(thing), thing.id)
             w.add_thing(thing)
-            w.connect('done', self._update_done_cb)
+            w.connect('done', self._update_done_cb, tw)
         d.addCallback(cb)
 
         return d
 
     def _populate_lists(self, w):
+        # populate the project/context/status selectors with db values
+
         hildon.hildon_gtk_window_set_progress_indicator(w, 1)
 
         d = defer.Deferred()
@@ -185,6 +226,13 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
         d.addCallback(_cb)
         d.addErrback(self._handle_failure_eb, w)
 
+        d.addCallback(lambda _: self._server.getStatuses())
+        def _cb(result):
+            w.add_statuses([p.name for p in list(result)])
+        d.addCallback(_cb)
+        d.addErrback(self._handle_failure_eb, w)
+
+
         d.addCallback(lambda _:
             hildon.hildon_gtk_window_set_progress_indicator(w, 0))
 
@@ -193,13 +241,119 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
 
         return d
 
+    def _projects_clicked_cb(self, button):
+        w = lists.ListsWindow()
+        hildon.hildon_gtk_window_set_progress_indicator(w, 1)
+
+        d = self._server.getProjects()
+
+        def cb(result):
+            for project in result:
+                w.add_list(project.name, project.things)
+        d.addCallback(cb)
+        d.addErrback(self._handle_failure_eb, w)
+
+        d.addCallback(lambda _:
+            hildon.hildon_gtk_window_set_progress_indicator(w, 0))
+
+        w.connect('selected', self._project_selected_cb)
+        #w.show_all()
+
+    def _project_selected_cb(self, lw, project):
+        hildon.hildon_gtk_window_set_progress_indicator(lw, 1)
+
+        d = self._server.getThingsByProject(project)
+
+        def _cb(result):
+            # show all things in a list, but in reverse order
+            result = list(result)
+            result.reverse()
+
+            w = things.ThingsWindow()
+            for thing in result:
+                if thing.complete != 100:
+                    w.add_thing(thing)
+            hildon.hildon_gtk_window_set_progress_indicator(lw, 0)
+            w.connect('selected', self._thing_selected_cb)
+            w.show_all()
+        d.addCallback(_cb)
+
+        def _eb(failure):
+            msg = log.getFailureMessage(failure)
+            self.debug(msg)
+
+            hildon.hildon_gtk_window_set_progress_indicator(lw, 0)
+            ew = error.ErrorWindow(msg)
+    
+            ew.show_all()
+
+            # close previous things window
+            #w.destroy()
+
+        d.addErrback(_eb)
+
+    def _contexts_clicked_cb(self, button):
+        w = lists.ListsWindow()
+        hildon.hildon_gtk_window_set_progress_indicator(w, 1)
+
+        d = self._server.getContexts()
+
+        def cb(result):
+            for context in result:
+                w.add_list(context.name, context.things)
+        d.addCallback(cb)
+        d.addErrback(self._handle_failure_eb, w)
+
+        d.addCallback(lambda _:
+            hildon.hildon_gtk_window_set_progress_indicator(w, 0))
+
+        w.connect('selected', self._context_selected_cb)
+        #w.show_all()
+
+    def _context_selected_cb(self, lw, context):
+        hildon.hildon_gtk_window_set_progress_indicator(lw, 1)
+
+        d = self._server.getThingsByContext(context)
+
+        def _cb(result):
+            # show all things in a list, but in reverse order
+            result = list(result)
+            result.reverse()
+
+            w = things.ThingsWindow()
+            for thing in result:
+                if thing.complete != 100:
+                    w.add_thing(thing)
+            hildon.hildon_gtk_window_set_progress_indicator(lw, 0)
+            w.connect('selected', self._thing_selected_cb)
+            w.show_all()
+        d.addCallback(_cb)
+
+        def _eb(failure):
+            msg = log.getFailureMessage(failure)
+            self.debug(msg)
+
+            hildon.hildon_gtk_window_set_progress_indicator(lw, 0)
+            ew = error.ErrorWindow(msg)
+    
+            ew.show_all()
+
+            # close previous things window
+            #w.destroy()
+
+        d.addErrback(_eb)
+
+
+
+
     def _new_clicked_cb(self, button):
         w = new.NewWindow()
         w.connect('done', self._new_done_cb)
 
         return self._populate_lists(w)
 
-    def _update_done_cb(self, window):
+    def _update_done_cb(self, window, things_window=None):
+        # if things_window is passed, tell it to remove the thing if completed
         print 'thing id', window.thing.id
 
         window.get_thing(window.thing)
@@ -224,6 +378,12 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
         d = defer.Deferred()
 
         d.addCallback(lambda _: self._server.save(window.thing))
+        def cb(_):
+            if window.thing.complete == 100 and things_window:
+                self.debug('Thing %r is done, removing from list', window.thing)
+                things_window.remove_thing(window.thing)
+        d.addCallback(cb)
+
         def eb(failure):
             if not hasattr(failure, 'shown'):
                 msg = log.getFailureMessage(failure)
@@ -247,4 +407,4 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
         window.get_thing(thing)
         # FIXME: a bit dodgy, should the thing be on the window already ?
         window.thing = thing
-        return self._update_done_cb(window)
+        return self._update_done_cb(window, None)

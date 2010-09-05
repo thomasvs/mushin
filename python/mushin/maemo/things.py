@@ -5,6 +5,7 @@ import gobject
 import gtk
 import hildon
 
+from mushin.model import couch
 from mushin.common import format
 
 class ThingsWindow(hildon.StackableWindow):
@@ -14,6 +15,8 @@ class ThingsWindow(hildon.StackableWindow):
 
     def __init__(self):
         hildon.StackableWindow.__init__(self)
+
+        self._thing_buttons = {} # thing -> button
 
         self._panarea = hildon.PannableArea()
 
@@ -29,6 +32,7 @@ class ThingsWindow(hildon.StackableWindow):
             hildon.BUTTON_ARRANGEMENT_VERTICAL)
         # align left
         button.set_alignment(0.0, 0.5, 1.0, 0.0)
+        self._thing_buttons[thing] = button
         
         self._vbox.pack_start(button, False, False, 0)
 
@@ -52,10 +56,13 @@ class ThingsWindow(hildon.StackableWindow):
     def _button_clicked_cb(self, button, thing):
         self.emit('selected', thing)
 
+    def remove_thing(self, thing):
+        self._vbox.remove(self._thing_buttons[thing])
+        
 def main():
     gtk.set_application_name('example list of things')
 
-    class Thing(object):
+    class OldThing(couch.Thing):
         title = 'a thing'
         projects = ['mushin', ]
         contexts = ['home', 'hacking']
@@ -66,7 +73,7 @@ def main():
     window.show_all()
 
     for i in range(3):
-        t = Thing()
+        t = OldThing()
         t.title = 'thing %d' % i
         window.add_thing(t)
 

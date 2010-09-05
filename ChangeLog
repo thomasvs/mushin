@@ -1,5 +1,20 @@
 2010-09-06  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* couchdb/views/open-things-due/map.js:
+	* python/mushin/common/app.py:
+	  Use new views.
+	  add getStatutes and getThingsByProject.
+	* python/mushin/maemo/new.py:
+	  Fix up contexts and statutes.
+	* python/mushin/maemo/things.py:
+	  Allow removing completed things.
+	* python/mushin/maemo/start.py:
+	  Add contexts and projects lists.
+	* python/mushin/maemo/lists.py:
+	  Make this  a 3 by 4 table, scrollable.
+
+2010-09-06  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* couchdb/views/by-context/map.js:
 	* couchdb/views/by-project/map.js:
 	* couchdb/views/by-status/map.js:

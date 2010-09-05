@@ -57,6 +57,12 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
         self._date_button = None # either a normal or date button
         self._title_entry = None
 
+        self._tags = {
+            'project': {},
+            'context': {},
+            'status': {},
+        }
+
         ### first line: title
         label = gtk.Label("Title:")
         self._title_entry = hildon.Entry(gtk.HILDON_SIZE_FINGER_HEIGHT)
@@ -75,6 +81,7 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
         project_picker.set_selector(self._project_selector)
 
         self._table.attach(project_picker, 0, 1, 1, 2)
+        self._tags['project']['selector'] = self._project_selector
 
         # create new project
         button = hildon.Button(gtk.HILDON_SIZE_FINGER_HEIGHT,
@@ -109,6 +116,7 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
         context_picker.set_selector(self._context_selector)
 
         self._table.attach(context_picker, 0, 1, 2, 3)
+        self._tags['context']['selector'] = self._context_selector
 
         # create new context
         button = hildon.Button(gtk.HILDON_SIZE_FINGER_HEIGHT,
@@ -144,6 +152,7 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
         self._status_selector = ProjectSelector()
         status_picker.set_selector(self._status_selector)
 
+        self._tags['status']['selector'] = self._status_selector
         self._table.attach(status_picker, 0, 1, 3, 4)
 
         # create new status
@@ -425,17 +434,18 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
 
         return int(t)
 
+    def add_tag(self, tag, items):
+        for item in items:
+            self._tags[tag]['selector'].add_text(item)
+
     def add_projects(self, projects):
-        for project in projects:
-            self._project_selector.add_text(project)
+        self.add_tag('project', projects)
 
     def add_contexts(self, contexts):
-        for context in contexts:
-            self._context_selector.add_text(context)
+        self.add_tag('context', contexts)
 
     def add_statuses(self, statuses):
-        for status in statuses:
-            self._status_selector.add_text(status)
+        self.add_tag('status', statuses)
 
     def _set_d_r(self, entry, button, value):
         if value is None:
@@ -459,32 +469,32 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
             button.set_active(0, 3)
             entry.set_text(str(weeks))
 
+    def _populate_selector(self, selector, items):
+        self.debug('populating %r with items %r', selector, items)
+
+        model = selector.get_model(0)
+
+        # map project name to iter in model
+        iters = dict([(row[0], row.iter) for row in model])
+
+        for item in items:
+            # add non-existent project to selector
+            if not item in iters.keys():
+                self.debug('adding item %r', item)
+                selector.add_text(item)
+                iters[item] = model[-1].iter
+
+            # select the row for this item
+            self.debug('selecting %r', item)
+            selector.select_iter(0, iters[item], False)
+
     # FIXME: rename to set_thing ?
     def add_thing(self, thing):
         self._title_entry.set_text(thing.title)
 
-        def _populate_selector(selector, items):
-            self.debug('populating %r with items %r', selector, items)
-
-            model = selector.get_model(0)
-
-            # map project name to iter in model
-            iters = dict([(row[0], row.iter) for row in model])
-
-            for item in items:
-                # add non-existent project to selector
-                if not item in iters.keys():
-                    self.debug('adding item %r', item)
-                    selector.add_text(item)
-                    iters[item] = model[-1].iter
-
-                # select the row for this item
-                self.debug('selecting %r', item)
-                selector.select_iter(0, iters[item], False)
-
-        _populate_selector(self._project_selector, thing.projects)        
-        _populate_selector(self._context_selector, thing.contexts)        
-        _populate_selector(self._status_selector, thing.statuses)        
+        self._populate_selector(self._project_selector, thing.projects)        
+        self._populate_selector(self._context_selector, thing.contexts)        
+        self._populate_selector(self._status_selector, thing.statuses)        
 
         if thing.due:
             self._set_date_button()
@@ -523,27 +533,21 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
         thing.complete = self.get_complete()
 
     def _add_project_cb(self, button):
-        self._show_add_dialog('Add a project', self._add_project_clicked_cb)
+        self._show_add_dialog('Add a project', 'project', self._add_clicked_cb)
 
-    # TODO: FIXME: why different ?
     def _add_context_cb(self, button):
-        d = gtk.Dialog(title='Add a context')
-        self._entry = hildon.Entry(gtk.HILDON_SIZE_AUTO)
-        self._entry.connect('activate', self._add_context_activate_cb)
-        self._entry.props.activates_default = True
-        d.vbox.add(self._entry)
-        d.show_all()
+        self._show_add_dialog('Add a context', 'context', self._add_clicked_cb)
 
     def _add_status_cb(self, button):
-        self._show_add_dialog('Add a status', self._add_status_clicked_cb)
+        self._show_add_dialog('Add a status', 'status', self._add_clicked_cb)
 
-    def _show_add_dialog(self, title, callback):
+    def _show_add_dialog(self, title, tag, callback):
         d = gtk.Dialog(title=title)
         box = gtk.HBox()
         d.vbox.add(box)
 
         entry = hildon.Entry(gtk.HILDON_SIZE_AUTO)
-        entry.connect('activate', self._add_context_activate_cb)
+        #entry.connect('activate', callback, tag)
         entry.props.activates_default = True
         box.add(entry)
 
@@ -552,24 +556,16 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
         # align left
         button.set_alignment(0.0, 0.5, 1.0, 0.0)
         button.set_title('Add')
-        button.connect('clicked', callback, entry)
+        button.connect('clicked', callback, entry, d, tag)
         
         box.pack_start(button)
 
         d.show_all()
 
-    def _add_project_clicked_cb(self, button, entry):
-        project = entry.get_text()
-        self.add_projects([project, ])
-
-    def _add_status_clicked_cb(self, button, entry):
-        status = entry.get_text()
-        self.add_statuses([status, ])
-
-
-    def _add_context_activate_cb(self, entry):
-        print 'entry activated', entry.get_text()
-
+    def _add_clicked_cb(self, button, entry, d, tag):
+        item = entry.get_text()
+        self._populate_selector(self._tags[tag]['selector'], [item, ])
+        d.destroy()
 
         #add = AddWindow()
         #add.show_all()

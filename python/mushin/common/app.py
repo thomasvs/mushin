@@ -17,7 +17,8 @@ class Count(object):
         # key, value, id
         pass
 
-class Project(object):
+# FIXME: being returned as a count of items, not a list of items...
+class Group(object):
     name = None
     things = None
 
@@ -25,6 +26,10 @@ class Project(object):
         # key, value, id
         self.name = d['key']
         self.things = d['value']
+
+class Project(Group): pass
+class Context(Group): pass
+class Status(Group): pass
 
 class Server(log.Loggable):
     """
@@ -166,7 +171,8 @@ class Server(log.Loggable):
             include_docs and 'true' or 'false')
         
         view = views.View(self._couch, 'mushin', 'mushin',
-            'by-status?%s&startkey="%s"&endkey="%s"' % (args, status, status),
+            'by-status?%s&startkey=["%s"]&endkey=["%s","9"]' % (
+                args, status, status),
             factory)
         self.debug('getThingsByStatus: view %r' % view)
 
@@ -218,7 +224,7 @@ class Server(log.Loggable):
         @rtype:   L{defer.Deferred} of generator
         """
         view = views.View(self._couch, 'mushin', 'mushin',
-            'contexts?group=true', Project)
+            'contexts?group=true', Context)
         self.debug('getContexts: view %r' % view)
 
         d = view.queryView()
@@ -237,6 +243,51 @@ class Server(log.Loggable):
         d = view.queryView()
         return d
 
+    def getStatuses(self):
+        """
+        @returns: a deferred for a generator that generates
+                  statuses
+        @rtype:   L{defer.Deferred} of generator
+        """
+        view = views.View(self._couch, 'mushin', 'mushin',
+            'statuses?group=true', Status)
+        self.debug('getStatuses: view %r' % view)
+
+        d = view.queryView()
+        return d
+
+    def _getThingsByProject(self, project, factory, include_docs=True):
+        """
+        Returns: a deferred for a generator that generates the things.
+
+        @param project: the project
+        """
+        args = 'include_docs=%s' % (
+            include_docs and 'true' or 'false')
+        
+        view = views.View(self._couch, 'mushin', 'mushin',
+            'by-project?%s&startkey=["%s"]&endkey=["%s","9"]' % (
+                args, project, project),
+            factory)
+        self.debug('getThingsByProject: view %r' % view)
+
+        d = view.queryView()
+        return d
+
+    def getThingsByProject(self, project):
+        return self._getThingsByProject(project, couch.Thing)
+
+    def getThingsByProjectCount(self, project):
+        """
+        @returns: a deferred for a count of
+                  things in the given project
+        @rtype:   L{defer.Deferred} of int
+        """
+        d = self._getThingsByProject(project, Count, include_docs=False)
+        d.addCallback(lambda r: len(list(r)))
+        return d
+
+
     def _getThingsByContext(self, context, factory, include_docs=True):
         """
         Returns: a deferred for a generator that generates the things.
@@ -247,7 +298,7 @@ class Server(log.Loggable):
             include_docs and 'true' or 'false')
         
         view = views.View(self._couch, 'mushin', 'mushin',
-            'by-context?%s&startkey="%s"&endkey="%s"' % (
+            'by-context?%s&startkey=["%s"]&endkey=["%s","9"]' % (
                 args, context, context),
             factory)
         self.debug('getThingsByContext: view %r' % view)

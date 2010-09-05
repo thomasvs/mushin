@@ -15,7 +15,9 @@ class ListsWindow(hildon.StackableWindow):
 
         self._panarea = hildon.PannableArea()
 
-        self._vbox = gtk.VBox()
+        # self._vbox = gtk.VBox()
+        self._vbox = gtk.Table()
+        self._counter = 0
         self._vbox.props.width_request = 1
 
         self._panarea.add_with_viewport(self._vbox)
@@ -28,7 +30,12 @@ class ListsWindow(hildon.StackableWindow):
         # align left
         button.set_alignment(0.0, 0.5, 1.0, 0.0)
         
-        self._vbox.pack_start(button, False, False, 0)
+        # 4 by 3 grid
+        row = self._counter % 4
+        col = self._counter / 4
+        self._vbox.attach(button, row, row + 1, col, col + 1, True, True, 0)
+        self._counter += 1
+        # self._vbox.pack_start(button, False, False, 0)
 
         button.set_title(list_name)
         button.set_value("%d things" % list_length)
