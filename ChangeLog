@@ -1,5 +1,15 @@
 2010-09-06  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* couchdb/views/by-context/map.js:
+	* couchdb/views/by-project/map.js:
+	* couchdb/views/by-status/map.js:
+	  make them all similar.
+	* couchdb/views/statuses/reduce.js (added):
+	* couchdb/views/statuses/map.js (added):
+	  Add.
+
+2010-09-06  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/model/couch.py:
 	  Properly return whether we rescheduled.
 
