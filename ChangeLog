@@ -1,3 +1,8 @@
+2010-09-06  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/model/couch.py:
+	  Properly return whether we rescheduled.
+
 2010-09-01  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/common/app.py:

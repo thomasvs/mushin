@@ -122,10 +122,12 @@ class Thing(mapping.Document, log.Loggable):
             self.start = self.due
             self.due = self.start + \
                 datetime.timedelta(seconds=self.recurrence)
+            return False
         else:
             self.debug('done non-recurring thing')
             self.complete = 100
             self.end = datetime.datetime.now()
+            return True
 
     def set_from_dict(self, d):
         """
