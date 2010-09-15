@@ -183,7 +183,7 @@ class Search(logcommand.LogCommand):
                     if str(t[attribute]).find(str(filter[attribute])) > -1]
 
         # separate because filter has singular, Thing has plural
-        for attribute in ['projects', 'contexts']:
+        for attribute in ['projects', 'contexts', 'statuses']:
             if filter.has_key(attribute) and attribute != fattribute:
                 self.debug('filtering on %s: %s' % (
                     attribute, filter[attribute]))

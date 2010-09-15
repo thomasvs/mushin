@@ -1,3 +1,9 @@
+2010-09-15  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/command/main.py:
+	  Properly filter on statuses too.  Makes search !waitingfor
+	  work again.
+
 2010-09-06  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* couchdb/views/open-things-due/map.js:
