@@ -1,3 +1,8 @@
+2011-01-05  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/common/parse.py:
+	  Add some missing constants from gtd.py.  Caught by pychecker.
+
 2010-09-15  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/command/main.py:

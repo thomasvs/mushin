@@ -19,6 +19,12 @@
 import re
 import datetime
 
+# constants
+
+DAY_IN_HOURS  = 8
+NUM_WORK_DAYS = 5
+WEEK_IN_HOURS = NUM_WORK_DAYS * DAY_IN_HOURS
+
 # Regexps for parsing a task line
 CONTEXT_CHAR   = "@"
 PROJECT_CHAR   = "p:"
@@ -95,9 +101,9 @@ def parse(line):
 
             if attr == 'time':  # compute time requiered (in working hours)
                 if match[1].upper() == 'W':  # weeks
-                    hours = int(match[0]) * gtd.WEEK_IN_HOURS
+                    hours = int(match[0]) * WEEK_IN_HOURS
                 elif match[1].upper() == 'D':  # days
-                    hours = int(match[0]) * gtd.DAY_IN_HOURS
+                    hours = int(match[0]) * DAY_IN_HOURS
                 elif match[1].upper() == 'H':  # hours
                     hours = int(match[0])
                 elif match[1].upper() == 'M':  # minutes
