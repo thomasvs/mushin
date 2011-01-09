@@ -15,6 +15,7 @@ TODO:
 
 - maemo version:
   - when completing a task, you go back to a list view where that task is still in there because it was not updated
+  - when completing a recurring task, the thing gets a new revision that should be gotten from couchdb, so that the next update on the same thing does not conflict.
 
 - couchdb part:
   - by-*: agree on whether they list open or closed things
