@@ -17,7 +17,7 @@ class Due(logcommand.LogCommand):
         if args[1].startswith('D:'):
             args[1] = args[1][2:]
         date = parse.parse_date(args[1])
-        server = couch.Server()
+        server = self.getRootCommand().getServer()
 
         thing = display.lookup(server, args[0])
         if thing:

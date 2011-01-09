@@ -18,7 +18,7 @@ bottom.
 """
 
     def do(self, args):
-        server = couch.Server()
+        server = self.getRootCommand().getServer()
 
         # FIXME: make the view calculate and sort by priority
         now = datetime.datetime.now()
@@ -33,7 +33,7 @@ class Open(logcommand.LogCommand):
     summary = "list all open things, ordered by priority (?)."
 
     def do(self, args):
-        server = couch.Server()
+        server = self.getRootCommand().getServer()
 
         # FIXME: make the view calculate and sort by priority
         display.Displayer().display_things(server.view(
@@ -49,7 +49,7 @@ bottom.
 """
 
     def do(self, args):
-        server = couch.Server()
+        server = self.getRootCommand().getServer()
 
         # FIXME: make the view calculate and sort by priority
         now = datetime.datetime.now()
@@ -65,7 +65,7 @@ class Priority(logcommand.LogCommand):
     aliases = ['pri', ]
 
     def do(self, args):
-        server = couch.Server()
+        server = self.getRootCommand().getServer()
 
         view = 'open-things-by-priority'
         kwargs = {'descending': 'true'}
@@ -82,7 +82,7 @@ class Today(logcommand.LogCommand):
     summary = "list all open things due today"
 
     def do(self, args):
-        server = couch.Server()
+        server = self.getRootCommand().getServer()
 
         # FIXME: make the view calculate and sort by priority
         now = datetime.datetime.now()

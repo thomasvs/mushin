@@ -1,3 +1,15 @@
+2011-01-09  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/model/couch.py:
+	  Allow specifying a different database than mushin.
+	* python/mushin/command/main.py:
+	  Add a getServer() method on the root GTD command.
+	  Use it everywhere.
+	* python/mushin/command/list.py:
+	* python/mushin/command/project.py:
+	* python/mushin/command/thing.py:
+	  Use it everywhere.
+
 2011-01-05  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/common/parse.py:

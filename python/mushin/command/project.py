@@ -12,7 +12,7 @@ class List(logcommand.LogCommand):
     summary = "list all open projects"
 
     def do(self, args):
-        server = couch.Server()
+        server = self.getRootCommand().getServer()
         displayer = display.Displayer()
 
         projects = server.db.view('mushin/open-projects-by-priority',

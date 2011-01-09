@@ -4,6 +4,8 @@
 import datetime
 import sys
 
+from mushin.extern.command import command
+
 from mushin.common import log, logcommand, parse
 from mushin.model import couch
 from mushin.command import project, display, list as llist, replicate, thing
@@ -54,19 +56,21 @@ class Add(logcommand.LogCommand):
         if not new.has_key('start'):
             new['start'] = datetime.datetime.now()
 
-        server = couch.Server()
+        server = self.getRootCommand().getServer()
 
         thing = couch.thing_from_dict(new)
+            
         server.save(thing)
 
-        self.stdout.write('Added thing "%s" (%s)\n' % (thing.title, thing.id))
+        self.stdout.write('Added thing "%s" (%s)\n' % (
+            thing.title, thing.id))
 
 class Delete(logcommand.LogCommand):
     summary = "delete one thing"
     aliases = ['del', ]
 
     def do(self, args):
-        server = couch.Server()
+        server = self.getRootCommand().getServer()
         thing = lookup(self, server, args[0])
 
         if thing:
@@ -78,7 +82,7 @@ class Done(logcommand.LogCommand):
     summary = "mark a thing as done"
 
     def do(self, args):
-        server = couch.Server()
+        server = self.getRootCommand().getServer()
         thing = lookup(self, server, args[0])
 
         if thing:
@@ -113,10 +117,15 @@ class Edit(logcommand.LogCommand):
         if not shortid:
             return
 
-        server = couch.Server()
+        server = self.getRootCommand().getServer()
         thing = lookup(self, server, shortid)
         if not thing:
+            self.stdout.write('No thing found for %s\n', shortid)
             return
+
+        import code; code.interact(local=locals())
+        print "THOMAS", display.display(
+                thing, shortid=False, colored=False)
 
         def pre_input_hook():
             readline.insert_text(display.display(
@@ -154,7 +163,7 @@ class Search(logcommand.LogCommand):
         filter = parse.parse(" ".join(args))
         self.debug('parsed filter: %r' % filter)
 
-        server = couch.Server()
+        server = self.getRootCommand().getServer()
 
         # pick the view giving us the most resolution
         result = []
@@ -214,7 +223,7 @@ class Show(logcommand.LogCommand):
     summary = "show one thing"
 
     def do(self, args):
-        server = couch.Server()
+        server = self.getRootCommand().getServer()
         # FIXME: format nicer
         self.stdout.write("%s\n" % lookup(self, server, args[0]))
 
@@ -260,6 +269,10 @@ You can get help on subcommands by using the -h option to the subcommand.
         # FIXME: is this the right place ?
         log.init()
 
+        self.parser.add_option('-D', '--database',
+                          action="store", dest="database",
+                          default="mushin",
+                          help="database to connect to (default: %default)")
         self.parser.add_option('-v', '--version',
                           action="store_true", dest="version",
                           help="show version information")
@@ -269,9 +282,22 @@ You can get help on subcommands by using the -h option to the subcommand.
             #from mushin.configure import configure
             #print "rip %s" % configure.version
             sys.exit(0)
+        self.db = options.database
+        self.info("Using database %s", self.db)
 
     def do(self, args):
         cmd = logcommand.command.commandToCmd(self)
         cmd.prompt = 'GTD> '
         while not cmd.exited:
             cmd.cmdloop()
+
+    def getServer(self):
+        # FIXME: should not be importing couchdb
+        from couchdb import client
+        try:
+            server = couch.Server(db=self.db)
+        except client.ResourceNotFound:
+            raise command.CommandExited(
+                1, "Could not find database %s" % self.db)
+        return server
+

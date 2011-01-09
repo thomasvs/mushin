@@ -152,10 +152,10 @@ class Thing(mapping.Document, log.Loggable):
         return
 
 class Server:
-    def __init__(self, uri='http://localhost:5984'):
+    def __init__(self, uri='http://localhost:5984', db='mushin'):
         from couchdb import client
         server = client.Server(uri)
-        self.db = server['mushin']
+        self.db = server[db]
 
     def view(self, name, **kwargs):
         # example: open-things
