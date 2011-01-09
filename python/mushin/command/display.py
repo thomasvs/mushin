@@ -98,8 +98,11 @@ class Displayer(object):
         @type  thing:   L{model.Thing}
         @param shortid: if True, also show shortid and priority.
         @param due:     whether to show additional due info.
+
+        @returns: a utf-8 encoded string
+        @rtype:   str
         """
-        blocks = []
+        blocks = [] # list of possibly unicode objects
 
         if shortid:
             blocks.append(self.shortid(thing.shortid()))
@@ -162,8 +165,7 @@ class Displayer(object):
         if due and thing.due:
             blocks.append(_get_deadline_string(thing.due))
 
-
-        return " ".join(blocks)
+        return " ".join(b.encode('utf-8') for b in blocks)
 
     def display_things(self, result, due=False):
         """

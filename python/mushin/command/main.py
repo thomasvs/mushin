@@ -29,6 +29,9 @@ When adding or searching for things, the following syntax is used:
 """
 
 def main(argv):
+    # make sure argv, coming from the command line, is converted to
+    # unicode
+    argv = [a.decode('utf-8') for a in argv]
     c = GTD()
     try:
         ret = c.parse(argv)
@@ -52,7 +55,8 @@ class Add(logcommand.LogCommand):
     description = """Adds a thing.\n""" + SYNTAX
 
     def do(self, args):
-        new = parse.parse(" ".join(args))
+        uargs = [a.decode('utf-8') for a in args]
+        new = parse.parse(" ".join(uargs))
         if not new.has_key('start'):
             new['start'] = datetime.datetime.now()
 
@@ -63,7 +67,7 @@ class Add(logcommand.LogCommand):
         server.save(thing)
 
         self.stdout.write('Added thing "%s" (%s)\n' % (
-            thing.title, thing.id))
+            thing.title.encode('utf-8'), thing.id))
 
 class Delete(logcommand.LogCommand):
     summary = "delete one thing"
@@ -76,7 +80,7 @@ class Delete(logcommand.LogCommand):
         if thing:
             server.delete(thing)
             self.stdout.write('Deleted thing "%s" (%s)\n' % (
-                thing.title, thing.id))
+                thing.title.encode('utf-8'), thing.id))
 
 class Done(logcommand.LogCommand):
     summary = "mark a thing as done"
@@ -88,16 +92,16 @@ class Done(logcommand.LogCommand):
         if thing:
             if thing.complete == 100:
                 self.stdout.write('Already done "%s" (%s)\n' % (
-                    thing.title, thing.id))
+                    thing.title.encode('utf-8'), thing.id))
             else:
                 if thing.finish():
                     server.save(thing)
                     self.stdout.write('Marked "%s" (%s) as done\n' % (
-                        thing.title, thing.id))
+                        thing.title.encode('utf-8'), thing.id))
                 else:
                     server.save(thing)
                     self.stdout.write('Rescheduling for %s "%s" (%s)\n' % (
-                        thing.due, thing.title, thing.id))
+                        thing.due, thing.title.encode('utf-8'), thing.id))
 
 
 class Edit(logcommand.LogCommand):
@@ -123,10 +127,6 @@ class Edit(logcommand.LogCommand):
             self.stdout.write('No thing found for %s\n', shortid)
             return
 
-        import code; code.interact(local=locals())
-        print "THOMAS", display.display(
-                thing, shortid=False, colored=False)
-
         def pre_input_hook():
             readline.insert_text(display.display(
                 thing, shortid=False, colored=False))
@@ -137,7 +137,7 @@ class Edit(logcommand.LogCommand):
 
         readline.set_pre_input_hook(pre_input_hook)
 
-        line = raw_input("GTD edit> ")
+        line = raw_input("GTD edit> ").decode('utf-8')
         # Remove edited line from history: 
         #   oddly, get_history_item is 1-based,
             #   but remove_history_item is 0-based 
@@ -152,7 +152,8 @@ class Edit(logcommand.LogCommand):
         thing.set_from_dict(d)
 
         server.save(thing)
-        self.stdout.write('Edited thing "%s" (%s)\n' % (thing.title, thing.id))
+        self.stdout.write('Edited thing "%s" (%s)\n' % (
+            thing.title.encode('utf-8'), thing.id))
 
 class Search(logcommand.LogCommand):
     summary = "search for things"
@@ -279,6 +280,7 @@ You can get help on subcommands by using the -h option to the subcommand.
 
     def handleOptions(self, options):
         if options.version:
+            # FIXME: todo
             #from mushin.configure import configure
             #print "rip %s" % configure.version
             sys.exit(0)

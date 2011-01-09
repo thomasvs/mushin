@@ -69,7 +69,12 @@ def pluralize(word):
     return word + 's'
 
 def parse(line):
-    """Return a dictionary (task mapping) from 'line' parsing."""
+    """
+    Return a dictionary (task mapping) from 'line' parsing.
+
+    @type line: unicode
+    """
+    assert type(line) is unicode
 
     t = {}  # Task mapping
     title = line  # the 'title' extracted from line

@@ -1,5 +1,14 @@
 2011-01-09  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/command/main.py:
+	  Handle utf-8 everywhere.  Assume input from command line and
+	  terminal is in utf-8 for now.
+	* python/mushin/command/display.py:
+	* python/mushin/common/parse.py:
+	  Handle utf-8.  Document. add aserts.
+
+2011-01-09  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/model/couch.py:
 	  Allow specifying a different database than mushin.
 	* python/mushin/command/main.py:
