@@ -1,6 +1,12 @@
 2011-01-12  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/command/main.py:
+	  If we already decode utf-8 when passing args to commands, don't
+	  do it again in Add.
+
+2011-01-12  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/command/main.py:
 	  Add an option to only count open things; for scripts graphing
 	  my urgency tasks.
 

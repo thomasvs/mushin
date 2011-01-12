@@ -55,8 +55,7 @@ class Add(logcommand.LogCommand):
     description = """Adds a thing.\n""" + SYNTAX
 
     def do(self, args):
-        uargs = [a.decode('utf-8') for a in args]
-        new = parse.parse(" ".join(uargs))
+        new = parse.parse(" ".join(args))
         if not new.has_key('start'):
             new['start'] = datetime.datetime.now()
 
