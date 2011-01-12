@@ -159,6 +159,11 @@ class Search(logcommand.LogCommand):
     summary = "search for things"
     description = """Search for things.\n""" + SYNTAX
 
+    def addOptions(self):
+        self.parser.add_option('-c', '--count',
+                          action="store_true", dest="count",
+                          help="only show the number of items matching")
+
     def do(self, args):
         from mushin.common import parse
         filter = parse.parse(" ".join(args))
@@ -218,7 +223,10 @@ class Search(logcommand.LogCommand):
             self.debug('filtering on title %s' % filter['title'])
             result = [t for t in result if t.title.find(filter['title']) > -1]
 
-        display.Displayer().display_things(result)
+        if self.options.count:
+            print '%d open things' % len(result)
+        else:
+            display.Displayer().display_things(result)
 
 class Show(logcommand.LogCommand):
     summary = "show one thing"
