@@ -123,7 +123,7 @@ class Edit(logcommand.LogCommand):
         server = self.getRootCommand().getServer()
         thing = lookup(self, server, shortid)
         if not thing:
-            self.stdout.write('No thing found for %s\n', shortid)
+            self.stdout.write('No thing found for %s\n' % shortid)
             return
 
         def pre_input_hook():

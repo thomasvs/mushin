@@ -1,3 +1,8 @@
+2011-01-19  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/command/main.py:
+	  Fix a traceback when editing a non-existant id.
+
 2011-01-12  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/command/main.py:
