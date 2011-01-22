@@ -197,11 +197,11 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
         # FIXME: make uneditable until we have everything 
         w = new.NewWindow(new=False)
         w.show_all()
+        self.debug('Adding thing %r for id %r', id(thing), thing.id)
+        w.add_thing(thing)
         d = self._populate_lists(w)
 
         def cb(r):
-            self.debug('Adding thing %r for id %r', id(thing), thing.id)
-            w.add_thing(thing)
             w.connect('done', self._update_done_cb, tw)
         d.addCallback(cb)
 
