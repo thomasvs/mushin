@@ -11,6 +11,15 @@ def start():
     window = start.StartWindow()
     window.connect('destroy', lambda _: gtk.main_quit())
 
+    import hildon
+    menu = hildon.AppMenu()
+
+    button = hildon.GtkButton(gtk.HILDON_SIZE_AUTO)
+    button.set_label("New")
+    menu.append(button)
+
+    menu.show_all()
+
 def main(argv):
     from mushin.common import log
     log.init()

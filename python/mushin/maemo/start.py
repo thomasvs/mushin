@@ -88,6 +88,20 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
         button.show()
         button.connect('clicked', self._new_clicked_cb)
 
+        self._create_menu(self)
+
+    def _create_menu(self, window):
+        # create menu
+        menu = hildon.AppMenu()
+
+        button = hildon.GtkButton(gtk.HILDON_SIZE_AUTO)
+        button.set_label("New")
+        button.connect("clicked", self._new_menu_button_clicked)
+        menu.append(button)
+
+        menu.show_all()
+        window.set_app_menu(menu)
+
     def _handle_failure_eb(self, failure, window):
         # only show one error dialog by setting a shown attribute on failure
         hildon.hildon_gtk_window_set_progress_indicator(window, 0)
@@ -113,6 +127,8 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
 
     def _lists_clicked_cb(self, button):
         w = lists.ListsWindow()
+        self._create_menu(w)
+
         hildon.hildon_gtk_window_set_progress_indicator(w, 1)
 
         d = defer.Deferred()
@@ -166,6 +182,7 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
                 result.reverse()
 
                 w = things.ThingsWindow()
+                self._create_menu(w)
                 for thing in result:
                     if thing.complete != 100:
                         w.add_thing(thing)
@@ -244,6 +261,7 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
 
     def _projects_clicked_cb(self, button):
         w = lists.ListsWindow()
+        self._create_menu(w)
         hildon.hildon_gtk_window_set_progress_indicator(w, 1)
 
         d = self._server.getProjects()
@@ -271,6 +289,7 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
             result.reverse()
 
             w = things.ThingsWindow()
+            self._create_menu(w)
             for thing in result:
                 if thing.complete != 100:
                     w.add_thing(thing)
@@ -295,6 +314,7 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
 
     def _contexts_clicked_cb(self, button):
         w = lists.ListsWindow()
+        self._create_menu(w)
         hildon.hildon_gtk_window_set_progress_indicator(w, 1)
 
         d = self._server.getContexts()
@@ -322,6 +342,7 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
             result.reverse()
 
             w = things.ThingsWindow()
+            self._create_menu(w)
             for thing in result:
                 if thing.complete != 100:
                     w.add_thing(thing)
@@ -346,6 +367,8 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
 
 
 
+    def _new_menu_button_clicked(self, button):
+        self._new_clicked_cb(button)
 
     def _new_clicked_cb(self, button):
         w = new.NewWindow()
