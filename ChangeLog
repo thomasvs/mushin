@@ -1,3 +1,8 @@
+2011-01-22  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/model/couch.py:
+	  Add updated to things.  Set it when saving.
+
 2011-01-19  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/command/main.py:

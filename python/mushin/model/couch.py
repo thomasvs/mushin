@@ -34,6 +34,7 @@ class Thing(mapping.Document, log.Loggable):
     start = mapping.DateTimeField()
     due = mapping.DateTimeField() # e.g. 2009-02-20T00:00:00
     end = mapping.DateTimeField()
+    updated = mapping.DateTimeField() # when it was last updated
     recurrence = mapping.IntegerField() # in seconds
 
     def shortid(self):
@@ -166,6 +167,7 @@ class Server:
         return Thing.load(self.db, thingid)
 
     def save(self, thing):
+        thing.updated = datetime.datetime.now()
         return thing.store(self.db)    
 
     def delete(self, thing):
