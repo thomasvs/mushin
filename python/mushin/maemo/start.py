@@ -236,6 +236,7 @@ class StartWindow(hildon.StackableWindow, log.Loggable):
         d.addCallback(lambda _:
             hildon.hildon_gtk_window_set_progress_indicator(w, 0))
 
+        d.addCallback(lambda _: w.loaded())
         d.addCallback(lambda _: w.show_all())
         d.callback(None)
 

@@ -63,6 +63,7 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
             'status': {},
         }
 
+        self._loaded = False # set to true by calling .loaded()
         ### first line: title
         label = gtk.Label("Title:")
         self._title_entry = hildon.Entry(gtk.HILDON_SIZE_FINGER_HEIGHT)
@@ -255,7 +256,7 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
             button.set_title('Add')
         else:
             button.set_title('Update')
-        button.connect('clicked', self._add_cb)
+        button.connect('clicked', self._add_or_update_cb)
 
         self._table.attach(button, 0, 3, 6, 7)
  
@@ -322,8 +323,13 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
         self._date_button.show()
 
 
-    def _add_cb(self, button):
-        self.emit('done')
+    def _add_or_update_cb(self, button):
+        # don't allow clicking until everything is loaded
+        if self._loaded:
+            self.emit('done')
+        else:
+            banner = hildon.hildon_banner_show_information(self, 'warning',
+                "Please wait until projects, contexts and statuses are loaded")
 
     ### access the data
     def get_title(self):
@@ -571,6 +577,9 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
 
         #add = AddWindow()
         #add.show_all()
+ 
+    def loaded(self):
+        self._loaded = True
 
 class AddWindow(hildon.StackableWindow):
     # Add a project or context through an entry
@@ -599,7 +608,7 @@ class AddWindow(hildon.StackableWindow):
         if not value: return None
         if value == 'None': return None
         return int(value)
- 
+
 def main():
     gtk.set_application_name('add/edit thing')
 
