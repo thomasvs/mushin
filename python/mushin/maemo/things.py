@@ -8,6 +8,8 @@ import hildon
 from mushin.model import couch
 from mushin.common import format
 
+# FIXME; move to a treeview and a treemodel
+# add LiveSearch; see http://maemo.gitorious.org/hildon/hildon/blobs/hildon-2-2/examples/hildon-live-search-example.c
 class ThingsWindow(hildon.StackableWindow):
     __gsignals__ = {
         'selected': (gobject.SIGNAL_RUN_LAST, None, (object, ))
