@@ -547,6 +547,8 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
         d.vbox.add(box)
 
         entry = hildon.Entry(gtk.HILDON_SIZE_AUTO)
+        entry.set_input_mode(gtk.HILDON_GTK_INPUT_MODE_ALPHA
+            | gtk.HILDON_GTK_INPUT_MODE_NUMERIC)
         #entry.connect('activate', callback, tag)
         entry.props.activates_default = True
         box.add(entry)
