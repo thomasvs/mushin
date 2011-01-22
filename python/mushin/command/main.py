@@ -86,7 +86,7 @@ class Done(logcommand.LogCommand):
 
     def do(self, args):
         server = self.getRootCommand().getServer()
-        thing = lookup(self, server, args[0])
+        thing = lookup(self, server, args[0], ignoreDone=True)
 
         if thing:
             if thing.complete == 100:
@@ -237,7 +237,7 @@ class Show(logcommand.LogCommand):
         if thing:
             self.stdout.write("%s\n" % thing)
 
-def lookup(cmd, server, shortid):
+def lookup(cmd, server, shortid, ignoreDone=False):
         # convert argument, which is shortened _id, to start/end range
         startkey = shortid
         try:
@@ -254,17 +254,22 @@ def lookup(cmd, server, shortid):
         # FIXME: make the view calculate and sort by priority
         things = list(server.view('things-by-id', include_docs=True,
             startkey=startkey, endkey=endkey))
+
         if len(things) == 0:
             cmd.stdout.write("No thing found.\n")
-        elif len(things) > 1:
+            return
+
+        if ignoreDone:
+            things = [t for t in things if t.complete < 100]
+
+        if len(things) > 1:
             for t in things:
                 cmd.stdout.write("%s\n" % display.display(t))
             cmd.stdout.write("%d things found, please be more specific.\n" % 
                 len(things))
-        else:
-            return things[0]
+            return
 
-
+        return things[0]
 
 class GTD(logcommand.LogCommand):
     # FIXME: this causes doc.py to list commands as being doc.py

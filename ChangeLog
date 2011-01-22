@@ -1,6 +1,11 @@
 2011-01-22  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/command/main.py:
+	  When marking tasks as done, only disambiguate uncompleted tasks.
+
+2011-01-22  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/command/main.py:
 	  Handle invalid id's in show.  Makes show kiss not traceback.
 
 2011-01-22  Thomas Vander Stichele  <thomas at apestaart dot org>
