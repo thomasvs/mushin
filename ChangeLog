@@ -1,5 +1,10 @@
 2011-01-22  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/command/main.py:
+	  Handle invalid id's in show.  Makes show kiss not traceback.
+
+2011-01-22  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/model/couch.py:
 	  Add updated to things.  Set it when saving.
 

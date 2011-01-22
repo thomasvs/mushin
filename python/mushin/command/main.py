@@ -233,12 +233,19 @@ class Show(logcommand.LogCommand):
     def do(self, args):
         server = self.getRootCommand().getServer()
         # FIXME: format nicer
-        self.stdout.write("%s\n" % lookup(self, server, args[0]))
+        thing = lookup(self, server, args[0])
+        if thing:
+            self.stdout.write("%s\n" % thing)
 
 def lookup(cmd, server, shortid):
         # convert argument, which is shortened _id, to start/end range
         startkey = shortid
-        endkey = hex(int(startkey, 16) + 1)[2:]
+        try:
+            endkey = hex(int(startkey, 16) + 1)[2:]
+        except ValueError:
+            cmd.stdout.write("Please give a valid id.\n")
+            return
+
         # leading 0's are now dropped, so readd them
         endkey = '0' * (len(startkey) - len(endkey)) + endkey
 
