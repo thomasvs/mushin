@@ -44,6 +44,8 @@ class ThingsWindow(hildon.StackableWindow):
             value.append('projects: %s' % ', '.join(thing.projects))
         if thing.contexts:
             value.append('contexts: %s' % ', '.join(thing.contexts))
+        if thing.statuses:
+            value.append('statuses: %s' % ', '.join(thing.statuses))
         if thing.due:
             value.append(format.deadline(thing.due))
 

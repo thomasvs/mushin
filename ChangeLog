@@ -1,5 +1,10 @@
 2011-01-22  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/maemo/things.py:
+	  Also list statutes in Things list.
+
+2011-01-22  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/maemo/main.py:
 	* python/mushin/maemo/start.py:
 	  Add a New menu item to all menu's.
