@@ -520,7 +520,7 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
         self._populate_selector(self._status_selector, thing.statuses)        
 
         if thing.due:
-            self._set_due(due)
+            self._set_due(thing.due)
 
         if thing.urgency:
             self._urgency_button.set_active(thing.urgency - 1)
