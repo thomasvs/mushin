@@ -279,6 +279,9 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
         self._table.attach(button, 5, 6, 6, 7)
 
         def _complete_clicked_cb(button):
+            # we might have made other changes that are not set on thing
+            self.get_thing(self.thing)
+
             self.thing.finish()
             self.add_thing(self.thing)
 
