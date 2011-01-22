@@ -1,5 +1,11 @@
 2011-01-22  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/maemo/new.py:
+	  When adding a recurring task, set started to now if not set,
+	  and set due to something appropriate past started.
+
+2011-01-22  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/command/main.py:
 	  Let through a unique lookup result even if it might be done.
 

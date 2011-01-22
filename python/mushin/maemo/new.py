@@ -326,6 +326,17 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
     def _add_or_update_cb(self, button):
         # don't allow clicking until everything is loaded
         if self._loaded:
+            # if it's recurring, make sure start and due are set
+            recurrence = self.get_recurrence()
+            if recurrence:
+                due = self.get_due()
+                if not self._start:
+                    self._start = datetime.datetime.now()
+                if not due:
+                    due = self._start + datetime.timedelta(seconds=recurrence)
+                    self._set_due(due)
+
+
             self.emit('done')
         else:
             banner = hildon.hildon_banner_show_information(self, 'warning',
@@ -475,6 +486,12 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
             button.set_active(0, 3)
             entry.set_text(str(weeks))
 
+    def _set_due(self, due):
+        self._set_date_button()
+        # month starts from 0, so subtract one
+        self._date_button.set_date(
+            due.year, due.month - 1, due.day)
+
     def _populate_selector(self, selector, items):
         self.debug('populating %r with items %r', selector, items)
 
@@ -503,10 +520,7 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
         self._populate_selector(self._status_selector, thing.statuses)        
 
         if thing.due:
-            self._set_date_button()
-            # month starts from 0, so subtract one
-            self._date_button.set_date(
-                thing.due.year, thing.due.month - 1, thing.due.day)
+            self._set_due(due)
 
         if thing.urgency:
             self._urgency_button.set_active(thing.urgency - 1)
@@ -520,6 +534,8 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
 
         self._complete_entry.set_text(str(thing.complete))
 
+        self._start = thing.start
+
         self.thing = thing
 
     def get_thing(self, thing):
@@ -530,6 +546,7 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
         thing.projects = self.get_projects()
         thing.contexts = self.get_contexts()
         thing.statuses = self.get_statuses()
+        thing.start = self._start
         thing.due = self.get_due()
 
         thing.urgency = self.get_urgency()
@@ -624,7 +641,7 @@ def main():
         contexts = [u'home', u'hacking']
         statuses = [u'waitingon']
         # march
-        due = datetime.datetime(2011, 3, 20)
+        # due = datetime.datetime(2011, 3, 20)
         complete = 50
         urgency = 2
         importance = 4
@@ -640,6 +657,7 @@ def main():
         print 'Projects:', t.projects
         print 'Contexts:', t.contexts
         print 'Flags:', t.statuses
+        print 'Start date:', t.start
         print 'Due date:', t.due
 
         print 'Urgency:', t.urgency
@@ -659,6 +677,7 @@ def main():
     window.add_contexts(['hack', 'shop', 'work', 'home'])
     window.add_projects(['mushin', 'moap', 'mach'])
     window.add_statuses(['next', ])
+    window.loaded()
 
     if not new:
         t = OldThing()
