@@ -259,6 +259,11 @@ def lookup(cmd, server, shortid, ignoreDone=False):
             cmd.stdout.write("No thing found.\n")
             return
 
+        # we let just one result go through, even if ignoreDone is True,
+        # because our caller can show output about a task that is already done.
+        if len(things) == 1:
+            return things[0]
+
         if ignoreDone:
             things = [t for t in things if t.complete < 100]
 
