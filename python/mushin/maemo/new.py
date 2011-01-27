@@ -42,6 +42,8 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
         'done': (gobject.SIGNAL_RUN_LAST, None, ( ))
     }
 
+    _start = None
+
     # Create a new thing
     def __init__(self, new=True):
         hildon.StackableWindow.__init__(self)
@@ -329,12 +331,12 @@ class NewWindow(hildon.StackableWindow, log.Loggable):
     def _add_or_update_cb(self, button):
         # don't allow clicking until everything is loaded
         if self._loaded:
-            # if it's recurring, make sure start and due are set
+            if not self._start:
+                self._start = datetime.datetime.now()
+            # if it's recurring, make sure due is set
             recurrence = self.get_recurrence()
             if recurrence:
                 due = self.get_due()
-                if not self._start:
-                    self._start = datetime.datetime.now()
                 if not due:
                     due = self._start + datetime.timedelta(seconds=recurrence)
                     self._set_due(due)
