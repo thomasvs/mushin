@@ -1,3 +1,12 @@
+2011-02-08  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/command/main.py:
+	* python/mushin/command/conflict.py (added):
+	* couchdb/views/conflict (added):
+	* couchdb/views/conflict/map.js (added):
+	  Add gtd conflict list, which at least shows the things that
+	  currently are in conflict.
+
 2011-01-28  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/maemo/new.py:

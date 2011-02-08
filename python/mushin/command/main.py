@@ -8,7 +8,8 @@ from mushin.extern.command import command
 
 from mushin.common import log, logcommand, parse
 from mushin.model import couch
-from mushin.command import project, display, list as llist, replicate, thing
+from mushin.command import project, display, conflict
+from mushin.command import list as llist, replicate, thing
 
 SYNTAX = """
 When adding or searching for things, the following syntax is used:
@@ -286,7 +287,7 @@ Things gives you a tree of subcommands to work with.
 You can get help on subcommands by using the -h option to the subcommand.
 """
 
-    subCommandClasses = [Add, Delete, Done, Edit, llist.List,
+    subCommandClasses = [Add, conflict.Conflict, Delete, Done, Edit, llist.List,
         project.Project, replicate.Replicate, Search, Show, 
         thing.Thing]
 
