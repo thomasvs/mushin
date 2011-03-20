@@ -1,3 +1,12 @@
+2011-03-20  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/command/main.py:
+	  Add a 'delay' command to delay tasks.
+	* python/mushin/common/format.py:
+	  Add a formatTime method.
+	* python/mushin/common/parse.py:
+	  Extract method to parse a time spec.
+
 2011-02-08  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/command/main.py:

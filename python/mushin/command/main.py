@@ -6,7 +6,7 @@ import sys
 
 from mushin.extern.command import command
 
-from mushin.common import log, logcommand, parse
+from mushin.common import log, logcommand, parse, format
 from mushin.model import couch
 from mushin.command import project, display, conflict
 from mushin.command import list as llist, replicate, thing
@@ -68,6 +68,31 @@ class Add(logcommand.LogCommand):
 
         self.stdout.write('Added thing "%s" (%s)\n' % (
             thing.title.encode('utf-8'), thing.id))
+
+class Delay(logcommand.LogCommand):
+    summary = "delay one thing"
+
+    def do(self, args):
+        server = self.getRootCommand().getServer()
+        shortid = args[0]
+        thing = lookup(self, server, shortid)
+        if not thing:
+            self.stdout.write('No thing found for %s\n' % shortid)
+            return
+        deltaHours = parse.parse_timedelta(args[1])
+        if not deltaHours:
+            self.stdout.write('Delay %s is not valid\n' % args[1])
+            return
+
+        if not thing.due:
+            self.stdout.write('Thing %s has no due date set\n' % shortid)
+            return
+
+        thing.due += datetime.timedelta(hours=deltaHours)
+        server.save(thing)
+        self.stdout.write('Thing %s delayed by %s\n' % (
+            shortid, format.formatTime(deltaHours * 60)))
+
 
 class Delete(logcommand.LogCommand):
     summary = "delete one thing"
@@ -287,7 +312,8 @@ Things gives you a tree of subcommands to work with.
 You can get help on subcommands by using the -h option to the subcommand.
 """
 
-    subCommandClasses = [Add, conflict.Conflict, Delete, Done, Edit, llist.List,
+    subCommandClasses = [Add, conflict.Conflict, Delay, Delete, Done, Edit,
+        llist.List,
         project.Project, replicate.Replicate, Search, Show, 
         thing.Thing]
 

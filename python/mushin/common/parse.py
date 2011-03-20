@@ -58,6 +58,7 @@ START_REGEXP      = re.compile(START_CHAR + DATE_MATCH, re.IGNORECASE)
 DUE_REGEXP        = re.compile(DUE_CHAR + DATE_MATCH, re.IGNORECASE)
 END_REGEXP        = re.compile(END_CHAR + DATE_MATCH, re.IGNORECASE)
 
+TIMEDELTA_REGEXP = re.compile(TIMEDELTA_MATCH, re.IGNORECASE)
 
 def pluralize(word):
     """
@@ -117,17 +118,7 @@ def parse(line):
                     pass  # invalid time range indicator
                 
             elif attr == 'recurrence':  # compute full hours
-                if match[1].upper() == 'W':  # weeks
-                    hours = int(match[0]) * 7 * 24
-                elif match[1].upper() == 'D':  # days
-                    hours = int(match[0]) * 24
-                elif match[1].upper() == 'H':  # hours
-                    hours = int(match[0])
-                elif match[1].upper() == 'M':  # minutes
-                    minutes = int(match[0])
-                else:
-                    pass  # invalid time range indicator
-
+                hours, minutes = parse_recurrence(match)
             t[attr] = hours * 60 * 60 + minutes * 60
             # before: datetime.timedelta(hours=hours, minutes=minutes)
     
@@ -148,8 +139,39 @@ def parse(line):
     
     return t
 
+def parse_timedelta(text):
+    # returns number of hours in delta
+    matches = TIMEDELTA_REGEXP.findall(text)
+    if not matches:
+        return
+
+    hours, minutes = parse_recurrence(matches[-1])
+
+    if hours is None:
+        return None
+
+    return hours
+
+def parse_recurrence(match):
+    # returns hours and minutes parsed from recurrence spec
+
+    hours = minutes = None
+    if match[1].upper() == 'W':  # weeks
+        hours = int(match[0]) * 7 * 24
+    elif match[1].upper() == 'D':  # days
+        hours = int(match[0]) * 24
+    elif match[1].upper() == 'H':  # hours
+        hours = int(match[0])
+    elif match[1].upper() == 'M':  # minutes
+        minutes = int(match[0])
+    else:
+        pass  # invalid time range indicator
+
+    return hours, minutes
+
 def parse_date(text):
     year, month, day = text.split('-')  # keep only last!
     return datetime.datetime(int(year), int(month), int(day))
+
 
 

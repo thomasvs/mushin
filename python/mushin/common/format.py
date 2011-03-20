@@ -53,3 +53,41 @@ def ago(when):
 
     return s
 
+def formatTime(minutes):
+    """
+    Nicely format time in a human-readable format, like
+    5 days 3 weeks 2 hours 5 minutes.
+
+    @param minutes:    the time in minutes to format
+
+    @rtype: string
+    @returns: a nicely formatted time string.
+    """
+    chunks = []
+
+    if minutes < 0:
+        chunks.append(('-'))
+        minutes = -minutes
+
+    week = 60 * 24 * 7
+    weeks = minutes / week
+    minutes %= week
+
+    day = 60 * 24
+    days = minutes / day
+    minutes %= day
+
+    hour = 60
+    hours = minutes / hour
+    minutes %= hour
+
+    if weeks >= 1:
+        chunks.append('%d week(s)' % weeks)
+    if days >= 1:
+        chunks.append('%d day(s)' % days)
+    if hours >= 1:
+        chunks.append('%d hour(s)' % hours)
+    if minutes >= 1:
+        chunks.append('%d minute(s)' % minutes)
+
+    return " ".join(chunks)
