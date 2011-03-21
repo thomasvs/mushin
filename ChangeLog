@@ -1,3 +1,10 @@
+2011-03-21  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/common/parse.py:
+	  Fix the case for parsing 1W.
+	* python/mushin/test/test_common_parse.py (added):
+	  Add a test for it.
+
 2011-03-20  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/command/main.py:

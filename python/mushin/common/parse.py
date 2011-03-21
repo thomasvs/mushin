@@ -1,3 +1,6 @@
+# -*- Mode: Python; test-case-name: mushin.test.test_common_parse -*-
+# vi:si:et:sw=4:sts=4:ts=4
+
 # To-do list manager.
 # Copyright (C) 2006-2008 MiKael NAVARRO
 #
@@ -147,15 +150,12 @@ def parse_timedelta(text):
 
     hours, minutes = parse_recurrence(matches[-1])
 
-    if hours is None:
-        return None
-
     return hours
 
 def parse_recurrence(match):
     # returns hours and minutes parsed from recurrence spec
 
-    hours = minutes = None
+    hours = minutes = 0
     if match[1].upper() == 'W':  # weeks
         hours = int(match[0]) * 7 * 24
     elif match[1].upper() == 'D':  # days
