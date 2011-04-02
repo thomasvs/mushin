@@ -249,9 +249,9 @@ class Search(logcommand.LogCommand):
             result = [t for t in result if t.title.find(filter['title']) > -1]
 
         if self.options.count:
-            print '%d open things' % len(result)
+            self.stdout.write('%d open things\n' % len(result))
         else:
-            display.Displayer().display_things(result)
+            display.Displayer(self.stdout).display_things(result)
 
 class Show(logcommand.LogCommand):
     summary = "show one thing"
@@ -333,7 +333,7 @@ You can get help on subcommands by using the -h option to the subcommand.
         if options.version:
             # FIXME: todo
             #from mushin.configure import configure
-            #print "rip %s" % configure.version
+            #self.stdout.write("mushin %s\n" % configure.version)
             sys.exit(0)
         self.db = options.database
         self.info("Using database %s", self.db)
