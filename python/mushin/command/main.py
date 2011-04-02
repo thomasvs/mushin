@@ -278,8 +278,8 @@ def lookup(cmd, server, shortid, ignoreDone=False):
         log.debug('lookup', 'Looking up from %s to %s' % (startkey, endkey))
 
         # FIXME: make the view calculate and sort by priority
-        things = list(server.view('things-by-id', include_docs=True,
-            startkey=startkey, endkey=endkey))
+        things = list(server.view('things-by-id-reversed', include_docs=True,
+            reduce=False, startkey=startkey, endkey=endkey))
 
         if len(things) == 0:
             cmd.stdout.write("No thing found.\n")

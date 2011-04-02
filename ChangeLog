@@ -1,3 +1,13 @@
+2011-04-02  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* couchdb/views/things-by-id-reversed/map.js:
+	* python/mushin/command/main.py:
+	* python/mushin/extern/paisley/couchdb.py:
+	* python/mushin/model/couch.py:
+	  Use the reversed id's for shortid, since couchdb 1.0.x changed
+	  the uuid generation algorithm and it now generates a lot of common
+	  prefixes.
+
 2011-03-21  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/common/parse.py:

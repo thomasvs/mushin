@@ -9,6 +9,7 @@ CouchDB client.
 """
 
 import simplejson
+import simplejson as json
 from urllib import urlencode
 
 from twisted.web.client import HTTPClientFactory

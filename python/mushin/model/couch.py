@@ -38,7 +38,8 @@ class Thing(mapping.Document, log.Loggable):
     recurrence = mapping.IntegerField() # in seconds
 
     def shortid(self):
-        return self.id[:6]
+        # last 6 chars reversed
+        return self.id[:-7:-1]
 
     # lifted from yagtd.py
     def _needed_hours(self):
