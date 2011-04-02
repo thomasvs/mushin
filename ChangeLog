@@ -1,5 +1,10 @@
 2011-04-02  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/command/display.py:
+	  Use a proper stdout you can pass to display things.
+
+2011-04-02  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/command/replicate.py:
 	* python/mushin/command/thing.py:
 	  Use self.stdout.write instead of print for commands.

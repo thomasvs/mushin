@@ -69,7 +69,12 @@ def _get_deadline_string(due):
     return "[%s]" % deadline
 
 class Displayer(object):
-    def __init__(self, colored=True):
+    def __init__(self, stdout=None, colored=True):
+        if not stdout:
+            import sys
+            stdout = sys.stdout
+        self.stdout = stdout
+
         self._colored = colored
 
     def _color(self, text, code):
@@ -174,10 +179,10 @@ class Displayer(object):
         count = 0
 
         for thing in result:
-            print self.display(thing, due=due)
+            self.stdout.write(self.display(thing, due=due) + '\n')
             count += 1
 
-        print '%d open things' % count
+        self.stdout.write('%d open things\n' % count)
 
 # compat method; should be removed
 def display(thing, shortid=True, due=False, colored=True):
