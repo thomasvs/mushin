@@ -23,8 +23,8 @@ class Due(logcommand.LogCommand):
         if thing:
             thing.due = date
             server.save(thing)
-            print 'Changed due date to %s on "%s" (%s)' % (
-                thing.due, thing.title, thing.id)
+            self.stdout.write('Changed due date to %s on "%s" (%s)\n' % (
+                thing.due, thing.title, thing.id))
 
 
 

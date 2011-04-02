@@ -35,19 +35,19 @@ class Add(logcommand.LogCommand):
                 conn.request('POST', '/_replicate', s,
                     {"Content-Type": "application/json"})
             except socket.error, e:
-                print 'FAILED: local server failed for source %s' % source
-                print 'Is the server running ?'
+                self.stdout.write('FAILED: local server failed for source %s\n' % source)
+                self.stdout.write('Is the server running ?\n')
                 return
             try:
                 r = conn.getresponse()
             except httplib.ResponseNotReady:
-                print 'FAILED: local server failed for source %s' % source
+                self.stdout.write('FAILED: local server failed for source %s\n' % source)
                 return
 
             if r.status / 100 == 2:
-                print json.decode(r.read())
+                self.stdout.write(json.decode(r.read()) + '\n')
             else:
-                print 'FAILED: status code', r.status
+                self.stdout.write('FAILED: status code %r\n' % r.status)
                 return
 
 class Replicate(logcommand.LogCommand):
