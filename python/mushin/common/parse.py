@@ -78,7 +78,7 @@ def parse(line):
 
     @type line: unicode
     """
-    assert type(line) is unicode
+    assert type(line) is unicode, "Line %r is not unicode" % line
 
     t = {}  # Task mapping
     title = line  # the 'title' extracted from line

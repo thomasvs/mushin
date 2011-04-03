@@ -56,7 +56,7 @@ class Add(logcommand.LogCommand):
     description = """Adds a thing.\n""" + SYNTAX
 
     def do(self, args):
-        new = parse.parse(" ".join(args))
+        new = parse.parse(u" ".join(args))
         if not new.has_key('start'):
             new['start'] = datetime.datetime.now()
 
@@ -190,6 +190,7 @@ class Search(logcommand.LogCommand):
                           help="only show the number of items matching")
 
     def do(self, args):
+        print 'THOMAS: Search: do: stdout', self.stdout
         from mushin.common import parse
         filter = parse.parse(" ".join(args))
         self.debug('parsed filter: %r' % filter)
@@ -279,7 +280,7 @@ def lookup(cmd, server, shortid, ignoreDone=False):
 
         # FIXME: make the view calculate and sort by priority
         things = list(server.view('things-by-id-reversed', include_docs=True,
-            reduce=False, startkey=startkey, endkey=endkey))
+            startkey=startkey, endkey=endkey))
 
         if len(things) == 0:
             cmd.stdout.write("No thing found.\n")
@@ -339,10 +340,18 @@ You can get help on subcommands by using the -h option to the subcommand.
         self.info("Using database %s", self.db)
 
     def do(self, args):
-        cmd = logcommand.command.commandToCmd(self)
-        cmd.prompt = 'GTD> '
-        while not cmd.exited:
-            cmd.cmdloop()
+        # start a command line interpreter
+
+        from mushin.extern.command import manholecmd
+        class MyCmdInterpreter(manholecmd.CmdInterpreter):
+            cmdClass = logcommand.command.commandToCmdClass(self)
+            cmdClass.prompt = 'GTD> '
+
+        class MyCmdManhole(manholecmd.CmdManhole):
+            interpreterClass = MyCmdInterpreter
+            
+
+        manholecmd.runWithProtocol(MyCmdManhole)
 
     def getServer(self):
         # FIXME: should not be importing couchdb

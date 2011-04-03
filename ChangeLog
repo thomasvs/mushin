@@ -1,3 +1,15 @@
+2011-04-03  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/command/conflict.py:
+	* python/mushin/command/list.py:
+	* python/mushin/command/replicate.py:
+	  Use self.stdout on the Displayers.
+	* python/mushin/command/project.py:
+	* python/mushin/common/parse.py:
+	* python/mushin/command/main.py:
+	  Switch interpreter to the manholecmd one.
+	  Various fixes.
+
 2011-04-02  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/command/main.py:

@@ -13,7 +13,7 @@ class List(logcommand.LogCommand):
 
     def do(self, args):
         server = self.getRootCommand().getServer()
-        displayer = display.Displayer()
+        displayer = display.Displayer(self.stdout)
 
         projects = server.db.view('mushin/open-projects-by-priority',
             group=True)

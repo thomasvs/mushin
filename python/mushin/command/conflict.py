@@ -11,7 +11,7 @@ class List(logcommand.LogCommand):
         server = self.getRootCommand().getServer()
 
         things = list(server.view('conflict', include_docs=True))
-        display.Displayer().display_things(things, due=True)
+        display.Displayer(self.stdout).display_things(things, due=True)
 
 class Conflict(logcommand.LogCommand):
     description = """Manage conflicts.

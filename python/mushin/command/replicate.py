@@ -16,7 +16,12 @@ class Add(logcommand.LogCommand):
         # FIXME: this hardcodes our own port/server
         conn = httplib.HTTPConnection('localhost:5984')
 
-        jane = args[0]
+        try:
+            jane = args[0]
+        except IndexError:
+            self.stdout.write('Please give a database to replicate with.\n')
+            return
+
         if ':' not in jane:
             jane += ':5984'
 
@@ -45,7 +50,7 @@ class Add(logcommand.LogCommand):
                 return
 
             if r.status / 100 == 2:
-                self.stdout.write(json.decode(r.read()) + '\n')
+                self.stdout.write("%r\n" % json.decode(r.read()))
             else:
                 self.stdout.write('FAILED: status code %r\n' % r.status)
                 return
