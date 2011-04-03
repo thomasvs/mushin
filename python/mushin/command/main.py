@@ -190,7 +190,6 @@ class Search(logcommand.LogCommand):
                           help="only show the number of items matching")
 
     def do(self, args):
-        print 'THOMAS: Search: do: stdout', self.stdout
         from mushin.common import parse
         filter = parse.parse(" ".join(args))
         self.debug('parsed filter: %r' % filter)
