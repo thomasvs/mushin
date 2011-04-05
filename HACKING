@@ -60,6 +60,11 @@ couchdb part:
 
 couchapp push couchdb mushin http://thomas:pass@localhost:5984/mushin/
 
+(with newer couchapp)
+
+couchapp push --docid _design/mushin couchdb http://localhost:5984/mushin/
+
+
 QUESTIONS
 
  - where to store .js code that you want to use both server-side and
