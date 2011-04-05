@@ -159,6 +159,11 @@ class Server:
         server = client.Server(uri)
         self.db = server[db]
 
+        from mushin.extern.paisley import client
+        # FIXME: get host/port
+        self._db = client.CouchDB('localhost', 5984)
+        self._dbName = db
+
     def view(self, name, **kwargs):
         # example: open-things
         # include_docs gives us the full docs, so we can recreate Things
@@ -169,10 +174,11 @@ class Server:
 
     def save(self, thing):
         thing.updated = datetime.datetime.now()
-        return thing.store(self.db)    
+        # FIXME: get a real accessor
+        return self._db.saveDoc(self._dbName, thing._data)
 
     def delete(self, thing):
-        return self.db.delete(thing)
+        return self._db.deleteDoc(self._dbName, thing._data)
 
 def thing_from_dict(d):
     """
