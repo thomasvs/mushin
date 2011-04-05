@@ -1,5 +1,11 @@
 2011-04-05  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/common/tcommand.py (added):
+	  Add a base class for twisted-using Command classes.
+	  Should move upstream when done.
+
+2011-04-05  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/command/main.py:
 	  Use twisted command.
 	* python/mushin/model/couch.py:
