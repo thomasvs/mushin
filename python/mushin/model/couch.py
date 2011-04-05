@@ -178,7 +178,7 @@ class Server:
         return self._db.saveDoc(self._dbName, thing._data)
 
     def delete(self, thing):
-        return self._db.deleteDoc(self._dbName, thing._data)
+        return self._db.deleteDoc(self._dbName, thing.id, thing.rev)
 
 def thing_from_dict(d):
     """

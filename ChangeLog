@@ -1,5 +1,12 @@
 2011-04-05  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/command/main.py:
+	  Use twisted command.
+	* python/mushin/model/couch.py:
+	  Fix delete.
+
+2011-04-05  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/model/couch.py:
 	  Start using paisley to save docs.
 

@@ -6,7 +6,7 @@ import sys
 
 from mushin.extern.command import command
 
-from mushin.common import log, logcommand, parse, format
+from mushin.common import log, logcommand, parse, format, tcommand
 from mushin.model import couch
 from mushin.command import project, display, conflict
 from mushin.command import list as llist, replicate, thing
@@ -34,17 +34,22 @@ def main(argv):
     # unicode
     argv = [a.decode('utf-8') for a in argv]
     c = GTD()
-    try:
-        ret = c.parse(argv)
-    except SystemError, e:
-        sys.stderr.write('rip: error: %s\n' % e.args)
-        return 255
-    except ImportError, e:
-        # FIXME: decide how to handle
-        raise
-        # deps.handleImportError(e)
-        # ret = -1
 
+    # use a list so a callback gets it by reference and can modify it
+    ret = []
+
+    d = c.parse(argv)
+    def cb(r, ret):
+        ret.append(r)
+
+    def systemEb(failure):
+        failure.trap(SystemError)
+        sys.stderr.write('mushin: error: %s\n' % e.args)
+        return 255
+    d.addCallback(cb, ret)
+    d.addErrback(systemEb)
+
+    ret = ret[0]
     if ret is None:
         return 0
 
@@ -64,10 +69,14 @@ class Add(logcommand.LogCommand):
 
         thing = couch.thing_from_dict(new)
             
-        server.save(thing)
+        d = server.save(thing)
 
-        self.stdout.write('Added thing "%s" (%s)\n' % (
-            thing.title.encode('utf-8'), thing.id))
+        def saveCb(ret):
+            self.stdout.write('Added thing "%s" (%s)\n' % (
+                thing.title.encode('utf-8'), ret['id']))
+        d.addCallback(saveCb)
+
+        return d
 
 class Delay(logcommand.LogCommand):
     summary = "delay one thing"
@@ -103,9 +112,12 @@ class Delete(logcommand.LogCommand):
         thing = lookup(self, server, args[0])
 
         if thing:
-            server.delete(thing)
-            self.stdout.write('Deleted thing "%s" (%s)\n' % (
-                thing.title.encode('utf-8'), thing.id))
+            d = server.delete(thing)
+            def deleteCb(_):
+                self.stdout.write('Deleted thing "%s" (%s)\n' % (
+                    thing.title.encode('utf-8'), thing.id))
+            d.addCallback(deleteCb)
+            return d
 
 class Done(logcommand.LogCommand):
     summary = "mark a thing as done"
@@ -118,11 +130,16 @@ class Done(logcommand.LogCommand):
             if thing.complete == 100:
                 self.stdout.write('Already done "%s" (%s)\n' % (
                     thing.title.encode('utf-8'), thing.id))
+                return 1
             else:
                 if thing.finish():
-                    server.save(thing)
-                    self.stdout.write('Marked "%s" (%s) as done\n' % (
-                        thing.title.encode('utf-8'), thing.id))
+                    d = server.save(thing)
+                    def saveCb(_):
+                        self.stdout.write('Marked "%s" (%s) as done\n' % (
+                            thing.title.encode('utf-8'), thing.id))
+                        return 0
+                    d.addCallback(saveCb)
+                    return d
                 else:
                     server.save(thing)
                     self.stdout.write('Rescheduling for %s "%s" (%s)\n' % (
@@ -302,7 +319,7 @@ def lookup(cmd, server, shortid, ignoreDone=False):
 
         return things[0]
 
-class GTD(logcommand.LogCommand):
+class GTD(tcommand.TwistedCommand):
     # FIXME: this causes doc.py to list commands as being doc.py
     usage = "%prog %command"
     #usage = "gtd %command"
