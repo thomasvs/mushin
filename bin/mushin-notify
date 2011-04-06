@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+# -*- Mode: Python -*-
+# vi:si:et:sw=4:sts=4:ts=4
+
+import pygtk
+pygtk.require('2.0')
+
+import pynotify
+import sys
+
+from twisted.internet import reactor
+
+from mushin.extern.paisley import client, changes
+from mushin.common import log
+
+class ChangeListener(object):
+
+    def __init__(self, db, dbName):
+        self._db = db
+        self._dbName = dbName
+
+    def changed(self, change):
+        if not 'id' in change:
+            return
+
+        #import traceback; traceback.print_stack()
+        d = self._db.openDoc(self._dbName, change['id'])
+        def notify(doc, change):
+            action = 'Changed'
+            for c in change['changes']:
+                if c["rev"].startswith('1-'):
+                    action = 'Added'
+
+            # FIXME: get older version to be able to compare
+            n = pynotify.Notification("%s thing" % action, doc['title'])
+            if not n.show():
+                print "Failed to send notification"
+        d.addCallback(notify, change)
+
+if __name__ == '__main__':
+    log.init()
+    log.logTwisted()
+    if not pynotify.init("mushin"):
+        sys.exit(1)
+
+    dbName = 'mushintest'
+    db = client.CouchDB('localhost')
+    listener = ChangeListener(db, dbName)
+    notifier = changes.ChangeNotifier(db, dbName)
+    notifier.addListener(listener)
+
+    d = notifier.start()
+    def cb(since):
+        #print 'THOMAS: since', since
+        pass
+    d.addCallback(cb)
+
+    reactor.run()
