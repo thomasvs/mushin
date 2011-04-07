@@ -7,6 +7,8 @@ pygtk.require('2.0')
 
 import pynotify
 import sys
+import optparse
+
 
 from twisted.internet import reactor
 
@@ -43,10 +45,18 @@ if __name__ == '__main__':
     if not pynotify.init("mushin"):
         sys.exit(1)
 
-    dbName = 'mushintest'
+    parser = optparse.OptionParser()
+
+    parser.add_option('-D', '--database',
+        action="store", dest="database",
+        default="mushin",
+        help="database to connect to (default: %default)")
+
+    options, args = parser.parse_args()
+
     db = client.CouchDB('localhost')
-    listener = ChangeListener(db, dbName)
-    notifier = changes.ChangeNotifier(db, dbName)
+    listener = ChangeListener(db, options.database)
+    notifier = changes.ChangeNotifier(db, options.database)
     notifier.addListener(listener)
 
     d = notifier.start()
