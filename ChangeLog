@@ -1,3 +1,11 @@
+2011-04-07  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/command/project.py:
+	  Convert listing projects to using twisted, step 1.
+	  Only user of server.load()
+	* python/mushin/model/couch.py:
+	  fromDict directly from the dict.
+
 2011-04-05  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/common/tcommand.py (added):

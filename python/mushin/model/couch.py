@@ -1,6 +1,7 @@
 # -*- Mode: Python -*-
 # vi:si:et:sw=4:sts=4:ts=4
 
+
 import datetime
 import math
 
@@ -146,10 +147,11 @@ class Thing(mapping.Document, log.Loggable):
             setattr(self, attr, d.get(attr, None))
 
     # method for paisley View objectFactory
-    def fromDict(self, d):
+    def nofromDict(self, d):
         # a dict from Paisley
         # FIXME: this is poking at internals of python-couchdb
         # FIXME: do we need copy ?
+        # FIXME: this overrides base class which just copies from the dict directly
         self._data = d['doc'].copy()
         return
 
@@ -170,7 +172,14 @@ class Server:
         return Thing.view(self.db, 'mushin/%s' % name, **kwargs)
 
     def load(self, thingid):
-        return Thing.load(self.db, thingid)
+
+        d = self._db.openDoc(self._dbName, thingid)
+        def openDocCb(r):
+            t = Thing()
+            t.fromDict(r)
+            return t
+        d.addCallback(openDocCb)
+        return d
 
     def save(self, thing):
         thing.updated = datetime.datetime.now()

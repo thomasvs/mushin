@@ -8,6 +8,8 @@ from mushin.common import log, logcommand, parse
 from mushin.model import couch
 from mushin.command import display
 
+from twisted.internet import defer
+
 class List(logcommand.LogCommand):
     summary = "list all open projects"
 
@@ -17,32 +19,50 @@ class List(logcommand.LogCommand):
 
         projects = server.db.view('mushin/open-projects-by-priority',
             group=True)
+
         orderable = []
+
+        d = defer.Deferred()
+
         for project in projects:
             completed, total, priority, docid = project.value
             if completed != total:
-                doc = server.load(docid)
-                orderable.append((priority, (float(completed) / total), 
-                    # FIXME: the %-30s includes the ansi codes
-                    "%s %s (%2d %%) %s %s\n" % (
-                    # FIXME: hardcode cut off point
-                    displayer.shortid(docid[:6]),
-                    displayer.priority("(%.2f)" % priority, priority),
-                    int(completed * 100.0 / total),
-                    displayer.project(project.key),
-                    doc.title,
-                )))
+                if not docid:
+                    self.stderr.write(
+                        'ERROR: project %r does not have a doc\n' % project)
+                    continue
 
-        orderable.sort()
-        orderable.reverse()
+                d.addCallback(lambda _, did: server.load(did), docid)
 
-        if args:
-            count = int(args[0])
-            self.debug('limiting to %d projects' % count)
-            orderable = orderable[:count]
+                def loadCb(thing, orderable, proj):
+                    assert thing.id
+                    completed, total, priority, docid = proj.value
+                    orderable.append((priority, (float(completed) / total), 
+                        # FIXME: the %-30s includes the ansi codes
+                        "%s %s (%2d %%) %s %s\n" % (
+                        displayer.shortid(thing.shortid()),
+                        displayer.priority("(%.2f)" % priority, priority),
+                        int(completed * 100.0 / total),
+                        displayer.project(proj.key),
+                        thing.title,
+                    )))
+                d.addCallback(loadCb, orderable, project)
 
-        for p, c, line in orderable:
-            self.stdout.write(line)
+        def loopedCb(_, orderable, args):
+            orderable.sort()
+            orderable.reverse()
+
+            if args:
+                count = int(args[0])
+                self.debug('limiting to %d projects' % count)
+                orderable = orderable[:count]
+
+            for p, c, line in orderable:
+                self.stdout.write(line)
+        d.addCallback(loopedCb, orderable, args)
+
+        d.callback(None)
+        return d
 
 class Project(logcommand.LogCommand):
     summary = "manipulate projects"
