@@ -169,7 +169,7 @@ class Server:
     def view(self, name, **kwargs):
         # example: open-things
         # include_docs gives us the full docs, so we can recreate Things
-        return Thing.view(self.db, 'mushin/%s' % name, **kwargs)
+        return self._db.openView(self._dbName, 'mushin', name, **kwargs)
 
     def load(self, thingid):
 

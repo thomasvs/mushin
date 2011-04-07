@@ -1,3 +1,10 @@
+2011-04-08  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/command/project.py:
+	  Use the new views.
+	* python/mushin/model/couch.py:
+	  Remove last use of Server.db ?
+
 2011-04-07  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/command/project.py:

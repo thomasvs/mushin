@@ -4,11 +4,18 @@
 import sys
 import datetime
 
+from twisted.internet import defer
+
 from mushin.common import log, logcommand, parse
 from mushin.model import couch
 from mushin.command import display
+from mushin.extern.paisley import views
 
-from twisted.internet import defer
+# FIXME: use a generic ViewResult row
+class ProjectsViewRow(object):
+    def fromDict(self, d):
+        self.key = d['key']
+        self.value = d['value']
 
 class List(logcommand.LogCommand):
     summary = "list all open projects"
@@ -17,22 +24,27 @@ class List(logcommand.LogCommand):
         server = self.getRootCommand().getServer()
         displayer = display.Displayer(self.stdout)
 
-        projects = server.db.view('mushin/open-projects-by-priority',
+        view = views.View(server._db, server._dbName, 'mushin',
+            'open-projects-by-priority', ProjectsViewRow,
             group=True)
 
         orderable = []
 
-        d = defer.Deferred()
+        d = view.queryView()
 
-        for project in projects:
-            completed, total, priority, docid = project.value
-            if completed != total:
+        def viewCb(projects):
+
+            d2 = defer.Deferred()
+            for project in projects:
+                completed, total, priority, docid = project.value
+                if completed == total:
+                    continue
                 if not docid:
                     self.stderr.write(
                         'ERROR: project %r does not have a doc\n' % project)
                     continue
 
-                d.addCallback(lambda _, did: server.load(did), docid)
+                d2.addCallback(lambda _, did: server.load(did), docid)
 
                 def loadCb(thing, orderable, proj):
                     assert thing.id
@@ -46,8 +58,13 @@ class List(logcommand.LogCommand):
                         displayer.project(proj.key),
                         thing.title,
                     )))
-                d.addCallback(loadCb, orderable, project)
+                d2.addCallback(loadCb, orderable, project)
 
+            d2.callback(None)
+            return d2
+
+        d.addCallback(viewCb)
+            
         def loopedCb(_, orderable, args):
             orderable.sort()
             orderable.reverse()
@@ -61,7 +78,6 @@ class List(logcommand.LogCommand):
                 self.stdout.write(line)
         d.addCallback(loopedCb, orderable, args)
 
-        d.callback(None)
         return d
 
 class Project(logcommand.LogCommand):
