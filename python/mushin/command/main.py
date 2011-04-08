@@ -5,6 +5,7 @@ import datetime
 import sys
 
 from mushin.extern.command import command
+from mushin.extern.paisley import views
 
 from mushin.common import log, logcommand, parse, format, tcommand
 from mushin.model import couch
@@ -84,23 +85,31 @@ class Delay(logcommand.LogCommand):
     def do(self, args):
         server = self.getRootCommand().getServer()
         shortid = args[0]
-        thing = lookup(self, server, shortid)
-        if not thing:
-            self.stdout.write('No thing found for %s\n' % shortid)
-            return
-        deltaHours = parse.parse_timedelta(args[1])
-        if not deltaHours:
-            self.stdout.write('Delay %s is not valid\n' % args[1])
-            return
+        d = lookup(self, server, shortid)
+        def lookupCb(thing):
+            if not thing:
+                self.stdout.write('No thing found for %s\n' % shortid)
+                return
+            deltaHours = parse.parse_timedelta(args[1])
+            if not deltaHours:
+                self.stdout.write('Delay %s is not valid\n' % args[1])
+                return
 
-        if not thing.due:
-            self.stdout.write('Thing %s has no due date set\n' % shortid)
-            return
+            if not thing.due:
+                self.stdout.write('Thing %s has no due date set\n' % shortid)
+                return
 
-        thing.due += datetime.timedelta(hours=deltaHours)
-        server.save(thing)
-        self.stdout.write('Thing %s delayed by %s\n' % (
-            shortid, format.formatTime(deltaHours * 60)))
+            thing.due += datetime.timedelta(hours=deltaHours)
+
+            d2 = server.save(thing)
+            def savedCb(_):
+                self.stdout.write('Thing %s delayed by %s\n' % (
+                    shortid, format.formatTime(deltaHours * 60)))
+            d2.addCallback(savedCb)
+            return d2
+
+        d.addCallback(lookupCb)
+        return d
 
 
 class Delete(logcommand.LogCommand):
@@ -109,41 +118,47 @@ class Delete(logcommand.LogCommand):
 
     def do(self, args):
         server = self.getRootCommand().getServer()
-        thing = lookup(self, server, args[0])
+        d = lookup(self, server, args[0])
 
-        if thing:
-            d = server.delete(thing)
-            def deleteCb(_):
-                self.stdout.write('Deleted thing "%s" (%s)\n' % (
-                    thing.title.encode('utf-8'), thing.id))
-            d.addCallback(deleteCb)
-            return d
+        def lookupCb(thing):
+            if thing:
+                d2 = server.delete(thing)
+                def deleteCb(_):
+                    self.stdout.write('Deleted thing "%s" (%s)\n' % (
+                        thing.title.encode('utf-8'), thing.id))
+                d2.addCallback(deleteCb)
+                return d2
+        d.addCallback(lookupCb)
+        return d
 
 class Done(logcommand.LogCommand):
     summary = "mark a thing as done"
 
     def do(self, args):
         server = self.getRootCommand().getServer()
-        thing = lookup(self, server, args[0], ignoreDone=True)
+        d = lookup(self, server, args[0], ignoreDone=True)
 
-        if thing:
-            if thing.complete == 100:
-                self.stdout.write('Already done "%s" (%s)\n' % (
-                    thing.title.encode('utf-8'), thing.id))
-                return 1
-            else:
-                if thing.finish():
-                    d = server.save(thing)
-                    def saveCb(_):
-                        self.stdout.write('Marked "%s" (%s) as done\n' % (
-                            thing.title.encode('utf-8'), thing.id))
-                        return 0
-                    d.addCallback(saveCb)
-                    return d
+        def lookupCb(thing):
+            if thing:
+                if thing.complete == 100:
+                    self.stdout.write('Already done "%s" (%s)\n' % (
+                        thing.title.encode('utf-8'), thing.id))
+                    return 1
                 else:
-                    server.save(thing)
-                    self.stdout.write('Rescheduling for %s "%s" (%s)\n' % (
-                        thing.due, thing.title.encode('utf-8'), thing.id))
+                    if thing.finish():
+                        d2 = server.save(thing)
+                        def saveCb(_):
+                            self.stdout.write('Marked "%s" (%s) as done\n' % (
+                                thing.title.encode('utf-8'), thing.id))
+                            return 0
+                        d2.addCallback(saveCb)
+                        return d2
+                    else:
+                        server.save(thing)
+                        self.stdout.write('Rescheduling for %s "%s" (%s)\n' % (
+                            thing.due, thing.title.encode('utf-8'), thing.id))
+        d.addCallback(lookupCb)
+        return d
 
 
 class Edit(logcommand.LogCommand):
@@ -164,38 +179,46 @@ class Edit(logcommand.LogCommand):
             return
 
         server = self.getRootCommand().getServer()
-        thing = lookup(self, server, shortid)
-        if not thing:
-            self.stdout.write('No thing found for %s\n' % shortid)
-            return
+        d = lookup(self, server, shortid)
 
-        def pre_input_hook():
-            readline.insert_text(display.display(
-                thing, shortid=False, colored=False))
-            readline.redisplay()
+        def lookupCb(thing):
+            if not thing:
+                self.stdout.write('No thing found for %s\n' % shortid)
+                return
 
-            # Unset the hook again 
-            readline.set_pre_input_hook(None)
+            def pre_input_hook():
+                readline.insert_text(display.display(
+                    thing, shortid=False, colored=False))
+                readline.redisplay()
 
-        readline.set_pre_input_hook(pre_input_hook)
+                # Unset the hook again 
+                readline.set_pre_input_hook(None)
 
-        line = raw_input("GTD edit> ").decode('utf-8')
-        # Remove edited line from history: 
-        #   oddly, get_history_item is 1-based,
-            #   but remove_history_item is 0-based 
-        readline.remove_history_item(readline.get_current_history_length() - 1)
-        try:
-            d = parse.parse(line)
-        except ValueError, e:
-            self.stderr.write('Could not parse line: %s\n' %
-                log.getExceptionMessage(e))
-            return 3
+            readline.set_pre_input_hook(pre_input_hook)
 
-        thing.set_from_dict(d)
+            line = raw_input("GTD edit> ").decode('utf-8')
+            # Remove edited line from history: 
+            #   oddly, get_history_item is 1-based,
+                #   but remove_history_item is 0-based 
+            readline.remove_history_item(readline.get_current_history_length() - 1)
+            try:
+                d = parse.parse(line)
+            except ValueError, e:
+                self.stderr.write('Could not parse line: %s\n' %
+                    log.getExceptionMessage(e))
+                return 3
 
-        server.save(thing)
-        self.stdout.write('Edited thing "%s" (%s)\n' % (
-            thing.title.encode('utf-8'), thing.id))
+            thing.set_from_dict(d)
+
+            d2 = server.save(thing)
+            def saveCb(_, thing):
+                self.stdout.write('Edited thing "%s" (%s)\n' % (
+                    thing.title.encode('utf-8'), thing.id))
+            d2.addCallback(saveCb, thing)
+            return d2
+
+        d.addCallback(lookupCb)
+        return d
 
 class Search(logcommand.LogCommand):
     summary = "search for things"
@@ -221,7 +244,8 @@ class Search(logcommand.LogCommand):
             if filter.has_key(fattribute):
                 found = True
                 self.debug('viewing on %s' % fattribute)
-                result = server.view('open-things-by-%s' % fattribute,
+                view = views.View(server._db, server._dbName, 'mushin',
+                    'open-things-by-%s' % fattribute, couch.Thing,
                     include_docs=True,
                     key=filter[fattribute])
                 break
@@ -229,46 +253,55 @@ class Search(logcommand.LogCommand):
         # fall back to getting all
         if not found:
             self.debug('getting all open things')
-            result = server.view('open-things', include_docs=True)
+            view = views.View(server._db, server._dbName, 'mushin',
+                'open-things', couch.Thing,
+                include_docs=True,
+                key=filter[fattribute])
 
-        # now apply all filters in a row
-        for attribute in ['urgency', 'importance', 'time']:
-            if filter.has_key(attribute) and attribute != fattribute:
-                self.debug('filtering on %s: %s' % (
-                    attribute, filter[attribute]))
-                result = [t for t in result 
-                    if str(t[attribute]).find(str(filter[attribute])) > -1]
+        d = view.queryView()
+        def viewCb(result):
+            # now apply all filters in a row
+            for attribute in ['urgency', 'importance', 'time']:
+                if filter.has_key(attribute) and attribute != fattribute:
+                    self.debug('filtering on %s: %s' % (
+                        attribute, filter[attribute]))
+                    result = [t for t in result 
+                        if str(t[attribute]).find(str(filter[attribute])) > -1]
 
-        # separate because filter has singular, Thing has plural
-        for attribute in ['projects', 'contexts', 'statuses']:
-            if filter.has_key(attribute) and attribute != fattribute:
-                self.debug('filtering on %s: %s' % (
-                    attribute, filter[attribute]))
+            # separate because filter has singular, Thing has plural
+            for attribute in ['projects', 'contexts', 'statuses']:
+                if filter.has_key(attribute) and attribute != fattribute:
+                    self.debug('filtering on %s: %s' % (
+                        attribute, filter[attribute]))
 
-                projects = filter[attribute]
-                new = []
-                for t in result:
-                    # multiple values for an attribute should be anded
-                    match = True
-                    for p in projects:
-                        if str(t[attribute]).find(p) == -1:
-                            match = False
-                            break
-                    if match:
-                        new.append(t)
+                    projects = filter[attribute]
+                    new = []
+                    for t in result:
+                        # multiple values for an attribute should be anded
+                        match = True
+                        for p in projects:
+                            if str(t[attribute]).find(p) == -1:
+                                match = False
+                                break
+                        if match:
+                            new.append(t)
 
-                result = new
+                    result = new
 
-         
-        # now filter on title
-        if result and filter['title']:
-            self.debug('filtering on title %s' % filter['title'])
-            result = [t for t in result if t.title.find(filter['title']) > -1]
+             
+            # now filter on title
+            result = list(result)
+            if result and filter['title']:
+                self.debug('filtering on title %s' % filter['title'])
+                result = [t for t in result if t.title.find(filter['title']) > -1]
 
-        if self.options.count:
-            self.stdout.write('%d open things\n' % len(result))
-        else:
-            display.Displayer(self.stdout).display_things(result)
+            if self.options.count:
+                self.stdout.write('%d open things\n' % len(result))
+            else:
+                display.Displayer(self.stdout).display_things(result)
+        d.addCallback(viewCb)
+
+        return d
 
 class Show(logcommand.LogCommand):
     summary = "show one thing"
@@ -276,9 +309,12 @@ class Show(logcommand.LogCommand):
     def do(self, args):
         server = self.getRootCommand().getServer()
         # FIXME: format nicer
-        thing = lookup(self, server, args[0])
-        if thing:
-            self.stdout.write("%s\n" % thing)
+        d = lookup(self, server, args[0])
+        def lookupCb(thing):
+            if thing:
+                self.stdout.write("%s\n" % thing)
+        d.addCallback(lookupCb)
+        return d
 
 def lookup(cmd, server, shortid, ignoreDone=False):
         # convert argument, which is shortened _id, to start/end range
@@ -295,29 +331,33 @@ def lookup(cmd, server, shortid, ignoreDone=False):
         log.debug('lookup', 'Looking up from %s to %s' % (startkey, endkey))
 
         # FIXME: make the view calculate and sort by priority
-        things = list(server.view('things-by-id-reversed', include_docs=True,
-            startkey=startkey, endkey=endkey))
+        d = server.view('things-by-id-reversed', include_docs=True,
+            startkey=startkey, endkey=endkey)
 
-        if len(things) == 0:
-            cmd.stdout.write("No thing found.\n")
-            return
+        def viewCb(things):
+            things = list(things)
+            if len(things) == 0:
+                cmd.stdout.write("No thing found.\n")
+                return
 
-        # we let just one result go through, even if ignoreDone is True,
-        # because our caller can show output about a task that is already done.
-        if len(things) == 1:
+            # we let just one result go through, even if ignoreDone is True,
+            # because our caller can show output about a task that is already done.
+            if len(things) == 1:
+                return things[0]
+
+            if ignoreDone:
+                things = [t for t in things if t.complete < 100]
+
+            if len(things) > 1:
+                for t in things:
+                    cmd.stdout.write("%s\n" % display.display(t))
+                cmd.stdout.write("%d things found, please be more specific.\n" % 
+                    len(things))
+                return
+
             return things[0]
-
-        if ignoreDone:
-            things = [t for t in things if t.complete < 100]
-
-        if len(things) > 1:
-            for t in things:
-                cmd.stdout.write("%s\n" % display.display(t))
-            cmd.stdout.write("%d things found, please be more specific.\n" % 
-                len(things))
-            return
-
-        return things[0]
+        d.addCallback(viewCb)
+        return d
 
 class GTD(tcommand.TwistedCommand):
     # FIXME: this causes doc.py to list commands as being doc.py
@@ -352,8 +392,8 @@ You can get help on subcommands by using the -h option to the subcommand.
             #from mushin.configure import configure
             #self.stdout.write("mushin %s\n" % configure.version)
             sys.exit(0)
-        self.db = options.database
-        self.info("Using database %s", self.db)
+        self.dbName = options.database
+        self.info("Using database %s", self.dbName)
 
     def do(self, args):
         # start a command line interpreter
@@ -373,7 +413,7 @@ You can get help on subcommands by using the -h option to the subcommand.
         # FIXME: should not be importing couchdb
         from couchdb import client
         try:
-            server = couch.Server(db=self.db)
+            server = couch.Server(db=self.dbName)
         except client.ResourceNotFound:
             raise command.CommandExited(
                 1, "Could not find database %s" % self.db)

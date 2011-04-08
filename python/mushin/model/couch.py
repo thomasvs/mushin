@@ -7,6 +7,8 @@ import math
 
 from mushin.common import mapping, log
 
+from mushin.extern.paisley import views
+
 class Thing(mapping.Document, log.Loggable):
     type = mapping.TextField(default='thing')
 
@@ -147,7 +149,7 @@ class Thing(mapping.Document, log.Loggable):
             setattr(self, attr, d.get(attr, None))
 
     # method for paisley View objectFactory
-    def nofromDict(self, d):
+    def fromDict(self, d):
         # a dict from Paisley
         # FIXME: this is poking at internals of python-couchdb
         # FIXME: do we need copy ?
@@ -156,20 +158,17 @@ class Thing(mapping.Document, log.Loggable):
         return
 
 class Server:
-    def __init__(self, uri='http://localhost:5984', db='mushin'):
-        from couchdb import client
-        server = client.Server(uri)
-        self.db = server[db]
-
+    def __init__(self, host='localhost', port=5984, db='mushin'):
         from mushin.extern.paisley import client
-        # FIXME: get host/port
-        self._db = client.CouchDB('localhost', 5984)
+        self._db = client.CouchDB(host, port)
         self._dbName = db
 
     def view(self, name, **kwargs):
         # example: open-things
         # include_docs gives us the full docs, so we can recreate Things
-        return self._db.openView(self._dbName, 'mushin', name, **kwargs)
+        v = views.View(self._db, self._dbName, 'mushin', name,
+            Thing, **kwargs)
+        return v.queryView()
 
     def load(self, thingid):
 

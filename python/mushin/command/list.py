@@ -24,10 +24,13 @@ bottom.
         now = datetime.datetime.now()
         daystart = datetime.datetime(year=now.year, month=now.month,
             day=now.day)
-        things = server.view('open-things-due', include_docs=True,
+        d = server.view('open-things-due', include_docs=True,
             descending=True)
-        things = [t for t in things if t.due >= daystart]
-        display.Displayer(self.stdout).display_things(things, due=True)
+        def viewCb(things):
+            things = [t for t in things if t.due >= daystart]
+            display.Displayer(self.stdout).display_things(things, due=True)
+        d.addCallback(viewCb)
+        return d
 
 class Open(logcommand.LogCommand):
     summary = "list all open things, ordered by priority (?)."
@@ -36,8 +39,10 @@ class Open(logcommand.LogCommand):
         server = self.getRootCommand().getServer()
 
         # FIXME: make the view calculate and sort by priority
-        display.Displayer(self.stdout).display_things(server.view(
-            'open-things', include_docs=True))
+        d = server.view('open-things', include_docs=True)
+        d.addCallback(lambda things:
+            display.Displayer(self.stdout).display_things(things))
+        return d
 
 class Overdue(logcommand.LogCommand):
     summary = "list all overdue open things, reverse-ordered by due date."
@@ -56,9 +61,12 @@ bottom.
         daystart = datetime.datetime(year=now.year, month=now.month,
             day=now.day)
         dayend = daystart + datetime.timedelta(days=1)
-        things = server.view('open-things-due', include_docs=True)
-        things = [t for t in things if t.due < dayend]
-        display.Displayer(self.stdout).display_things(things, due=True)
+        d = server.view('open-things-due', include_docs=True)
+        def viewCb(things):
+            things = [t for t in things if t.due < dayend]
+            display.Displayer(self.stdout).display_things(things, due=True)
+        d.addCallback(viewCb)
+        return d
 
 class Priority(logcommand.LogCommand):
     summary = "list all open things, ordered by priority."
@@ -68,14 +76,15 @@ class Priority(logcommand.LogCommand):
         server = self.getRootCommand().getServer()
 
         view = 'open-things-by-priority'
-        kwargs = {'descending': 'true'}
+        kwargs = {'descending': True}
         if args:
             count = int(args[0])
             self.debug('limiting result to %d things' % count)
             kwargs['limit'] = count
-        result = server.view(view, include_docs=True, **kwargs)
-
-        display.Displayer(self.stdout).display_things(result)
+        d = server.view(view, include_docs=True, **kwargs)
+        d.addCallback(lambda result: display.Displayer(
+            self.stdout).display_things(result))
+        return d
 
 
 class Today(logcommand.LogCommand):
@@ -89,11 +98,12 @@ class Today(logcommand.LogCommand):
         daystart = datetime.datetime(year=now.year, month=now.month,
             day=now.day)
         dayend = daystart + datetime.timedelta(days=1)
-        things = server.view('open-things-due', include_docs=True)
-        things = [t for t in things if daystart <= t.due < dayend]
-        display.Displayer(self.stdout).display_things(things, due=True)
-
-
+        d = server.view('open-things-due', include_docs=True)
+        def viewCb(things):
+            things = [t for t in things if daystart <= t.due < dayend]
+            display.Displayer(self.stdout).display_things(things, due=True)
+        d.addCallback(viewCb)
+        return d
 
 class List(logcommand.LogCommand):
     # FIXME: this causes doc.py to list commands as being doc.py

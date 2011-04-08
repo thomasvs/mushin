@@ -1,5 +1,13 @@
 2011-04-08  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/command/list.py:
+	* python/mushin/command/main.py:
+	* python/mushin/model/couch.py:
+	  All view code now uses paisley.  Time to rip out the last
+	  bit of couchdb-python ?
+
+2011-04-08  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/command/project.py:
 	  Use the new views.
 	* python/mushin/model/couch.py:
