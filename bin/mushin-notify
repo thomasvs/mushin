@@ -39,6 +39,29 @@ class ChangeListener(object):
                 print "Failed to send notification"
         d.addCallback(notify, change)
 
+    def connectionLost(self, reason):
+        # FIXME: poking at internals to get failures ?
+        from twisted.web import _newclient
+        if reason.check(_newclient.ResponseDone):
+            pass
+        elif reason.check(_newclient.ResponseFailed):
+            output = []
+            for r in reason.value.reasons:
+                if r.check(_newclient.ResponseDone):
+                    # not an actual error, so clear
+                    output = None
+                    break
+                output.append('ERROR: %r' % r)
+                output.append(r.getTraceback)
+
+            if output:
+                print "\n".join(output)
+        else:
+            print 'ERROR:', reason
+            print reason.getTraceback()
+
+
+
 if __name__ == '__main__':
     log.init()
     log.logTwisted()

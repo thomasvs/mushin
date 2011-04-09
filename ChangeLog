@@ -1,5 +1,10 @@
 2011-04-09  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* bin/mushin-notify:
+	  add connectionLost handler
+
+2011-04-09  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/common/app.py:
 	  Set dbName and host.
 	* python/mushin/command/list.py:
