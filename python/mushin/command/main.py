@@ -7,7 +7,7 @@ import sys
 from mushin.extern.command import command
 from mushin.extern.paisley import views
 
-from mushin.common import log, logcommand, parse, format, tcommand
+from mushin.common import log, logcommand, parse, format, tcommand, app
 from mushin.model import couch
 from mushin.command import project, display, conflict
 from mushin.command import list as llist, replicate, thing
@@ -419,3 +419,5 @@ You can get help on subcommands by using the -h option to the subcommand.
                 1, "Could not find database %s" % self.db)
         return server
 
+    def getNewServer(self):
+        return app.Server(dbName=self.dbName)

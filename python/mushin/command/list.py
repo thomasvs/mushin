@@ -4,7 +4,7 @@
 import sys
 import datetime
 
-from mushin.common import log, logcommand, parse
+from mushin.common import log, logcommand, parse, app
 from mushin.model import couch
 from mushin.command import display
 
@@ -18,16 +18,12 @@ bottom.
 """
 
     def do(self, args):
-        server = self.getRootCommand().getServer()
-
-        # FIXME: make the view calculate and sort by priority
-        now = datetime.datetime.now()
-        daystart = datetime.datetime(year=now.year, month=now.month,
-            day=now.day)
-        d = server.view('open-things-due', include_docs=True,
-            descending=True)
+        server = self.getRootCommand().getNewServer()
+        
+        d = server.getThingsDue()
         def viewCb(things):
-            things = [t for t in things if t.due >= daystart]
+            things = list(things)
+            things.reverse()
             display.Displayer(self.stdout).display_things(things, due=True)
         d.addCallback(viewCb)
         return d
@@ -49,21 +45,14 @@ class Overdue(logcommand.LogCommand):
     description = """
 List all overdue open things, including due today.
 
-Things are reverse-ordered by due date, showing the 
+Things are reverse-ordered by due date, showing the least overdue item at the
 bottom.
 """
-
     def do(self, args):
-        server = self.getRootCommand().getServer()
-
-        # FIXME: make the view calculate and sort by priority
-        now = datetime.datetime.now()
-        daystart = datetime.datetime(year=now.year, month=now.month,
-            day=now.day)
-        dayend = daystart + datetime.timedelta(days=1)
-        d = server.view('open-things-due', include_docs=True)
+        server = self.getRootCommand().getNewServer()
+        
+        d = server.getThingsOverdue()
         def viewCb(things):
-            things = [t for t in things if t.due < dayend]
             display.Displayer(self.stdout).display_things(things, due=True)
         d.addCallback(viewCb)
         return d
@@ -91,16 +80,10 @@ class Today(logcommand.LogCommand):
     summary = "list all open things due today"
 
     def do(self, args):
-        server = self.getRootCommand().getServer()
-
-        # FIXME: make the view calculate and sort by priority
-        now = datetime.datetime.now()
-        daystart = datetime.datetime(year=now.year, month=now.month,
-            day=now.day)
-        dayend = daystart + datetime.timedelta(days=1)
-        d = server.view('open-things-due', include_docs=True)
+        server = self.getRootCommand().getNewServer()
+        
+        d = server.getThingsToday()
         def viewCb(things):
-            things = [t for t in things if daystart <= t.due < dayend]
             display.Displayer(self.stdout).display_things(things, due=True)
         d.addCallback(viewCb)
         return d

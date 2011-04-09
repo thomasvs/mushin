@@ -1,3 +1,12 @@
+2011-04-09  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/common/app.py:
+	  Set dbName and host.
+	* python/mushin/command/list.py:
+	* python/mushin/command/main.py:
+	  Use app.Server instead for some operations, removing chunks of
+	  code.
+
 2011-04-08  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/command/list.py:

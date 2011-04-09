@@ -3,7 +3,7 @@
 
 import datetime
 
-from mushin.extern.paisley import couchdb, views
+from mushin.extern.paisley import client, views
 
 from mushin.common import log
 from mushin.model import couch
@@ -42,8 +42,10 @@ class Server(log.Loggable):
 
     logCategory = 'server'
 
-    def __init__(self):
-        self._couch = couchdb.CouchDB('localhost')
+    def __init__(self, host='localhost', dbName='mushin'):
+        self._host = host
+        self._dbName = dbName
+        self._couch = client.CouchDB(host)
 
     def _getThingsByDue(self, which, factory, limit=None, include_docs=True):
         """
@@ -60,8 +62,7 @@ class Server(log.Loggable):
             day=now.day)
         dayend = daystart + datetime.timedelta(days=1)
 
-        args = 'include_docs=%s' % (
-            include_docs and 'true' or 'false')
+        options = {'include_docs': include_docs}
         
         # FIXME: due dates, and hence keys, can possibly end with Z
         startkey = endkey = None
@@ -79,15 +80,14 @@ class Server(log.Loggable):
             if limit:
                 start = dayend - datetime.timedelta(days=limit)
                 startkey = start.strftime('%Y-%m-%dT%H:%M:%S')
-        
         if startkey:
-            args += '&startkey="%s"' % startkey
+            options['startkey'] = startkey
         if endkey:
-            args += '&endkey="%s"' % endkey
-
-        view = views.View(self._couch, 'mushin', 'mushin',
-            'open-things-due?%s' % args,
-            factory)
+            options['endkey'] = endkey
+         
+        # FIXME: dbName
+        view = views.View(self._couch, self._dbName, 'mushin',
+            'open-things-due', factory, **options)
         self.debug('getThingsByDue: view %r' % view)
 
         d = view.queryView()
@@ -95,7 +95,7 @@ class Server(log.Loggable):
 
 
     def getThings(self):
-        view = views.View(self._couch, 'mushin', 'mushin',
+        view = views.View(self._couch, self._dbName, 'mushin',
             'open-things-due?include_docs=true', couch.Thing)
         self.debug('getThings: view %r' % view)
 
@@ -170,7 +170,7 @@ class Server(log.Loggable):
         args = 'include_docs=%s' % (
             include_docs and 'true' or 'false')
         
-        view = views.View(self._couch, 'mushin', 'mushin',
+        view = views.View(self._couch, self._dbName, 'mushin',
             'by-status?%s&startkey=["%s"]&endkey=["%s","9"]' % (
                 args, status, status),
             factory)
@@ -223,7 +223,7 @@ class Server(log.Loggable):
                   contexts
         @rtype:   L{defer.Deferred} of generator
         """
-        view = views.View(self._couch, 'mushin', 'mushin',
+        view = views.View(self._couch, self._dbName, 'mushin',
             'contexts?group=true', Context)
         self.debug('getContexts: view %r' % view)
 
@@ -236,7 +236,7 @@ class Server(log.Loggable):
                   projects
         @rtype:   L{defer.Deferred} of generator
         """
-        view = views.View(self._couch, 'mushin', 'mushin',
+        view = views.View(self._couch, self._dbName, 'mushin',
             'projects?group=true', Project)
         self.debug('getProjects: view %r' % view)
 
@@ -249,7 +249,7 @@ class Server(log.Loggable):
                   statuses
         @rtype:   L{defer.Deferred} of generator
         """
-        view = views.View(self._couch, 'mushin', 'mushin',
+        view = views.View(self._couch, self._dbName, 'mushin',
             'statuses?group=true', Status)
         self.debug('getStatuses: view %r' % view)
 
@@ -265,7 +265,7 @@ class Server(log.Loggable):
         args = 'include_docs=%s' % (
             include_docs and 'true' or 'false')
         
-        view = views.View(self._couch, 'mushin', 'mushin',
+        view = views.View(self._couch, self._dbName, 'mushin',
             'by-project?%s&startkey=["%s"]&endkey=["%s","9"]' % (
                 args, project, project),
             factory)
@@ -297,7 +297,7 @@ class Server(log.Loggable):
         args = 'include_docs=%s' % (
             include_docs and 'true' or 'false')
         
-        view = views.View(self._couch, 'mushin', 'mushin',
+        view = views.View(self._couch, self._dbName, 'mushin',
             'by-context?%s&startkey=["%s"]&endkey=["%s","9"]' % (
                 args, context, context),
             factory)
@@ -328,7 +328,7 @@ class Server(log.Loggable):
         @type  thing: L{couch.Thing}
         """
         self.debug('adding thing %r', thing)
-        d = self._couch.saveDoc('mushin', thing._data)
+        d = self._couch.saveDoc(self._dbName, thing._data)
         def _saveDoc_cb(result):
             self.debug('add result %r', result)
         d.addCallback(_saveDoc_cb)
