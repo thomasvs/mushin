@@ -31,6 +31,8 @@ When adding or searching for things, the following syntax is used:
 """
 
 def main(argv):
+    log.init()
+
     # make sure argv, coming from the command line, is converted to
     # unicode
     argv = [a.decode('utf-8') for a in argv]
@@ -375,9 +377,6 @@ You can get help on subcommands by using the -h option to the subcommand.
         thing.Thing]
 
     def addOptions(self):
-        # FIXME: is this the right place ?
-        log.init()
-
         self.parser.add_option('-D', '--database',
                           action="store", dest="database",
                           default="mushin",
