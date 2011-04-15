@@ -1,6 +1,11 @@
 2011-04-15  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/command/main.py:
+	  Make sure we always have a return value.
+
+2011-04-15  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/command/main.py:
 	  Move log to main()
 
 2011-04-15  Thomas Vander Stichele  <thomas at apestaart dot org>

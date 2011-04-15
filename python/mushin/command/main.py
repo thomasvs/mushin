@@ -39,11 +39,11 @@ def main(argv):
     c = GTD()
 
     # use a list so a callback gets it by reference and can modify it
-    ret = []
+    ret = [None, ]
 
     d = c.parse(argv)
     def cb(r, ret):
-        ret.append(r)
+        ret[0] = r
 
     def systemEb(failure):
         failure.trap(SystemError)
