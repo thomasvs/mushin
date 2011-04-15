@@ -1,3 +1,8 @@
+2011-04-15  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/model/couch.py:
+	  Remove fromDict, something similar is now in paisley mushin branch.
+
 2011-04-09  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* bin/mushin-notify:

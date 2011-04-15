@@ -148,15 +148,6 @@ class Thing(mapping.Document, log.Loggable):
         ]:
             setattr(self, attr, d.get(attr, None))
 
-    # method for paisley View objectFactory
-    def fromDict(self, d):
-        # a dict from Paisley
-        # FIXME: this is poking at internals of python-couchdb
-        # FIXME: do we need copy ?
-        # FIXME: this overrides base class which just copies from the dict directly
-        self._data = d['doc'].copy()
-        return
-
 class Server:
     def __init__(self, host='localhost', port=5984, db='mushin'):
         from mushin.extern.paisley import client
