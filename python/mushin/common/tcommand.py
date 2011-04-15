@@ -45,24 +45,23 @@ class TwistedCommand(logcommand.LogCommand):
                 ret = 0
 
             self.debug('parse: cb: done')
-            reactor.exitStatus = ret
-            reactor.callLater(0, reactor.stop)
-            return reactor.exitStatus
+            reactor.callLater(0, self.done, ret)
+            return ret
 
         def eb(failure):
             self.debug('parse: eb: failure %s' %
                 failure.getErrorMessage())
             if failure.check(command.CommandExited):
                 sys.stderr.write(failure.value.msg + '\n')
-                reactor.exitStatus = failure.value.code
+                reason = failure.value.code
             else:
                 sys.stderr.write(failure.getTraceback())
                 
                 sys.stderr.write("Failure %r: %s\n" % (
                     failure, failure.getErrorMessage()))
-                reactor.exitStatus = 1
+                reason = 1
 
-            reactor.callLater(0, reactor.stop)
+            reactor.callLater(0, self.done, reason)
             return
 
         d.addCallback(parseCb)
@@ -91,3 +90,11 @@ class TwistedCommand(logcommand.LogCommand):
         self.debug('ran reactor')
 
         return reactor.exitStatus
+
+    def done(self, reason):
+        """
+        Called when a command is done, either with success or failure.
+        """
+        self.debug('done, reason %r', reason)
+        reactor.exitStatus = reason
+        reactor.stop()

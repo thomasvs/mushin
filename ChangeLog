@@ -1,5 +1,11 @@
 2011-04-15  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/common/tcommand.py:
+	  Since any command can be run in a loop, commands should not
+	  invoke the reactor directly to stop.
+
+2011-04-15  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/command/main.py:
 	  Make sure we always have a return value.
 
