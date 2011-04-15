@@ -88,3 +88,13 @@ bin/mushin-maemo
 error handling
 --------------
 - queryView can get a 404 errback; how to handle this ?
+
+command line testing
+--------------------
+
+as interpreter:
+  search U:5
+  edit ...
+  help
+
+as command
