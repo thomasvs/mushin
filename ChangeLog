@@ -1,3 +1,11 @@
+2011-04-16  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/common/tcommand.py:
+	  remove reactor code.
+	* python/mushin/command/main.py:
+	  work in reactor code which should move to an interpreter method.
+	  Try to fix the edit command in interpreter mode.
+
 2011-04-15  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/common/tcommand.py:

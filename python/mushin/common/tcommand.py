@@ -26,9 +26,13 @@ from mushin.extern.command import command
 
 from . import logcommand
 
+# FIXME: remove logcommand as a dependency
 class TwistedCommand(logcommand.LogCommand):
 
     def parse(self, argv):
+        """
+        @returns: a deferred that will fire when the command is done.
+        """
         self.debug('parse: chain up')
         # chain up to parent first
         # all subcommands will have a chance to chain up to the deferred
@@ -43,9 +47,7 @@ class TwistedCommand(logcommand.LogCommand):
                 self.debug('parse returned %r' % ret)
             elif self.parser.help_printed or self.parser.usage_printed:
                 ret = 0
-
             self.debug('parse: cb: done')
-            reactor.callLater(0, self.done, ret)
             return ret
 
         def eb(failure):
@@ -54,47 +56,12 @@ class TwistedCommand(logcommand.LogCommand):
             if failure.check(command.CommandExited):
                 sys.stderr.write(failure.value.msg + '\n')
                 reason = failure.value.code
+                return reason
             else:
-                sys.stderr.write(failure.getTraceback())
-                
-                sys.stderr.write("Failure %r: %s\n" % (
-                    failure, failure.getErrorMessage()))
-                reason = 1
-
-            reactor.callLater(0, self.done, reason)
-            return
+                return failure
 
         d.addCallback(parseCb)
         d.addErrback(eb)
 
-        reactor.callLater(0L, d.callback, None)
-        # now run the reactor
-        self.debug('parse: run the reactor')
-        self.run()
-        self.debug('parse: ran the reactor')
-
+        d.callback(None)
         return d
-
-    def run(self):
-        """
-        Run the reactor.
-
-        Resets .exitStatus, and returns its value after running the reactor.
-        """
-        # run the reactor
-
-        self.debug('running reactor')
-        # We cheat by putting the exit code in the reactor.
-        reactor.exitStatus = 0
-        reactor.run()
-        self.debug('ran reactor')
-
-        return reactor.exitStatus
-
-    def done(self, reason):
-        """
-        Called when a command is done, either with success or failure.
-        """
-        self.debug('done, reason %r', reason)
-        reactor.exitStatus = reason
-        reactor.stop()

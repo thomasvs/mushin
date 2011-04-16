@@ -4,6 +4,8 @@
 import datetime
 import sys
 
+from twisted.internet import defer, error, stdio
+
 from mushin.extern.command import command
 from mushin.extern.paisley import views
 
@@ -36,21 +38,35 @@ def main(argv):
     # make sure argv, coming from the command line, is converted to
     # unicode
     argv = [a.decode('utf-8') for a in argv]
+
     c = GTD()
 
     # use a list so a callback gets it by reference and can modify it
     ret = [None, ]
 
-    d = c.parse(argv)
-    def cb(r, ret):
-        ret[0] = r
+    from twisted.internet import reactor
 
-    def systemEb(failure):
-        failure.trap(SystemError)
-        sys.stderr.write('mushin: error: %s\n' % e.args)
-        return 255
-    d.addCallback(cb, ret)
-    d.addErrback(systemEb)
+    def start():
+        log.debug('main', 'invoking parse')
+        d = c.parse(argv)
+        def cb(r, ret):
+            ret[0] = r
+            reactor.callLater(0, reactor.stop)
+
+        def systemEb(failure, ret):
+            failure.trap(SystemError)
+            sys.stderr.write('mushin: error: %s\n' % e.args)
+            reactor.callLater(0, reactor.stop)
+            ret[0] = 255
+
+        d.addCallback(cb, ret)
+        d.addErrback(systemEb,ret)
+
+    reactor.callLater(0L, start)
+
+    log.debug('main', 'running reactor')
+    reactor.run()
+    log.debug('main', 'ran reactor')
 
     ret = ret[0]
     if ret is None:
@@ -185,8 +201,11 @@ class Edit(logcommand.LogCommand):
 
         def lookupCb(thing):
             if not thing:
-                self.stdout.write('No thing found for %s\n' % shortid)
+                self.stdout.write('No thing found for %s\n' %
+                    shortid.encode('utf-8'))
                 return
+
+            self.getRootCommand()._stdio.teardown()
 
             def pre_input_hook():
                 readline.insert_text(display.display(
@@ -201,8 +220,9 @@ class Edit(logcommand.LogCommand):
             line = raw_input("GTD edit> ").decode('utf-8')
             # Remove edited line from history: 
             #   oddly, get_history_item is 1-based,
-                #   but remove_history_item is 0-based 
+            #   but remove_history_item is 0-based 
             readline.remove_history_item(readline.get_current_history_length() - 1)
+            self.getRootCommand()._stdio.setup()
             try:
                 d = parse.parse(line)
             except ValueError, e:
@@ -301,6 +321,8 @@ class Search(logcommand.LogCommand):
                 self.stdout.write('%d open things\n' % len(result))
             else:
                 display.Displayer(self.stdout).display_things(result)
+
+            return 0
         d.addCallback(viewCb)
 
         return d
@@ -376,6 +398,8 @@ You can get help on subcommands by using the -h option to the subcommand.
         project.Project, replicate.Replicate, Search, Show, 
         thing.Thing]
 
+    deferred = None # fired when the command interpreter is done
+
     def addOptions(self):
         self.parser.add_option('-D', '--database',
                           action="store", dest="database",
@@ -405,8 +429,23 @@ You can get help on subcommands by using the -h option to the subcommand.
         class MyCmdManhole(manholecmd.CmdManhole):
             interpreterClass = MyCmdInterpreter
             
+        self.deferred = defer.Deferred()
+        self._stdio = manholecmd.Stdio()
 
-        manholecmd.runWithProtocol(MyCmdManhole)
+        self._stdio.setup()
+        self._stdio.connect(MyCmdManhole, connectionLostDeferred=self.deferred)
+
+        # we should expect error.ConnectionDone as a normal exit condition
+        def eb(failure):
+            self._stdio.teardown()
+            self.debug('connection closed, %r', failure)
+            failure.trap(error.ConnectionDone)
+            self.debug('connection done, ignoring')
+
+        self.deferred.addCallback(lambda _: self._stdio.teardown())
+        self.deferred.addErrback(eb)
+
+        return self.deferred
 
     def getServer(self):
         # FIXME: should not be importing couchdb
