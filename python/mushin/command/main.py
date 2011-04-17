@@ -7,6 +7,7 @@ import sys
 from twisted.internet import defer, error, stdio
 
 from mushin.extern.command import command
+from mushin.extern.command import manholecmd
 from mushin.extern.paisley import views
 
 from mushin.common import log, logcommand, parse, format, tcommand, app
@@ -418,10 +419,11 @@ You can get help on subcommands by using the -h option to the subcommand.
         self.dbName = options.database
         self.info("Using database %s", self.dbName)
 
+        self._stdio = manholecmd.Stdio()
+
     def do(self, args):
         # start a command line interpreter
 
-        from mushin.extern.command import manholecmd
         class MyCmdInterpreter(manholecmd.CmdInterpreter):
             cmdClass = logcommand.command.commandToCmdClass(self)
             cmdClass.prompt = 'GTD> '
@@ -430,7 +432,6 @@ You can get help on subcommands by using the -h option to the subcommand.
             interpreterClass = MyCmdInterpreter
             
         self.deferred = defer.Deferred()
-        self._stdio = manholecmd.Stdio()
 
         self._stdio.setup()
         self._stdio.connect(MyCmdManhole, connectionLostDeferred=self.deferred)
