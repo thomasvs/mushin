@@ -278,8 +278,7 @@ class Search(logcommand.LogCommand):
             self.debug('getting all open things')
             view = views.View(server._db, server._dbName, 'mushin',
                 'open-things', couch.Thing,
-                include_docs=True,
-                key=filter[fattribute])
+                include_docs=True)
 
         d = view.queryView()
         def viewCb(result):
