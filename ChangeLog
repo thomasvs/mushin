@@ -1,3 +1,8 @@
+2011-04-27  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/extern/__init__.py:
+	  Put paisley on PYTHONPATH.
+
 2011-04-18  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/command/main.py:
