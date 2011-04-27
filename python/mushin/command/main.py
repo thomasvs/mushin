@@ -93,7 +93,7 @@ class Add(logcommand.LogCommand):
 
         def saveCb(ret):
             self.stdout.write('Added thing "%s" (%s)\n' % (
-                thing.title.encode('utf-8'), ret['id']))
+                thing.title.encode('utf-8'), ret['id'].encode('utf-8')))
         d.addCallback(saveCb)
 
         return d
@@ -107,7 +107,7 @@ class Delay(logcommand.LogCommand):
         d = lookup(self, server, shortid)
         def lookupCb(thing):
             if not thing:
-                self.stdout.write('No thing found for %s\n' % shortid)
+                self.stdout.write('No thing found for %s\n' % shortid.encode('utf-8'))
                 return
             deltaHours = parse.parse_timedelta(args[1])
             if not deltaHours:
@@ -115,7 +115,7 @@ class Delay(logcommand.LogCommand):
                 return
 
             if not thing.due:
-                self.stdout.write('Thing %s has no due date set\n' % shortid)
+                self.stdout.write('Thing %s has no due date set\n' % shortid.encode('utf-8'))
                 return
 
             thing.due += datetime.timedelta(hours=deltaHours)
@@ -123,7 +123,7 @@ class Delay(logcommand.LogCommand):
             d2 = server.save(thing)
             def savedCb(_):
                 self.stdout.write('Thing %s delayed by %s\n' % (
-                    shortid, format.formatTime(deltaHours * 60)))
+                    shortid.encode('utf-8'), format.formatTime(deltaHours * 60)))
             d2.addCallback(savedCb)
             return d2
 
@@ -144,7 +144,7 @@ class Delete(logcommand.LogCommand):
                 d2 = server.delete(thing)
                 def deleteCb(_):
                     self.stdout.write('Deleted thing "%s" (%s)\n' % (
-                        thing.title.encode('utf-8'), thing.id))
+                        thing.title.encode('utf-8'), thing.id.encode('utf-8')))
                 d2.addCallback(deleteCb)
                 return d2
         d.addCallback(lookupCb)
@@ -161,21 +161,21 @@ class Done(logcommand.LogCommand):
             if thing:
                 if thing.complete == 100:
                     self.stdout.write('Already done "%s" (%s)\n' % (
-                        thing.title.encode('utf-8'), thing.id))
+                        thing.title.encode('utf-8'), thing.id.encode('utf-8')))
                     return 1
                 else:
                     if thing.finish():
                         d2 = server.save(thing)
                         def saveCb(_):
                             self.stdout.write('Marked "%s" (%s) as done\n' % (
-                                thing.title.encode('utf-8'), thing.id))
+                                thing.title.encode('utf-8'), thing.id.encode('utf-8')))
                             return 0
                         d2.addCallback(saveCb)
                         return d2
                     else:
                         server.save(thing)
                         self.stdout.write('Rescheduling for %s "%s" (%s)\n' % (
-                            thing.due, thing.title.encode('utf-8'), thing.id))
+                            thing.due, thing.title.encode('utf-8'), thing.id.encode('utf-8')))
         d.addCallback(lookupCb)
         return d
 
@@ -236,7 +236,7 @@ class Edit(logcommand.LogCommand):
             d2 = server.save(thing)
             def saveCb(_, thing):
                 self.stdout.write('Edited thing "%s" (%s)\n' % (
-                    thing.title.encode('utf-8'), thing.id))
+                    thing.title.encode('utf-8'), thing.id.encode('utf-8')))
             d2.addCallback(saveCb, thing)
             return d2
 

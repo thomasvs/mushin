@@ -1,3 +1,8 @@
+2011-04-28  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/command/main.py:
+	  Now that id's are unicode, encode them to utf-8 before doing stdout.
+
 2011-04-27  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/extern/__init__.py:
