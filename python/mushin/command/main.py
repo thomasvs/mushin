@@ -174,8 +174,10 @@ class Done(logcommand.LogCommand):
                         return d2
                     else:
                         server.save(thing)
-                        self.stdout.write('Rescheduling for %s "%s" (%s)\n' % (
-                            thing.due, thing.title.encode('utf-8'), thing.id.encode('utf-8')))
+                        self.stdout.write(
+                            'Rescheduling for %s "%s" (%s)\n' % (
+                                thing.due, thing.title.encode('utf-8'),
+                                thing.id.encode('utf-8')))
         d.addCallback(lookupCb)
         return d
 
