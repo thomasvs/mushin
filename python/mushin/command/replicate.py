@@ -3,6 +3,10 @@
 
 from mushin.common import logcommand
 
+HOST = 'localhost'
+PORT = 5984
+DB = 'mushin'
+
 class Add(logcommand.LogCommand):
     summary = "Add another database to replicate with"
     usage = "[host]"
@@ -11,10 +15,9 @@ class Add(logcommand.LogCommand):
         import socket
         import httplib
         import cjson as json
-        import codecs
 
         # FIXME: this hardcodes our own port/server
-        conn = httplib.HTTPConnection('localhost:5984')
+        conn = httplib.HTTPConnection('%s:%d' % (HOST, PORT))
 
         try:
             jane = args[0]
@@ -23,11 +26,11 @@ class Add(logcommand.LogCommand):
             return
 
         if ':' not in jane:
-            jane += ':5984'
+            jane += ':%d' % PORT
 
         dbs = [
-          "mushin",
-          "http://%s/mushin" % jane,
+          DB,
+          "http://%s/%s" % (jane, DB),
         ]
 
         for source, target in [(dbs[0], dbs[1]), (dbs[1], dbs[0])]:
@@ -39,7 +42,7 @@ class Add(logcommand.LogCommand):
             try:
                 conn.request('POST', '/_replicate', s,
                     {"Content-Type": "application/json"})
-            except socket.error, e:
+            except socket.error:
                 self.stdout.write('FAILED: local server failed for source %s\n' % source)
                 self.stdout.write('Is the server running ?\n')
                 return
