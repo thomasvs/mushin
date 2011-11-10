@@ -1,3 +1,8 @@
+2011-11-10  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/command/main.py:
+	  Handle failures better with a final fallback so the program exits.
+
 2011-08-22  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/command/replicate.py:

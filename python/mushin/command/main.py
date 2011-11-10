@@ -56,12 +56,20 @@ def main(argv):
 
         def systemEb(failure, ret):
             failure.trap(SystemError)
-            sys.stderr.write('mushin: error: %s\n' % e.args)
+            sys.stderr.write('mushin: error: %s\n' % failure.value.args)
             reactor.callLater(0, reactor.stop)
             ret[0] = 255
 
+        def finalEb(failure, ret):
+            sys.stderr.write('mushin: internal error: %s\n' %
+                failure.value)
+            reactor.callLater(0, reactor.stop)
+            ret[0] = 255
+
+
         d.addCallback(cb, ret)
         d.addErrback(systemEb,ret)
+        d.addErrback(finalEb,ret)
 
     reactor.callLater(0L, start)
 
