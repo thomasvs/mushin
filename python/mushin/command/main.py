@@ -60,15 +60,22 @@ def main(argv):
             reactor.callLater(0, reactor.stop)
             ret[0] = 255
 
+        def couchEb(failure, ret):
+            from twisted.web import error
+            failure.trap(error.Error)
+            sys.stderr.write('mushin: couchdb error: %s\n' % failure.value)
+            reactor.callLater(0, reactor.stop)
+            ret[0] = 255
+            
         def finalEb(failure, ret):
             sys.stderr.write('mushin: internal error: %s\n' %
                 failure.value)
             reactor.callLater(0, reactor.stop)
             ret[0] = 255
 
-
         d.addCallback(cb, ret)
         d.addErrback(systemEb,ret)
+        d.addErrback(couchEb,ret)
         d.addErrback(finalEb,ret)
 
     reactor.callLater(0L, start)
