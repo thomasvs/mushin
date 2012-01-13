@@ -1,3 +1,8 @@
+2012-01-13  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/command/main.py:
+	  reverse id.
+
 2011-11-10  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/command/main.py:

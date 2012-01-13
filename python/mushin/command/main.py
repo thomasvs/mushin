@@ -108,7 +108,7 @@ class Add(logcommand.LogCommand):
 
         def saveCb(ret):
             self.stdout.write('Added thing "%s" (%s)\n' % (
-                thing.title.encode('utf-8'), ret['id'].encode('utf-8')))
+                thing.title.encode('utf-8'), ret['id'][::-1].encode('utf-8')))
         d.addCallback(saveCb)
 
         return d
@@ -159,7 +159,7 @@ class Delete(logcommand.LogCommand):
                 d2 = server.delete(thing)
                 def deleteCb(_):
                     self.stdout.write('Deleted thing "%s" (%s)\n' % (
-                        thing.title.encode('utf-8'), thing.id.encode('utf-8')))
+                        thing.title.encode('utf-8'), thing.id[::-1].encode('utf-8')))
                 d2.addCallback(deleteCb)
                 return d2
         d.addCallback(lookupCb)
@@ -176,14 +176,14 @@ class Done(logcommand.LogCommand):
             if thing:
                 if thing.complete == 100:
                     self.stdout.write('Already done "%s" (%s)\n' % (
-                        thing.title.encode('utf-8'), thing.id.encode('utf-8')))
+                        thing.title.encode('utf-8'), thing.id[::-1].encode('utf-8')))
                     return 1
                 else:
                     if thing.finish():
                         d2 = server.save(thing)
                         def saveCb(_):
                             self.stdout.write('Marked "%s" (%s) as done\n' % (
-                                thing.title.encode('utf-8'), thing.id.encode('utf-8')))
+                                thing.title.encode('utf-8'), thing.id[::-1].encode('utf-8')))
                             return 0
                         d2.addCallback(saveCb)
                         return d2
@@ -192,7 +192,7 @@ class Done(logcommand.LogCommand):
                         self.stdout.write(
                             'Rescheduling for %s "%s" (%s)\n' % (
                                 thing.due, thing.title.encode('utf-8'),
-                                thing.id.encode('utf-8')))
+                                thing.id[::-1].encode('utf-8')))
         d.addCallback(lookupCb)
         return d
 
@@ -253,7 +253,7 @@ class Edit(logcommand.LogCommand):
             d2 = server.save(thing)
             def saveCb(_, thing):
                 self.stdout.write('Edited thing "%s" (%s)\n' % (
-                    thing.title.encode('utf-8'), thing.id.encode('utf-8')))
+                    thing.title.encode('utf-8'), thing.id[::-1].encode('utf-8')))
             d2.addCallback(saveCb, thing)
             return d2
 
