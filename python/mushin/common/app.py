@@ -224,7 +224,7 @@ class Server(log.Loggable):
         @rtype:   L{defer.Deferred} of generator
         """
         view = views.View(self._couch, self._dbName, 'mushin',
-            'contexts?group=true', Context)
+            'contexts', Context, group=True)
         self.debug('getContexts: view %r' % view)
 
         d = view.queryView()
