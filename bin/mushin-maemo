@@ -22,6 +22,11 @@ and assure it doesn't raise an exception.
 ''')
     sys.exit(1)
 
+# set paisley to non-strict since we only have simplejson on maemo
+from mushin.extern.paisley import pjson
+
+assert not pjson.STRICT
+
 # now load the main function
 try:
     from mushin.maemo import main

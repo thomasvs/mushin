@@ -1,3 +1,8 @@
+2012-05-13  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* bin/mushin-maemo:
+	  Verify we run non-strict.
+
 2012-01-13  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* python/mushin/command/main.py:
