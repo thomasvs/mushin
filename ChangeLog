@@ -1,5 +1,11 @@
 2012-05-13  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* bin/mushin-maemo:
+	* python/mushin/maemo/main.py:
+	  Move pjson mangling to avoid the reactor.
+
+2012-05-13  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/common/app.py:
 	  Pass options as actual options.
 
