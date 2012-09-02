@@ -63,7 +63,7 @@ class Server(log.Loggable):
         dayend = daystart + datetime.timedelta(days=1)
 
         options = {'include_docs': include_docs}
-        
+
         # FIXME: due dates, and hence keys, can possibly end with Z
         startkey = endkey = None
 
@@ -84,7 +84,7 @@ class Server(log.Loggable):
             options['startkey'] = startkey
         if endkey:
             options['endkey'] = endkey
-         
+
         # FIXME: dbName
         view = views.View(self._couch, self._dbName, 'mushin',
             'open-things-due', factory, **options)
@@ -167,13 +167,11 @@ class Server(log.Loggable):
 
         @param status: one of 'waitingfor', 'nextaction'
         """
-        args = 'include_docs=%s' % (
-            include_docs and 'true' or 'false')
-        
         view = views.View(self._couch, self._dbName, 'mushin',
-            'by-status?%s&startkey=["%s"]&endkey=["%s","9"]' % (
-                args, status, status),
-            factory)
+            'by-status', factory,
+            include_docs=include_docs,
+            startkey=[status, ],
+            endkey=[status, "9"])
         self.debug('getThingsByStatus: view %r' % view)
 
         d = view.queryView()
@@ -237,7 +235,7 @@ class Server(log.Loggable):
         @rtype:   L{defer.Deferred} of generator
         """
         view = views.View(self._couch, self._dbName, 'mushin',
-            'projects?group=true', Project)
+            'projects', Project, group=True)
         self.debug('getProjects: view %r' % view)
 
         d = view.queryView()
@@ -250,7 +248,7 @@ class Server(log.Loggable):
         @rtype:   L{defer.Deferred} of generator
         """
         view = views.View(self._couch, self._dbName, 'mushin',
-            'statuses?group=true', Status)
+            'statuses', Status, group=True)
         self.debug('getStatuses: view %r' % view)
 
         d = view.queryView()
@@ -262,13 +260,11 @@ class Server(log.Loggable):
 
         @param project: the project
         """
-        args = 'include_docs=%s' % (
-            include_docs and 'true' or 'false')
-        
         view = views.View(self._couch, self._dbName, 'mushin',
-            'by-project?%s&startkey=["%s"]&endkey=["%s","9"]' % (
-                args, project, project),
-            factory)
+            'by-project', factory,
+            include_docs=include_docs,
+            startkey=[project, ],
+            endkey=[project, "9"])
         self.debug('getThingsByProject: view %r' % view)
 
         d = view.queryView()
@@ -294,13 +290,11 @@ class Server(log.Loggable):
 
         @param context: the context
         """
-        args = 'include_docs=%s' % (
-            include_docs and 'true' or 'false')
-        
         view = views.View(self._couch, self._dbName, 'mushin',
-            'by-context?%s&startkey=["%s"]&endkey=["%s","9"]' % (
-                args, context, context),
-            factory)
+            'by-context', factory,
+            include_docs=include_docs,
+            startkey=[context, ],
+            endkey=[context, "9"])
         self.debug('getThingsByContext: view %r' % view)
 
         d = view.queryView()

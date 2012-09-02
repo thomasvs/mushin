@@ -1,5 +1,10 @@
 2012-09-02  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/common/app.py:
+	  Use kwargs more.
+
+2012-09-02  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/command/main.py:
 	  Clean up whitespace.
 
