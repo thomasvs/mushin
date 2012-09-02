@@ -1,5 +1,10 @@
 2012-09-02  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/command/main.py:
+	  Clean up whitespace.
+
+2012-09-02  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/maemo/start.py:
 	  Remove unused import.
 

@@ -66,7 +66,7 @@ def main(argv):
             sys.stderr.write('mushin: couchdb error: %s\n' % failure.value)
             reactor.callLater(0, reactor.stop)
             ret[0] = 255
-            
+
         def finalEb(failure, ret):
             sys.stderr.write('mushin: internal error: %s\n' %
                 failure.value)
@@ -103,7 +103,7 @@ class Add(logcommand.LogCommand):
         server = self.getRootCommand().getServer()
 
         thing = couch.thing_from_dict(new)
-            
+
         d = server.save(thing)
 
         def saveCb(ret):
