@@ -1,3 +1,8 @@
+2012-09-02  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* python/mushin/maemo/lists.py:
+	  Add logging.
+
 2012-05-13  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* bin/mushin-maemo:

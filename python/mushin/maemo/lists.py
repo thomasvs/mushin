@@ -5,7 +5,12 @@ import gobject
 import gtk
 import hildon
 
-class ListsWindow(hildon.StackableWindow):
+from mushin.common import log
+
+class ListsWindow(hildon.StackableWindow, log.Loggable):
+
+    logCategory = 'listswindow'
+
     __gsignals__ = {
         'selected': (gobject.SIGNAL_RUN_LAST, None, (str, ))
     }
@@ -25,11 +30,12 @@ class ListsWindow(hildon.StackableWindow):
         self.show_all()
 
     def add_list(self, list_name, list_length):
+        self.debug('add_list: name %r, length %r', list_name, list_length)
         button = hildon.Button(gtk.HILDON_SIZE_FINGER_HEIGHT,
             hildon.BUTTON_ARRANGEMENT_VERTICAL)
         # align left
         button.set_alignment(0.0, 0.5, 1.0, 0.0)
-        
+
         # 4 by 3 grid
         row = self._counter % 4
         col = self._counter / 4
