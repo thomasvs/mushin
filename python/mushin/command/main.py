@@ -412,7 +412,7 @@ You can get help on subcommands by using the -h option to the subcommand.
 
     subCommandClasses = [Add, conflict.Conflict, Delay, Delete, Done, Edit,
         llist.List,
-        project.Project, replicate.Replicate, Search, Show, 
+        project.Project, replicate.Replicate, Search, Show,
         thing.Thing]
 
     deferred = None # fired when the command interpreter is done
@@ -446,7 +446,7 @@ You can get help on subcommands by using the -h option to the subcommand.
 
         class MyCmdManhole(manholecmd.CmdManhole):
             interpreterClass = MyCmdInterpreter
-            
+
         self.deferred = defer.Deferred()
 
         self._stdio.setup()
