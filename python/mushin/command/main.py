@@ -429,6 +429,14 @@ You can get help on subcommands by using the -h option to the subcommand.
     _newServer = None
 
     def addOptions(self):
+        self.parser.add_option('-H', '--host',
+                          action="store", dest="host",
+                          default="localhost",
+                          help="host to connect to (default: %default)")
+        self.parser.add_option('-P', '--port',
+                          action="store", dest="port",
+                          default="5984",
+                          help="port to connect to (default: %default)")
         self.parser.add_option('-D', '--database',
                           action="store", dest="database",
                           default="mushin",
@@ -445,9 +453,12 @@ You can get help on subcommands by using the -h option to the subcommand.
             sys.exit(0)
         self.dbName = options.database
         self.info("Using database %s", self.dbName)
+        self.host = options.host
+        self.info("Using host %s", self.host)
+        self.port = int(options.port)
+        self.info("Using port %d", self.port)
 
         self._stdio = manholecmd.Stdio()
-        print 'THOMAS: stdio', self._stdio
 
     def do(self, args):
         # start a command line interpreter
@@ -484,7 +495,8 @@ You can get help on subcommands by using the -h option to the subcommand.
             return self._server
 
         try:
-            self._server = couch.Server(db=self.dbName,
+            self._server = couch.Server(host=self.host, port=self.port,
+                db=self.dbName,
                 authenticator=InputAuthenticator(self._stdio))
         except client.ResourceNotFound:
             raise command.CommandExited(
@@ -496,7 +508,8 @@ You can get help on subcommands by using the -h option to the subcommand.
         if self._newServer:
             return self._newServer
 
-        self._newServer =  app.Server(dbName=self.dbName,
+        self._newServer = app.Server(host=self.host, port=self.port,
+            dbName=self.dbName,
             authenticator=InputAuthenticator(self._stdio))
 
         return self._newServer

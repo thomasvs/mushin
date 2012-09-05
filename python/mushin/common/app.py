@@ -43,10 +43,11 @@ class Server(log.Loggable):
 
     logCategory = 'server'
 
-    def __init__(self, host='localhost', dbName='mushin', authenticator=None):
+    def __init__(self, host='localhost', port=5984,
+            dbName='mushin', authenticator=None):
         self._host = host
         self._dbName = dbName
-        self._couch = client.CouchDB(host)
+        self._couch = client.CouchDB(host, port=port)
         # FIXME; make this public api
         self._couch._authenticator = authenticator
 

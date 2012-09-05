@@ -1,5 +1,12 @@
 2012-09-05  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/command/main.py:
+	* python/mushin/common/app.py:
+	  Add options for host and port.  Pass them properly to
+	  the servers.
+
+2012-09-05  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/common/logcommand.py:
 	  Fix log depth
 
