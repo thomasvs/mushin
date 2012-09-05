@@ -1,5 +1,11 @@
 2012-09-05  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/command/replicate.py:
+	  Make it possible to specify host always, and either port/db
+	  or both.
+
+2012-09-05  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/command/main.py:
 	* python/mushin/common/app.py:
 	  Add options for host and port.  Pass them properly to

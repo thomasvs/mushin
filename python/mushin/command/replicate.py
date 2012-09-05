@@ -9,15 +9,16 @@ DB = 'mushin'
 
 class Add(logcommand.LogCommand):
     summary = "Add another database to replicate with"
-    usage = "[host]"
+    usage = "REMOTE_HOST[:REMOTE_PORT][/REMOTE_DB]"
 
     def do(self, args):
         import socket
         import httplib
         import cjson as json
 
+        c = self.getRootCommand()
         # FIXME: this hardcodes our own port/server
-        conn = httplib.HTTPConnection('%s:%d' % (HOST, PORT))
+        conn = httplib.HTTPConnection('%s:%d' % (c.host, c.port))
 
         try:
             jane = args[0]
@@ -25,12 +26,23 @@ class Add(logcommand.LogCommand):
             self.stdout.write('Please give a database to replicate with.\n')
             return
 
-        if ':' not in jane:
-            jane += ':%d' % PORT
+        db = DB
+        slash = jane.find('/')
+        if slash > -1:
+            db = jane[slash + 1:]
+            jane = jane[:slash]
+            self.debug('replicating to database %s', db)
+
+        port = PORT
+        colon = jane.find(':')
+        if colon > -1:
+            port = int(jane[colon + 1:])
+            jane = jane[:colon]
+            self.debug('replicating to port %d', port)
 
         dbs = [
-          DB,
-          "http://%s/%s" % (jane, DB),
+          c.dbName,
+          "http://%s:%d/%s" % (jane, port, db),
         ]
 
         for source, target in [(dbs[0], dbs[1]), (dbs[1], dbs[0])]:
