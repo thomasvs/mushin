@@ -32,7 +32,16 @@ class LogCommand(command.Command, log.Loggable):
         command.Command.__init__(self, parentCommand, **kwargs)
         self.logCategory = self.name
 
+    def _doLog(self, level, format, *args):
+        kwargs = {}
+        log.Loggable.doLog(self, level, -4, format, *args, **kwargs)
+
     # command.Command has a fake debug method, so choose the right one
     def debug(self, format, *args):
-        kwargs = {}
-        log.Loggable.doLog(self, log.DEBUG, -2, format, *args, **kwargs)
+        self._doLog(log.DEBUG, format, *args)
+
+    def info(self, format, *args):
+        self._doLog(log.INFO, format, *args)
+
+    def warning(self, format, *args):
+        self._doLog(log.WARN, format, *args)
