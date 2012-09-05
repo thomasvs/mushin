@@ -7,6 +7,8 @@ a Command subclass for Twisted-using commands.
 
 import sys
 
+from mushin.extern.command import tcommand
+
 from twisted.internet import reactor, defer
 
 # Because we run a reactor and use deferreds, the flow is slightly different
@@ -22,46 +24,19 @@ from twisted.internet import reactor, defer
 # the exit value.
 
 
-from mushin.extern.command import command
+from mushin.extern.command import tcommand
 
 from . import logcommand
 
-# FIXME: remove logcommand as a dependency
-class TwistedCommand(logcommand.LogCommand):
+class TwistedCommand(tcommand.TwistedCommand, logcommand.LogCommand):
+    def debug(self, format, *args):
+        logcommand.LogCommand.debug(self, format, *args)
+    def warning(self, format, *args):
+        logcommand.LogCommand.warning(self, format, *args)
 
-    def parse(self, argv):
-        """
-        @returns: a deferred that will fire when the command is done.
-        """
-        self.debug('parse: chain up')
-        # chain up to parent first
-        # all subcommands will have a chance to chain up to the deferred
-        d = defer.Deferred()
-        d.addCallback(lambda _: defer.maybeDeferred(logcommand.LogCommand.parse, self, argv))
+class LogReactorCommand(tcommand.ReactorCommand, logcommand.LogCommand):
+    def debug(self, format, *args):
+        logcommand.LogCommand.debug(self, format, *args)
+    def warning(self, format, *args):
+        logcommand.LogCommand.warning(self, format, *args)
 
-        def parseCb(ret):
-            if ret is None:
-                self.debug('parse returned None, help/usage printed')
-                ret = 0
-            elif ret:
-                self.debug('parse returned %r' % ret)
-            elif self.parser.help_printed or self.parser.usage_printed:
-                ret = 0
-            self.debug('parse: cb: done')
-            return ret
-
-        def eb(failure):
-            self.debug('parse: eb: failure %s' %
-                failure.getErrorMessage())
-            if failure.check(command.CommandExited):
-                sys.stderr.write(failure.value.msg + '\n')
-                reason = failure.value.code
-                return reason
-            else:
-                return failure
-
-        d.addCallback(parseCb)
-        d.addErrback(eb)
-
-        d.callback(None)
-        return d

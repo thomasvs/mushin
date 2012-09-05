@@ -4,7 +4,7 @@
 import datetime
 import sys
 
-from twisted.internet import defer, error, stdio
+from twisted.internet import defer, error
 
 from mushin.extern.command import command
 from mushin.extern.command import manholecmd
@@ -42,60 +42,34 @@ def main(argv):
 
     c = GTD()
 
-    # use a list so a callback gets it by reference and can modify it
-    ret = [None, ]
+    log.debug('main', 'invoking parse')
 
-    from twisted.internet import reactor
+    from twisted.web import error
 
-    def start():
-        log.debug('main', 'invoking parse')
-        d = c.parse(argv)
-        def cb(r, ret):
-            ret[0] = r
-            reactor.callLater(0, reactor.stop)
+    try:
+        ret = c.parse(argv)
+    except SystemError, e:
+        sys.stderr.write('mushin: error: %s\n' % e.args)
+        return 255
+    except error.Error, e:
+        sys.stderr.write('mushin: couchdb error: %s\n' % e)
+        return 255
+    except Exception, e:
+        sys.stderr.write('mushin: internal error: %s\n' % e)
+        return 255
 
-        def systemEb(failure, ret):
-            failure.trap(SystemError)
-            sys.stderr.write('mushin: error: %s\n' % failure.value.args)
-            reactor.callLater(0, reactor.stop)
-            ret[0] = 255
 
-        def couchEb(failure, ret):
-            from twisted.web import error
-            failure.trap(error.Error)
-            sys.stderr.write('mushin: couchdb error: %s\n' % failure.value)
-            reactor.callLater(0, reactor.stop)
-            ret[0] = 255
-
-        def finalEb(failure, ret):
-            sys.stderr.write('mushin: internal error: %s\n' %
-                failure.value)
-            reactor.callLater(0, reactor.stop)
-            ret[0] = 255
-
-        d.addCallback(cb, ret)
-        d.addErrback(systemEb,ret)
-        d.addErrback(couchEb,ret)
-        d.addErrback(finalEb,ret)
-
-    reactor.callLater(0L, start)
-
-    log.debug('main', 'running reactor')
-    reactor.run()
-    log.debug('main', 'ran reactor')
-
-    ret = ret[0]
     if ret is None:
         return 0
 
     return ret
 
-class Add(logcommand.LogCommand):
+class Add(tcommand.TwistedCommand):
     summary = "Add a thing"
 
     description = """Adds a thing.\n""" + SYNTAX
 
-    def do(self, args):
+    def doLater(self, args):
         new = parse.parse(u" ".join(args))
         if not new.has_key('start'):
             new['start'] = datetime.datetime.now()
@@ -113,10 +87,10 @@ class Add(logcommand.LogCommand):
 
         return d
 
-class Delay(logcommand.LogCommand):
+class Delay(tcommand.TwistedCommand):
     summary = "delay one thing"
 
-    def do(self, args):
+    def doLater(self, args):
         server = self.getRootCommand().getServer()
         shortid = args[0]
         d = lookup(self, server, shortid)
@@ -146,11 +120,11 @@ class Delay(logcommand.LogCommand):
         return d
 
 
-class Delete(logcommand.LogCommand):
+class Delete(tcommand.TwistedCommand):
     summary = "delete one thing"
     aliases = ['del', ]
 
-    def do(self, args):
+    def doLater(self, args):
         server = self.getRootCommand().getServer()
         d = lookup(self, server, args[0])
 
@@ -165,10 +139,10 @@ class Delete(logcommand.LogCommand):
         d.addCallback(lookupCb)
         return d
 
-class Done(logcommand.LogCommand):
+class Done(tcommand.TwistedCommand):
     summary = "mark a thing as done"
 
-    def do(self, args):
+    def doLater(self, args):
         server = self.getRootCommand().getServer()
         d = lookup(self, server, args[0], ignoreDone=True)
 
@@ -197,18 +171,18 @@ class Done(logcommand.LogCommand):
         return d
 
 
-class Edit(logcommand.LogCommand):
+class Edit(tcommand.TwistedCommand):
     summary = "edit a thing"
     usage = "#shortid"
 
-    def do(self, args):
+    def doLater(self, args):
         try:
             import readline
         except ImportError:
             self.stdout.write("Cannot edit without the 'readline' module!\n")
             return
 
-        # Parse command line 
+        # Parse command line
         shortid = args[0]
 
         if not shortid:
@@ -230,15 +204,15 @@ class Edit(logcommand.LogCommand):
                     thing, shortid=False, colored=False))
                 readline.redisplay()
 
-                # Unset the hook again 
+                # Unset the hook again
                 readline.set_pre_input_hook(None)
 
             readline.set_pre_input_hook(pre_input_hook)
 
             line = raw_input("GTD edit> ").decode('utf-8')
-            # Remove edited line from history: 
+            # Remove edited line from history:
             #   oddly, get_history_item is 1-based,
-            #   but remove_history_item is 0-based 
+            #   but remove_history_item is 0-based
             readline.remove_history_item(readline.get_current_history_length() - 1)
             self.getRootCommand()._stdio.setup()
             try:
@@ -260,7 +234,7 @@ class Edit(logcommand.LogCommand):
         d.addCallback(lookupCb)
         return d
 
-class Search(logcommand.LogCommand):
+class Search(tcommand.TwistedCommand):
     summary = "search for things"
     description = """Search for things.\n""" + SYNTAX
 
@@ -269,7 +243,7 @@ class Search(logcommand.LogCommand):
                           action="store_true", dest="count",
                           help="only show the number of items matching")
 
-    def do(self, args):
+    def doLater(self, args):
         from mushin.common import parse
         filter = parse.parse(" ".join(args))
         self.debug('parsed filter: %r' % filter)
@@ -304,7 +278,7 @@ class Search(logcommand.LogCommand):
                 if filter.has_key(attribute) and attribute != fattribute:
                     self.debug('filtering on %s: %s' % (
                         attribute, filter[attribute]))
-                    result = [t for t in result 
+                    result = [t for t in result
                         if str(t[attribute]).find(str(filter[attribute])) > -1]
 
             # separate because filter has singular, Thing has plural
@@ -327,7 +301,6 @@ class Search(logcommand.LogCommand):
 
                     result = new
 
-             
             # now filter on title
             result = list(result)
             if result and filter['title']:
@@ -344,10 +317,10 @@ class Search(logcommand.LogCommand):
 
         return d
 
-class Show(logcommand.LogCommand):
+class Show(tcommand.TwistedCommand):
     summary = "show one thing"
 
-    def do(self, args):
+    def doLater(self, args):
         server = self.getRootCommand().getServer()
         # FIXME: format nicer
         d = lookup(self, server, args[0])
@@ -392,7 +365,7 @@ def lookup(cmd, server, shortid, ignoreDone=False):
             if len(things) > 1:
                 for t in things:
                     cmd.stdout.write("%s\n" % display.display(t))
-                cmd.stdout.write("%d things found, please be more specific.\n" % 
+                cmd.stdout.write("%d things found, please be more specific.\n" %
                     len(things))
                 return
 
@@ -400,13 +373,48 @@ def lookup(cmd, server, shortid, ignoreDone=False):
         d.addCallback(viewCb)
         return d
 
-class GTD(tcommand.TwistedCommand):
+from paisley import client
+class InputAuthenticator(client.Authenticator):
+    _tries = 0
+
+    def __init__(self, stdio):
+        self._stdio = stdio
+
+    def authenticate(self, db):
+        self._tries += 1
+
+        if self._tries > 3:
+            raise client.AuthenticationError('Failed 3 times to authenticate')
+
+        d = defer.Deferred()
+
+        import getpass
+        user = getpass.getuser()
+        password = self._stdio.getPassword(prompt='Password for %s: ' % user)
+
+        # FIXME: use API to set these?
+        db.username = user
+        db.password = password
+        # FIXME: provide a mode where it doesn't store these in memory,
+        #        but creates a request, gets a token, and then keeps using
+        #        the token
+        d.addCallback(lambda _: db.getSession())
+        def cb(_):
+            # since we use cookies, this should not be necessary
+            db.username = None
+            db.password = None
+        d.addCallback(cb)
+
+        d.callback(None)
+        return d
+
+class GTD(tcommand.LogReactorCommand):
     # FIXME: this causes doc.py to list commands as being doc.py
     usage = "%prog %command"
     #usage = "gtd %command"
     description = """Get things done.
 
-Things gives you a tree of subcommands to work with.
+GTD gives you a tree of subcommands to work with.
 You can get help on subcommands by using the -h option to the subcommand.
 """
 
@@ -416,6 +424,9 @@ You can get help on subcommands by using the -h option to the subcommand.
         thing.Thing]
 
     deferred = None # fired when the command interpreter is done
+
+    _server = None
+    _newServer = None
 
     def addOptions(self):
         self.parser.add_option('-D', '--database',
@@ -436,6 +447,7 @@ You can get help on subcommands by using the -h option to the subcommand.
         self.info("Using database %s", self.dbName)
 
         self._stdio = manholecmd.Stdio()
+        print 'THOMAS: stdio', self._stdio
 
     def do(self, args):
         # start a command line interpreter
@@ -464,15 +476,29 @@ You can get help on subcommands by using the -h option to the subcommand.
 
         return self.deferred
 
+    # FIXME: this is a direct 
     def getServer(self):
         # FIXME: should not be importing couchdb
         from couchdb import client
+        if self._server:
+            return self._server
+
         try:
-            server = couch.Server(db=self.dbName)
+            self._server = couch.Server(db=self.dbName,
+                authenticator=InputAuthenticator(self._stdio))
         except client.ResourceNotFound:
             raise command.CommandExited(
                 1, "Could not find database %s" % self.db)
-        return server
+
+        return self._server
 
     def getNewServer(self):
-        return app.Server(dbName=self.dbName)
+        if self._newServer:
+            return self._newServer
+
+        self._newServer =  app.Server(dbName=self.dbName,
+            authenticator=InputAuthenticator(self._stdio))
+
+        return self._newServer
+
+

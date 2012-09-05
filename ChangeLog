@@ -1,5 +1,22 @@
 2012-09-05  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/command/list.py:
+	* python/mushin/command/main.py:
+	* python/mushin/common/app.py:
+	* python/mushin/common/tcommand.py:
+	* python/mushin/model/couch.py:
+	* python/mushin/extern (svn:externals):
+	  Update to new python-command.
+	  Use TwistedCommand and ReactorCommand where appropriate.
+	  Use authenticator for CouchDB client.
+	  Store servers used by getServer and getNewServer so that
+	  they reuse the same instance, and hence the same agent and
+	  cookies.
+	  Both authenticating with user/pass and then getting a session
+	  and using authcookies now works.
+
+2012-09-05  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/model/couch.py:
 	  Show 8 characters for id after new collision.
 

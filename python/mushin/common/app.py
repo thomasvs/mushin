@@ -31,6 +31,7 @@ class Project(Group): pass
 class Context(Group): pass
 class Status(Group): pass
 
+# FIXME: this one used by maemo client, and by some command line app lists
 class Server(log.Loggable):
     """
     Abstracts communication with the couchdb server.
@@ -42,10 +43,12 @@ class Server(log.Loggable):
 
     logCategory = 'server'
 
-    def __init__(self, host='localhost', dbName='mushin'):
+    def __init__(self, host='localhost', dbName='mushin', authenticator=None):
         self._host = host
         self._dbName = dbName
         self._couch = client.CouchDB(host)
+        # FIXME; make this public api
+        self._couch._authenticator = authenticator
 
     def _getThingsByDue(self, which, factory, limit=None, include_docs=True):
         """

@@ -1,14 +1,10 @@
 # -*- Mode: Python -*-
 # vi:si:et:sw=4:sts=4:ts=4
 
-import sys
-import datetime
-
-from mushin.common import log, logcommand, parse, app
-from mushin.model import couch
+from mushin.common import log, parse, app, tcommand
 from mushin.command import display
 
-class Due(logcommand.LogCommand):
+class Due(tcommand.TwistedCommand):
     summary = "list all due open things, ordered by due date."
     description = """
 List all due open things, including due today.
@@ -19,7 +15,7 @@ bottom.
 
     def do(self, args):
         server = self.getRootCommand().getNewServer()
-        
+
         d = server.getThingsDue()
         def viewCb(things):
             things = list(things)
@@ -28,7 +24,7 @@ bottom.
         d.addCallback(viewCb)
         return d
 
-class Open(logcommand.LogCommand):
+class Open(tcommand.TwistedCommand):
     summary = "list all open things, ordered by priority (?)."
 
     def do(self, args):
@@ -40,7 +36,7 @@ class Open(logcommand.LogCommand):
             display.Displayer(self.stdout).display_things(things))
         return d
 
-class Overdue(logcommand.LogCommand):
+class Overdue(tcommand.TwistedCommand):
     summary = "list all overdue open things, reverse-ordered by due date."
     description = """
 List all overdue open things, including due today.
@@ -50,14 +46,14 @@ bottom.
 """
     def do(self, args):
         server = self.getRootCommand().getNewServer()
-        
+
         d = server.getThingsOverdue()
         def viewCb(things):
             display.Displayer(self.stdout).display_things(things, due=True)
         d.addCallback(viewCb)
         return d
 
-class Priority(logcommand.LogCommand):
+class Priority(tcommand.TwistedCommand):
     summary = "list all open things, ordered by priority."
     aliases = ['pri', ]
 
@@ -76,21 +72,21 @@ class Priority(logcommand.LogCommand):
         return d
 
 
-class Today(logcommand.LogCommand):
+class Today(tcommand.TwistedCommand):
     summary = "list all open things due today"
 
     def do(self, args):
         server = self.getRootCommand().getNewServer()
-        
+
         d = server.getThingsToday()
         def viewCb(things):
             display.Displayer(self.stdout).display_things(things, due=True)
         d.addCallback(viewCb)
         return d
 
-class List(logcommand.LogCommand):
+class List(tcommand.TwistedCommand):
     # FIXME: this causes doc.py to list commands as being doc.py
-    usage = "%prog %command"
+#    usage = "%prog %command"
     #usage = "gtd %command"
     description = """List things.
 """

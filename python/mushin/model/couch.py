@@ -148,10 +148,13 @@ class Thing(mapping.Document, log.Loggable):
         ]:
             setattr(self, attr, d.get(attr, None))
 
+# FIXME: this one used by command client, common.app.Server by maemo app
 class Server:
-    def __init__(self, host='localhost', port=5984, db='mushin'):
+    def __init__(self, host='localhost', port=5984, db='mushin',
+            authenticator=None):
         from mushin.extern.paisley import client
         self._db = client.CouchDB(host, port)
+        self._db._authenticator = authenticator
         self._dbName = db
 
     def view(self, name, **kwargs):
