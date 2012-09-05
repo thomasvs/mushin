@@ -34,7 +34,7 @@ class LogCommand(command.Command, log.Loggable):
 
     def _doLog(self, level, format, *args):
         kwargs = {}
-        log.Loggable.doLog(self, level, -4, format, *args, **kwargs)
+        log.Loggable.doLog(self, level, -3, format, *args, **kwargs)
 
     # command.Command has a fake debug method, so choose the right one
     def debug(self, format, *args):
