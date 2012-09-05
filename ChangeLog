@@ -1,5 +1,10 @@
 2012-09-05  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/model/couch.py:
+	  Show 8 characters for id after new collision.
+
+2012-09-05  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/common/logcommand.py:
 	  Hook up warning and error too.
 
