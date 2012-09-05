@@ -1,5 +1,6 @@
 TODO:
 -----
+ - convert all commands to using getNewServer()
  - parse search lines and apply filters in most useful order
  - Figure out what to do with docs without start date - maybe we have a bug
    introducing these ?
