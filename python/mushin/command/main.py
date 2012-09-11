@@ -515,4 +515,6 @@ You can get help on subcommands by using the -h option to the subcommand.
 
         return self._newServer
 
+    def getPassword(self, prompt='Password: '):
+        return self._stdio.getPassword(prompt=prompt)
 

@@ -18,7 +18,17 @@ DB = 'mushin'
 
 class Add(tcommand.TwistedCommand):
     summary = "Add another database to replicate with"
-    usage = "REMOTE_HOST[:REMOTE_PORT][/REMOTE_DB]"
+    usage = "http://[USER[:PASSWORD]@]HOST[:PORT][/DB]"
+    description = """Set up two-way replication with another database.
+
+If you provide a username, but not a password, you will be prompted for
+the remote password.
+
+The default remote host is %s.
+The default remote port is %d.
+The default remote database is %s.
+""" % (HOST, PORT, DB)
+    
 
     @defer.inlineCallbacks
     def doLater(self, args):
@@ -31,7 +41,16 @@ class Add(tcommand.TwistedCommand):
             self.stdout.write('Please give a database to replicate with.\n')
             return
 
-        jane = urlrewrite.rewrite(url, hostname=HOST, port=PORT, path='/' + DB)
+        # if a username was given, but no password, ask for it
+        parsed = urlparse.urlparse(url)
+        password = None
+        if parsed.username and not parsed.password:
+            password = self.getRootCommand().getPassword(
+                prompt='Password for %s: ' % url)
+
+
+        jane = urlrewrite.rewrite(url, hostname=HOST, port=PORT,
+            password=password, path='/' + DB)
 
         dbs = [
           c.dbName,

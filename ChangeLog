@@ -1,5 +1,12 @@
 2012-09-11  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/command/main.py:
+	* python/mushin/command/replicate.py:
+
+	  Ask for the password if it wasn't specified for the remote host.
+
+2012-09-11  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/command/replicate.py:
 	  Use rewrite functions; now allows replicating with
 	  username/password.
