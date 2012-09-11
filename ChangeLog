@@ -1,5 +1,12 @@
 2012-09-11  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/test/test_common_urlrewrite.py (added):
+	* python/mushin/common/urlrewrite.py (added):
+	  Add module and tests to rewrite URL's using default options,
+	  and for outputting with protected password.
+
+2012-09-11  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/command/replicate.py:
 	  Rewrite replicate to use the actual server and Twisted.
 	  Handle errors nicer.
