@@ -62,7 +62,7 @@ couchapp push couchdb mushin http://thomas:pass@localhost:5984/mushin/
 
 (with newer couchapp)
 
-couchapp push --docid _design/mushin couchdb http://localhost:5984/mushin/
+couchapp push --docid _design/mushin couchdb http://thomas:pass@localhost:5984/mushin/
 
 
 QUESTIONS
