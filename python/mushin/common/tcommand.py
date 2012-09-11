@@ -29,14 +29,20 @@ from mushin.extern.command import tcommand
 from . import logcommand
 
 class TwistedCommand(tcommand.TwistedCommand, logcommand.LogCommand):
-    def debug(self, format, *args):
-        logcommand.LogCommand.debug(self, format, *args)
-    def warning(self, format, *args):
-        logcommand.LogCommand.warning(self, format, *args)
+    pass
+# FIXME: looks like we don't need to chain up to make this work
+# FIXME: if we do need to chain up again, add info, and make sure we
+#        adjust the logging depth since this chaining adds one level
+    
+#    def debug(self, format, *args):
+#        logcommand.LogCommand.debug(self, format, *args)
+#    def warning(self, format, *args):
+#        logcommand.LogCommand.warning(self, format, *args)
 
 class LogReactorCommand(tcommand.ReactorCommand, logcommand.LogCommand):
-    def debug(self, format, *args):
-        logcommand.LogCommand.debug(self, format, *args)
-    def warning(self, format, *args):
-        logcommand.LogCommand.warning(self, format, *args)
+    pass
+#    def debug(self, format, *args):
+#        logcommand.LogCommand.debug(self, format, *args)
+#    def warning(self, format, *args):
+#        logcommand.LogCommand.warning(self, format, *args)
 
