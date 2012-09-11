@@ -1,0 +1,6 @@
+[submodule "python/mushin/extern/python-command"]
+	path = python/mushin/extern/python-command
+	url = https://github.com/thomasvs/python-command
+[submodule "python/mushin/extern/paisley.git"]
+	path = python/mushin/extern/paisley.git
+	url = https://github.com/thomasvs/paisley

@@ -1,9 +1,4 @@
-all: paisley-update python-command
+all: log
 
-
-python-command:
-	git clone https://github.com/thomasvs/python-command.git
-
-paisley-update:
-	cd paisley.git && git fetch -a && git checkout int-mushin-3 && git pull
-
+log:
+	svn co https://code.fluendo.com/flumotion/svn/flumotion/trunk/flumotion/extern/log
