@@ -24,6 +24,10 @@ class Add(tcommand.TwistedCommand):
 If you provide a username, but not a password, you will be prompted for
 the remote password.
 
+Example: gtd replicate add http://thomas@otto
+will add a two-way replication to the mushin database on the host 'otto',
+authenticating as the user 'thomas', and asking for a password.
+
 The default remote host is %s.
 The default remote port is %d.
 The default remote database is %s.
@@ -40,6 +44,10 @@ The default remote database is %s.
         except IndexError:
             self.stdout.write('Please give a database to replicate with.\n')
             return
+
+        # urlparse really needs a scheme there
+        if not url.startswith('http'):
+            url = 'http://' + url
 
         server = c.getNewServer()
         # FIXME: don't poke privately
@@ -69,6 +77,7 @@ The default remote database is %s.
             self.info('replicating from %s to %s',
                 urlrewrite.rewrite_safe(source),
                 urlrewrite.rewrite_safe(target))
+
             try:
                 d = client.post('/_replicate', s)
             except Exception, e:
