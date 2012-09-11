@@ -101,7 +101,7 @@ The default remote database is %s.
                     error = 'CouchDB returned error reason: %s' % r['reason']
                 except:
                     pass
-            except:
+            except Exception, e:
                 error = log.getExceptionMessage(e)
 
             if not error:
