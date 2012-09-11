@@ -1,5 +1,11 @@
 2012-09-11  Thomas Vander Stichele  <thomas at apestaart dot org>
 
+	* python/mushin/command/replicate.py:
+	  Rewrite replicate to use the actual server and Twisted.
+	  Handle errors nicer.
+
+2012-09-11  Thomas Vander Stichele  <thomas at apestaart dot org>
+
 	* python/mushin/common/tcommand.py:
 	  Don't chain up for debug/warning, should fix wrong line
 	  numbers in log output.  info() was right, and didn't get
