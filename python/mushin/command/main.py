@@ -513,6 +513,10 @@ You can get help on subcommands by using the -h option to the subcommand.
             dbName=self.dbName,
             authenticator=InputAuthenticator(self._stdio))
 
+        # FIXME: big hack: replace the .log attribute which just happens
+        # to have the same signature
+        self._newServer._couch.log = self
+
         return self._newServer
 
     def getPassword(self, prompt='Password: '):

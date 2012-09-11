@@ -8,6 +8,7 @@ gtd (command line client):
     without displaying it
   - allow asking for password of localhost
 - don't use httplib for adding replication; add it to paisley.
+- integrate paisley's use of logging with our logging
 - convert all commands to using getNewServer()
 - parse search lines and apply filters in most useful order
 - Figure out what to do with docs without start date - maybe we have a bug

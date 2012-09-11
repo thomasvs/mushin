@@ -41,13 +41,16 @@ The default remote database is %s.
             self.stdout.write('Please give a database to replicate with.\n')
             return
 
+        server = c.getNewServer()
+        # FIXME: don't poke privately
+        client = server._couch
+
         # if a username was given, but no password, ask for it
         parsed = urlparse.urlparse(url)
         password = None
         if parsed.username and not parsed.password:
-            password = self.getRootCommand().getPassword(
-                prompt='Password for %s: ' % url)
-
+            password = c.getPassword(
+                prompt='Password for target database %s: ' % url)
 
         jane = urlrewrite.rewrite(url, hostname=HOST, port=PORT,
             password=password, path='/' + DB)
@@ -57,9 +60,6 @@ The default remote database is %s.
           jane,
         ]
 
-        server = c.getNewServer()
-        # FIXME: don't poke privately
-        client = server._couch
 
         for source, target in [(dbs[0], dbs[1]), (dbs[1], dbs[0])]:
             s = json.dumps({
@@ -87,6 +87,7 @@ The default remote database is %s.
             except twerror.Error, e:
                 error = 'CouchDB returned error response %r' % e.status
                 try:
+                    self.debug('CouchDB message: %r', e.message)
                     r = json.loads(e.message)
                     error = 'CouchDB returned error reason: %s' % r['reason']
                 except:
