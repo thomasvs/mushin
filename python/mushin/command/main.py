@@ -463,17 +463,18 @@ You can get help on subcommands by using the -h option to the subcommand.
     def do(self, args):
         # start a command line interpreter
 
-        class MyCmdInterpreter(manholecmd.CmdInterpreter):
+        class MushinCmdInterpreter(manholecmd.CmdInterpreter, log.Loggable):
             cmdClass = logcommand.command.commandToCmdClass(self)
             cmdClass.prompt = 'GTD> '
 
-        class MyCmdManhole(manholecmd.CmdManhole):
-            interpreterClass = MyCmdInterpreter
+        class MushinCmdManhole(manholecmd.CmdManhole, log.Loggable):
+            interpreterClass = MushinCmdInterpreter
 
         self.deferred = defer.Deferred()
 
         self._stdio.setup()
-        self._stdio.connect(MyCmdManhole, connectionLostDeferred=self.deferred)
+        self._stdio.connect(MushinCmdManhole,
+            connectionLostDeferred=self.deferred)
 
         # we should expect error.ConnectionDone as a normal exit condition
         def eb(failure):
