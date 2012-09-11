@@ -1,6 +1,8 @@
 # -*- Mode: Python -*-
 # vi:si:et:sw=4:sts=4:ts=4
 
+import urlparse
+
 from twisted.internet import defer
 from twisted.web import error as twerror
 
@@ -8,7 +10,7 @@ from paisley import pjson as json
 
 from mushin.extern.log import log
 
-from mushin.common import logcommand, tcommand
+from mushin.common import logcommand, tcommand, urlrewrite
 
 HOST = 'localhost'
 PORT = 5984
@@ -23,30 +25,17 @@ class Add(tcommand.TwistedCommand):
 
         c = self.getRootCommand()
 
-        # FIXME: parse with a proper library, could also include auth
         try:
-            jane = args[0]
+            url = args[0]
         except IndexError:
             self.stdout.write('Please give a database to replicate with.\n')
             return
 
-        db = DB
-        slash = jane.find('/')
-        if slash > -1:
-            db = jane[slash + 1:]
-            jane = jane[:slash]
-            self.debug('replicating to database %s', db)
-
-        port = PORT
-        colon = jane.find(':')
-        if colon > -1:
-            port = int(jane[colon + 1:])
-            jane = jane[:colon]
-            self.debug('replicating to port %d', port)
+        jane = urlrewrite.rewrite(url, hostname=HOST, port=PORT, path='/' + DB)
 
         dbs = [
           c.dbName,
-          "http://%s:%d/%s" % (jane, port, db),
+          jane,
         ]
 
         server = c.getNewServer()
@@ -58,8 +47,9 @@ class Add(tcommand.TwistedCommand):
               "source": source,
               "target": target,
               "continuous": True})
-            self.info('replicating from %s to %s', source, target)
-            self.debug('json string: %s', s)
+            self.info('replicating from %s to %s',
+                urlrewrite.rewrite_safe(source),
+                urlrewrite.rewrite_safe(target))
             try:
                 d = client.post('/_replicate', s)
             except Exception, e:
@@ -91,7 +81,8 @@ class Add(tcommand.TwistedCommand):
                 try:
                     if r['ok']:
                         self.stdout.write('+ Replicating %s to %s\n' % (
-                            source.encode('utf-8'), target.encode('utf-8')))
+                            urlrewrite.rewrite_safe(source.encode('utf-8')),
+                            urlrewrite.rewrite_safe(target.encode('utf-8'))))
                     else:
                         error = r
                 except Exception, e:
@@ -99,7 +90,8 @@ class Add(tcommand.TwistedCommand):
 
             if error:
                 self.stdout.write('- Failed to replicate %s to %s:\n' % (
-                    source.encode('utf-8'), target.encode('utf-8')))
+                    urlrewrite.rewrite_safe(source.encode('utf-8')),
+                    urlrewrite.rewrite_safe(target.encode('utf-8'))))
                 self.stdout.write('  %s\n' % error)
 
 class Replicate(logcommand.LogCommand):
