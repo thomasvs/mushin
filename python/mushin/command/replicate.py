@@ -121,7 +121,7 @@ The default remote database is %s.
                 self.stdout.write('- Failed to replicate %s to %s:\n' % (
                     urlrewrite.rewrite_safe(source.encode('utf-8')),
                     urlrewrite.rewrite_safe(target.encode('utf-8'))))
-                self.stdout.write('  %s\n' % error)
+                self.stdout.write('  %s\n' % error.encode('utf-8'))
 
 class Replicate(logcommand.LogCommand):
     description = """Manage replication.
