@@ -1,5 +1,5 @@
 function(doc) {
-  if(doc._conflicts) {
+  if (doc._conflicts) {
     emit(doc._conflicts, null);
   }
 }
