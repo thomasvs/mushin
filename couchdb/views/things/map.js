@@ -1,5 +1,5 @@
 function(doc) {
     if (doc.type == 'thing') {
-    	emit(doc, 1);
+        emit(doc, 1);
     }
 }
