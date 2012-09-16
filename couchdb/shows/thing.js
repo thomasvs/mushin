@@ -1,6 +1,5 @@
 function(doc, req) {  
   // !json templates.thing
-  // !json thing
   // !code vendor/couchapp/template.js
   // !code vendor/couchapp/path.js
   // !code vendor/mustache/mustache.js

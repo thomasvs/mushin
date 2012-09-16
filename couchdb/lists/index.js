@@ -1,6 +1,5 @@
 function(head, req) {
   // !json templates.index
-  // !json thing
   // !code vendor/couchapp/path.js
   // !code vendor/couchapp/date.js
   // !code vendor/couchapp/template.js

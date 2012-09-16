@@ -3,7 +3,6 @@
 
 function(head, req) {
   // !json templates.projects
-  // !json thing
   // !code vendor/couchapp/path.js
   // !code vendor/couchapp/date.js
   // !code vendor/couchapp/template.js
