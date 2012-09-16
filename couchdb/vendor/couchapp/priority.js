@@ -2,7 +2,7 @@
 // http://bitbucket.org/benoitc/benoitcim/src/tip/vendor/inditeweb/date.js
 // adapted to make the trailing Z optional, and remove fractional seconds
 // Also see FIXME
-Date.prototype.setRFC3339 = function(dString){
+Date.prototype.setRFC3339 = function(dString) {
     //var regexp = /(\d\d\d\d)(-)?(\d\d)(-)?(\d\d)(T)?(\d\d)(:)?(\d\d)(:)?(\d\d)(\.\d+)?(Z|([+-])(\d\d)(:)?(\d\d))?/;
     var regexp = /(\d\d\d\d)(-)?(\d\d)(-)?(\d\d)(T)?(\d\d)(:)?(\d\d)(:)?(\d\d)?/;
 
@@ -11,12 +11,12 @@ Date.prototype.setRFC3339 = function(dString){
         var offset = 0;
 
         this.setUTCDate(1);
-        this.setUTCFullYear(parseInt(d[1],10));
-        this.setUTCMonth(parseInt(d[3],10) - 1);
-        this.setUTCDate(parseInt(d[5],10));
-        this.setUTCHours(parseInt(d[7],10));
-        this.setUTCMinutes(parseInt(d[9],10));
-        this.setUTCSeconds(parseInt(d[11],10));
+        this.setUTCFullYear(parseInt(d[1], 10));
+        this.setUTCMonth(parseInt(d[3], 10) - 1);
+        this.setUTCDate(parseInt(d[5], 10));
+        this.setUTCHours(parseInt(d[7], 10));
+        this.setUTCMinutes(parseInt(d[9], 10));
+        this.setUTCSeconds(parseInt(d[11], 10));
         //if (d[12])
         //    this.setUTCMilliseconds(parseFloat(d[12]) * 1000);
         //else
@@ -33,7 +33,7 @@ Date.prototype.setRFC3339 = function(dString){
 };
 
 function priority(doc) {
-  if (doc.type == "thing" && doc.complete != 100) {
+  if (doc.type == 'thing' && doc.complete != 100) {
     hours = (doc.time || 0.) / 60. / 60.;
 
     effort = hours ? Math.max(1, Math.log(hours) / Math.log(3) + 1.0) : 0;
@@ -65,12 +65,12 @@ function priority(doc) {
 
     // now calculate priority
     I = doc.importance || 0;
-    P = Math.min((doc.urgency || 0) + 2, pressure)
-    U = Math.max(doc.urgency || 0, P)
+    P = Math.min((doc.urgency || 0) + 2, pressure);
+    U = Math.max(doc.urgency || 0, P);
     E = effort;
 
     return Math.sqrt(2 * U * U + 2 * I * I + E * E) / Math.sqrt(5);
   } else {
     return 0;
   }
-};
+}
