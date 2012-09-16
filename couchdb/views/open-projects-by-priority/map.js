@@ -1,4 +1,5 @@
-// !code vendor/couchapp/priority.js
+// FIXME: something wrong in priority
+// code vendor/couchapp/priority.js
 
 function(doc) {
     if (doc.type == 'thing') {
