@@ -57,9 +57,8 @@ The default remote database is %s.
         parsed = urlparse.urlparse(url)
         password = None
         if parsed.username and not parsed.password:
-            self.stdout.write('\n')
             password = c.getPassword(
-                prompt='Password for target database %s: ' % url)
+                prompt='\nPassword for target database %s: ' % url)
 
         jane = urlrewrite.rewrite(url, hostname=HOST, port=PORT,
             password=password, path='/' + DB)
