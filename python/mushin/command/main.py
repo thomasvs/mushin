@@ -48,6 +48,7 @@ def main(argv):
 
     try:
         ret = c.parse(argv)
+        log.debug('main', 'invoked parse, ret %r' % ret)
     except SystemError, e:
         sys.stderr.write('mushin: error: %s\n' % e.args)
         return 255
@@ -55,9 +56,8 @@ def main(argv):
         sys.stderr.write('mushin: couchdb error: %s\n' % e)
         return 255
     except Exception, e:
-        sys.stderr.write('mushin: internal error: %s\n' % e)
+        sys.stderr.write('mushin: internal error: %r\n' % e)
         return 255
-
 
     if ret is None:
         return 0
@@ -271,8 +271,11 @@ class Search(tcommand.TwistedCommand):
                 'open-things', couch.Thing,
                 include_docs=True)
 
+        self.debug('calling view.queryView')
         d = view.queryView()
+
         def viewCb(result):
+            self.debug('viewCb')
             # now apply all filters in a row
             for attribute in ['urgency', 'importance', 'time']:
                 if filter.has_key(attribute) and attribute != fattribute:
@@ -313,7 +316,11 @@ class Search(tcommand.TwistedCommand):
                 display.Displayer(self.stdout).display_things(result)
 
             return 0
+        def viewEb(failure):
+            self.debug('viewEb, failure %r' % failure)
+            return failure
         d.addCallback(viewCb)
+        d.addCallback(viewEb)
 
         return d
 
@@ -476,14 +483,30 @@ You can get help on subcommands by using the -h option to the subcommand.
         self._stdio.connect(MushinCmdManhole,
             connectionLostDeferred=self.deferred)
 
-        # we should expect error.ConnectionDone as a normal exit condition
-        def eb(failure):
+        def alwaysEb(failure):
+            self.debug('got failure %r', failure)
             self._stdio.teardown()
-            self.debug('connection closed, %r', failure)
+            return failure
+
+        # we should expect error.ConnectionDone as a normal exit condition
+        def connectionDoneEb(failure):
             failure.trap(error.ConnectionDone)
             self.debug('connection done, ignoring')
 
+        def connectionRefusedEb(failure):
+            self.debug('connection closed, %r', failure)
+            failure.trap(error.ConnectionRefused)
+            self.debug('connection refused')
+            self.stderr.write('Could not make a connection to CouchDB.\n')
+
+        def eb(failure):
+            self.stderr.write('Unhandled failure: %r.\n' % failure)
+            return failure
+
         self.deferred.addCallback(lambda _: self._stdio.teardown())
+        self.deferred.addErrback(alwaysEb)
+        self.deferred.addErrback(connectionDoneEb)
+        self.deferred.addErrback(connectionRefusedEb)
         self.deferred.addErrback(eb)
 
         return self.deferred

@@ -98,3 +98,23 @@ as interpreter:
   help
 
 as command
+
+flow of command handling
+------------------------
+	Main program
+		gtd calls main.main
+		does not know about reactors or deferreds
+		does not know whether there are subcommands or not
+		exits with the return value from main.main
+	main.main
+		instantiates the root GTD command
+		invokes c.parse(argv)
+		does not know about reactors or deferreds
+		does not know whether there are subcommands or not
+		returns
+			the return value from c.parse if ok
+			255 if exception
+	GTD.parse
+		parses the args
+		dispatches to subcommand's parse if there are args
+		or dispatches to do if there aren't
