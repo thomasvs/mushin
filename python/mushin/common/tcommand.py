@@ -5,12 +5,6 @@
 a Command subclass for Twisted-using commands.
 """
 
-import sys
-
-from mushin.extern.command import tcommand
-
-from twisted.internet import reactor, defer
-
 # Because we run a reactor and use deferreds, the flow is slightly different
 # from the usual Command flow.
 
