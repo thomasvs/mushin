@@ -4,3 +4,6 @@
 [submodule "python/mushin/extern/paisley.git"]
 	path = python/mushin/extern/paisley.git
 	url = https://github.com/thomasvs/paisley
+[submodule "python/mushin/extern/flog"]
+	path = python/mushin/extern/flog
+	url = git://github.com/Flumotion/flog
