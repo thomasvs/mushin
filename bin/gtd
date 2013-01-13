@@ -8,7 +8,7 @@ import sys
 try:
     import mushin
 except ImportError:
-    sys.stderr.write('''The rip binary cannot find its python package.
+    sys.stderr.write('''The gtd binary cannot find its python package.
 This means that the 'mushin' directory containing __init__.py is not on your
 PYTHONPATH.
 Typically this is due to a broken install.
