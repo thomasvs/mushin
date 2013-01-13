@@ -35,6 +35,8 @@ When adding or searching for things, the following syntax is used:
 
 def main(argv):
     log.init()
+    log.logTwisted()
+    log.adaptStandardLogging('paisley', 'paisley', None)
 
     # make sure argv, coming from the command line, is converted to
     # unicode
