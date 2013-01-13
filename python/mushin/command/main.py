@@ -51,6 +51,10 @@ def main(argv):
     try:
         ret = c.parse(argv)
         log.debug('main', 'invoked parse, ret %r' % ret)
+    except command.CommandExited, e:
+        ret = e.status
+        if ret != 0:
+            sys.stderr.write('mushin: error: %s\n' % e.output)
     except SystemError, e:
         sys.stderr.write('mushin: error: %s\n' % e.args)
         return 255
