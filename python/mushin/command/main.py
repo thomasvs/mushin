@@ -483,6 +483,13 @@ You can get help on subcommands by using the -h option to the subcommand.
         class MushinCmdManhole(manholecmd.CmdManhole, log.Loggable):
             interpreterClass = MushinCmdInterpreter
 
+            def lineReceivedErrback(self, failure):
+                failure.trap(command.CommandExited)
+                e = failure.value
+                ret = e.status
+                if ret != 0:
+                    self.terminal.write('mushin: error: %s\n' % e.output)
+
         self.deferred = defer.Deferred()
 
         self._stdio.setup()
@@ -504,6 +511,7 @@ You can get help on subcommands by using the -h option to the subcommand.
             failure.trap(error.ConnectionRefused)
             self.debug('connection refused')
             self.stderr.write('Could not make a connection to CouchDB.\n')
+            return failure
 
         def eb(failure):
             self.stderr.write('Unhandled failure: %r.\n' % failure)
