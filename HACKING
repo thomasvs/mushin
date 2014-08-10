@@ -118,3 +118,14 @@ flow of command handling
 		parses the args
 		dispatches to subcommand's parse if there are args
 		or dispatches to do if there aren't
+
+SECURITY
+--------
+- leave admin party mode; create admin user
+- set up paisleycmd
+- add user
+  paisley user add thomas
+- limit your mushin database to that user
+  paisley -D mushin -A admin security add thomas
+- set that user as an admin too
+  paisley -D mushin -A admin security add -p admin thomas
