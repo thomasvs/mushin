@@ -38,6 +38,14 @@ def main(argv):
     log.logTwisted()
     log.adaptStandardLogging('paisley', 'paisley', None)
 
+    # get twisted logging in our logging
+    log.logTwisted()
+
+    # use observer for standard logging paisley uses
+    from twisted.python import log as tplog
+    observer = tplog.PythonLoggingObserver()
+    observer.start()
+
     # make sure argv, coming from the command line, is converted to
     # unicode
     argv = [a.decode('utf-8') for a in argv]
