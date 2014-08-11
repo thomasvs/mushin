@@ -140,3 +140,7 @@ SECURITY
   paisley -D mushin -A admin security add thomas
 - set that user as an admin too
   paisley -D mushin -A admin security add -p admin thomas
+
+HOODIE
+------
+- GTD_DEBUG=5 bin/gtd -P 6006 -D user%2Fxbnjwxg -u user/thomas@apestaart.org search U:5
