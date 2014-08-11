@@ -19,6 +19,7 @@ a Command subclass for Twisted-using commands.
 
 from twisted.internet import error
 
+from mushin.common import failure as cfailure
 from mushin.extern.command import command, tcommand
 
 from . import logcommand
@@ -28,7 +29,7 @@ class TwistedCommand(tcommand.TwistedCommand, logcommand.LogCommand):
 # FIXME: looks like we don't need to chain up to make this work
 # FIXME: if we do need to chain up again, add info, and make sure we
 #        adjust the logging depth since this chaining adds one level
-    
+
 #    def debug(self, format, *args):
 #        logcommand.LogCommand.debug(self, format, *args)
 #    def warning(self, format, *args):
@@ -39,11 +40,12 @@ class TwistedCommand(tcommand.TwistedCommand, logcommand.LogCommand):
 
         def connectionRefusedEb(failure):
             self.debug('connection closed, %r', failure)
+            self.debug(cfailure.getAllTracebacks(failure))
+
             failure.trap(error.ConnectionRefusedError)
             self.debug('connection refused')
             msg = 'Could not make a connection to CouchDB.'
             raise command.CommandError(msg)
-
 
         d.addErrback(connectionRefusedEb)
 
