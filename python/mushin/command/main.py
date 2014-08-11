@@ -3,6 +3,7 @@
 
 import datetime
 import sys
+import getpass
 
 from twisted.internet import defer, error
 
@@ -402,19 +403,22 @@ class InputAuthenticator(client.Authenticator):
         self._stdio = stdio
 
     def authenticate(self, db):
+        """
+        @type  db: L{paisley.client.CouchDB}
+        """
         self._tries += 1
 
         if self._tries > 3:
             raise client.AuthenticationError('Failed 3 times to authenticate')
 
         d = defer.Deferred()
+        if not db.username:
+            # FIXME: maybe we should prompt?
+            db.username = getpass.getuser()
 
-        import getpass
-        user = getpass.getuser()
-        password = self._stdio.getPassword(prompt='Password for %s: ' % user)
+        password = self._stdio.getPassword(prompt='Password for %s: ' % db.username)
 
         # FIXME: use API to set these?
-        db.username = user
         db.password = password
         # FIXME: provide a mode where it doesn't store these in memory,
         #        but creates a request, gets a token, and then keeps using
@@ -446,7 +450,7 @@ You can get help on subcommands by using the -h option to the subcommand.
 
     deferred = None # fired when the command interpreter is done
 
-    _server = None
+    _server = None # mushin.model.couch.Server
     _newServer = None
 
     def addOptions(self):
@@ -462,6 +466,11 @@ You can get help on subcommands by using the -h option to the subcommand.
                           action="store", dest="database",
                           default="mushin",
                           help="database to connect to (default: %default)")
+        # with an empty default, no password will be prompted if not needed
+        self.parser.add_option('-u', '--username',
+                          action="store", dest="username",
+                          help="username",
+                          default="")
         self.parser.add_option('-v', '--version',
                           action="store_true", dest="version",
                           help="show version information")
@@ -478,6 +487,8 @@ You can get help on subcommands by using the -h option to the subcommand.
         self.info("Using host %s", self.host)
         self.port = int(options.port)
         self.info("Using port %d", self.port)
+        self.username = options.username
+        self.info("Using username %s", self.username)
 
         self._stdio = manholecmd.Stdio()
 
@@ -533,7 +544,7 @@ You can get help on subcommands by using the -h option to the subcommand.
 
         return self.deferred
 
-    # FIXME: this is a direct 
+    # FIXME: this is a direct
     def getServer(self):
         # FIXME: should not be importing couchdb
         from couchdb import client
@@ -543,7 +554,8 @@ You can get help on subcommands by using the -h option to the subcommand.
         try:
             self._server = couch.Server(host=self.host, port=self.port,
                 db=self.dbName,
-                authenticator=InputAuthenticator(self._stdio))
+                authenticator=InputAuthenticator(self._stdio),
+                username=self.username)
         except client.ResourceNotFound:
             raise command.CommandExited(
                 1, "Could not find database %s" % self.db)
@@ -556,7 +568,8 @@ You can get help on subcommands by using the -h option to the subcommand.
 
         self._newServer = app.Server(host=self.host, port=self.port,
             dbName=self.dbName,
-            authenticator=InputAuthenticator(self._stdio))
+            authenticator=InputAuthenticator(self._stdio),
+            username=self.username)
 
         # FIXME: big hack: replace the .log attribute which just happens
         # to have the same signature

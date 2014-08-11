@@ -151,9 +151,12 @@ class Thing(mapping.Document, log.Loggable):
 # FIXME: this one used by command client, common.app.Server by maemo app
 class Server:
     def __init__(self, host='localhost', port=5984, db='mushin',
-            authenticator=None):
+            authenticator=None, username=None):
         from mushin.extern.paisley import client
         self._db = client.CouchDB(host, port)
+        # FIXME: injecting username into db for authenticator
+        self._db.username = username
+        # FIXME: poking at internals
         self._db._authenticator = authenticator
         self._dbName = db
 
