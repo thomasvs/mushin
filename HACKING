@@ -58,11 +58,22 @@ INSTALL
 
 couchdb part:
 
-couchapp push couchdb mushin http://thomas:pass@localhost:5984/mushin/
+  - for normal couchdb:
 
-(with newer couchapp)
+    couchapp push couchdb mushin http://thomas:pass@localhost:5984/mushin/
 
-couchapp push --docid _design/mushin couchdb http://thomas:pass@localhost:5984/mushin/
+    where:
+      - couchdb is the local directory containing the code
+      - mushin is the design document name in the database
+      - url is the url to mushin on couchdb
+
+    (with newer couchapp)
+
+    couchapp push --docid _design/mushin couchdb http://thomas:pass@localhost:5984/mushin/
+
+  - for hoodie:
+
+    couchapp push --docid _design/mushin couchdb http://admin:$PASSWORD@localhost:6006/user%2Fxbnjwxg/
 
 
 QUESTIONS
