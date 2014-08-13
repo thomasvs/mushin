@@ -431,11 +431,22 @@ class InputAuthenticator(client.Authenticator, log.Loggable):
         #        but creates a request, gets a token, and then keeps using
         #        the token
         d.addCallback(lambda _: db.getSession())
-        def cb(_):
-            # since we use cookies, this should not be necessary
-            db.username = None
-            db.password = None
+        def cb(result):
+            assert result['ok'] == True, \
+                "getSession failed with %r" % result
+            self.debug('getSession() succeeded, %r' % result)
+            # since we now use a session cookie, we can drop
+            # username and password
+            # FIXME: but doesn't seem to work against a hoodie db
+            #db.username = None
+            #db.password = None
+            db.useCookies = True
+            return result
         d.addCallback(cb)
+        def eb(f):
+            self.debug('getSession failed: %r', f)
+            return f
+        d.addErrback(eb)
 
         d.callback(None)
         return d
