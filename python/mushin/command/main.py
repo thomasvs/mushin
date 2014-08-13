@@ -89,15 +89,21 @@ class Add(tcommand.TwistedCommand):
         if not new.has_key('start'):
             new['start'] = datetime.datetime.now()
 
+        newThing = couch.thing_from_dict(new)
+
         server = self.getRootCommand().getServer()
 
-        thing = couch.thing_from_dict(new)
+        d = server._db.infoDB(self.getRootCommand().dbName)
 
-        d = server.save(thing)
+        def infoDBCb(_):
+
+            return server.save(newThing)
+        d.addCallback(infoDBCb)
 
         def saveCb(ret):
             self.stdout.write('Added thing "%s" (%s)\n' % (
-                thing.title.encode('utf-8'), ret['id'][::-1].encode('utf-8')))
+                newThing.title.encode('utf-8'),
+                ret['id'][::-1].encode('utf-8')))
         d.addCallback(saveCb)
 
         return d
