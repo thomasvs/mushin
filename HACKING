@@ -85,7 +85,7 @@ QUESTIONS
    e.g. http://localhost:5984/mushin/_design/mushin/vendor/couchapp/jquery.couchapp.js
    is stored at couchdb/vendor/couchapp/_attachments/jquery.couchapp.js
    For now, we created a symlink
-   
+
 maemo
 =====
 
