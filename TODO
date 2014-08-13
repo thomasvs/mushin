@@ -14,6 +14,7 @@ gtd (command line client):
 - Figure out what to do with docs without start date - maybe we have a bug
   introducing these ?
 - add something to create the database first time
+- fix delete 0sst
 
 maemo-mushin (maemo GUI):
 
