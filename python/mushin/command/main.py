@@ -396,7 +396,7 @@ def lookup(cmd, server, shortid, ignoreDone=False):
         return d
 
 from paisley import client
-class InputAuthenticator(client.Authenticator):
+class InputAuthenticator(client.Authenticator, log.Loggable):
     _tries = 0
 
     def __init__(self, stdio):
@@ -416,7 +416,8 @@ class InputAuthenticator(client.Authenticator):
             # FIXME: maybe we should prompt?
             db.username = getpass.getuser()
 
-        password = self._stdio.getPassword(prompt='Password for %s: ' % db.username)
+        password = self._stdio.getPassword(
+            prompt='Password for %s: ' % db.username)
 
         # FIXME: use API to set these?
         db.password = password
@@ -546,6 +547,10 @@ You can get help on subcommands by using the -h option to the subcommand.
 
     # FIXME: this is a direct
     def getServer(self):
+        """
+        @rtype: L{couch.Server}
+        """
+
         # FIXME: should not be importing couchdb
         from couchdb import client
         if self._server:
@@ -563,6 +568,9 @@ You can get help on subcommands by using the -h option to the subcommand.
         return self._server
 
     def getNewServer(self):
+        """
+        @rtype: L{app.Server}
+        """
         if self._newServer:
             return self._newServer
 
