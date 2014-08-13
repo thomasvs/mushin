@@ -4,6 +4,7 @@
 
 import datetime
 import math
+import random
 
 from mushin.common import mapping, log
 
@@ -14,6 +15,9 @@ class Thing(mapping.Document, log.Loggable):
 
     title = mapping.TextField()
     description = mapping.TextField()
+
+    # hoodie's createdBy
+    createdBy = mapping.TextField()
 
     # attributes from Getting Things Done, David Allen
     projects = mapping.ListField(mapping.TextField())
@@ -148,6 +152,15 @@ class Thing(mapping.Document, log.Loggable):
         ]:
             setattr(self, attr, d.get(attr, None))
 
+    def setHoodieId(self):
+        # generate a hoodie id, which is
+        # type/(random set of 8 letters/numbers)
+        values = "0123456789abcdefghijklmnopqrstuvwxyz"
+        characters = [random.choice(values) for i in range(0, 8)]
+        self.id = 'thing/' + ''.join(characters)
+        print 'new id', self.id
+
+
 # FIXME: this one used by command client, common.app.Server by maemo app
 class Server:
     def __init__(self, host='localhost', port=5984, db='mushin',
@@ -184,6 +197,12 @@ class Server:
 
     def delete(self, thing):
         return self._db.deleteDoc(self._dbName, thing.id, thing.rev)
+
+    def getCreatedBy(self):
+        for role in self._db.getSessionRoles():
+            if role.startswith('hoodie:write:user/'):
+                return role.split('/')[1]
+
 
 def thing_from_dict(d):
     """

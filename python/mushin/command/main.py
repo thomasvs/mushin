@@ -96,6 +96,22 @@ class Add(tcommand.TwistedCommand):
         d = server._db.infoDB(self.getRootCommand().dbName)
 
         def infoDBCb(_):
+            createdBy = server.getCreatedBy()
+            if not createdBy:
+                # it's possible we don't have a session yet, try and get
+                # a hoodie createdBy from the database name
+                if server._dbName.startswith('user%2F'):
+                    createdBy = server._dbName[7:]
+
+            if createdBy:
+                self.debug('createdBy %s' % createdBy)
+                newThing.createdBy = createdBy
+
+                # we assume it's now hoodie, so if no id is set, set a
+                # hoodie-compatible one that starts with type
+                if not 'id' in new:
+                    newThing.setHoodieId()
+                    self.debug('set hoodie-compatible id %s' % newThing.id)
 
             return server.save(newThing)
         d.addCallback(infoDBCb)
