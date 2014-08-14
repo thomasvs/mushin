@@ -377,14 +377,7 @@ class Show(tcommand.TwistedCommand):
 def lookup(cmd, server, shortid, ignoreDone=False):
         # convert argument, which is shortened _id, to start/end range
         startkey = shortid
-        try:
-            endkey = hex(int(startkey, 16) + 1)[2:]
-        except ValueError:
-            cmd.stdout.write("Please give a valid id.\n")
-            return
-
-        # leading 0's are now dropped, so readd them
-        endkey = '0' * (len(startkey) - len(endkey)) + endkey
+        endkey = shortid + 'Z'
 
         log.debug('lookup', 'Looking up from %s to %s' % (startkey, endkey))
 
