@@ -530,11 +530,16 @@ You can get help on subcommands by using the -h option to the subcommand.
             interpreterClass = MushinCmdInterpreter
 
             def lineReceivedErrback(self, failure):
-                failure.trap(command.CommandExited)
-                e = failure.value
-                ret = e.status
-                if ret != 0:
-                    self.terminal.write('mushin: error: %s\n' % e.output)
+                # we can't use trap since we need to chain up instead for the
+                # default implementation
+                if failure.check(command.CommandExited):
+                    e = failure.value
+                    ret = e.status
+                    if ret != 0:
+                        self.terminal.write('mushin: error: %s\n' % e.output)
+                    return
+
+                return manholecmd.CmdManhole.lineReceivedErrback(self, failure)
 
         self.deferred = defer.Deferred()
 
