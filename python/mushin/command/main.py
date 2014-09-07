@@ -538,9 +538,11 @@ You can get help on subcommands by using the -h option to the subcommand.
 
         self.deferred = defer.Deferred()
 
+        self.debug('setting up command interpreter')
         self._stdio.setup()
         self._stdio.connect(MushinCmdManhole,
             connectionLostDeferred=self.deferred)
+        self.debug('connected stdio')
 
         def alwaysEb(failure):
             self.debug('got failure %r', failure)
