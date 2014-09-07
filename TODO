@@ -15,6 +15,8 @@ gtd (command line client):
   introducing these ?
 - add something to create the database first time
 - fix delete 0sst
+- bug when typing 'list' in cmd line interpreter - the error message is output
+  on the same line as the command, instead of first getting a newline on stderr
 
 maemo-mushin (maemo GUI):
 
