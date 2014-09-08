@@ -355,9 +355,19 @@ class Search(tcommand.TwistedCommand):
             return 0
         def viewEb(failure):
             self.debug('viewEb, failure %r' % failure)
+            from twisted.web import error as tw_error
+            if failure.check(tw_error.Error):
+                if failure.value.status == 404:
+                    self.stderr.write(
+                        "CouchDB server doesn't have the views installed.\n"
+                        "Please read the README and push the views to the server.\n")
+                    return
+
+                print dir(failure.value)
+
             return failure
         d.addCallback(viewCb)
-        d.addCallback(viewEb)
+        d.addErrback(viewEb)
 
         return d
 
