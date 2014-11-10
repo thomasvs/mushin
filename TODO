@@ -3,6 +3,9 @@ TODO:
 
 gtd (command line client):
 
+- make it possible to work in 'hoodie mode' on a replica of a hoodie db
+  (for example my mushin-hoodie local copy)
+
 - add authentication support to replication
   - allow specifying username/password for remote host, parse it properly,
     without displaying it
