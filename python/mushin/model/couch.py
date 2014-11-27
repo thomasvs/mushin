@@ -199,6 +199,9 @@ class Server:
         return self._db.deleteDoc(self._dbName, thing.id, thing.rev)
 
     def getCreatedBy(self):
+        """
+        Get the name of the hoodie user in this session.
+        """
         for role in self._db.getSessionRoles():
             if role.startswith('hoodie:write:user/'):
                 return role.split('/')[1]
