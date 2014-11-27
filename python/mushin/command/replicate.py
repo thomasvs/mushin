@@ -32,7 +32,7 @@ The default remote host is %s.
 The default remote port is %d.
 The default remote database is %s.
 """ % (HOST, PORT, DB)
-    
+
 
     @defer.inlineCallbacks
     def doLater(self, args):
