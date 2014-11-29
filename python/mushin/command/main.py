@@ -100,8 +100,8 @@ class Add(tcommand.TwistedCommand):
             if not createdBy:
                 # it's possible we don't have a session yet, try and get
                 # a hoodie createdBy from the database name
-                if server._dbName.startswith('user%2F'):
-                    createdBy = server._dbName[7:]
+                if server._dbName.startswith('user/'):
+                    createdBy = server._dbName[5:]
 
             if createdBy:
                 self.debug('createdBy %s' % createdBy)
