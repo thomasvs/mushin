@@ -144,12 +144,12 @@ SECURITY
 HOODIE
 ------
 To run against a local hood.ie+couchdb:
-	- GTD_DEBUG=5 bin/gtd -P 6006 -D user%2Fxbnjwxg -u user/thomas@apestaart.org search U:5
+	- GTD_DEBUG=5 bin/gtd -P 6006 -D user/xbnjwxg -u user/thomas@apestaart.org search U:5
 
 To run against a local couchdb replicating from a remote hood.ie+couchdb:
 	- make sure your local couchdb db is named user/... so mushin can
           now it's hoodie-like to generate the proper id's
 	- if no local authentication:
-          GTD_DEBUG=5 bin/gtd -P 5984 -D user%2Fxbnjwxg search U:5
+          GTD_DEBUG=5 bin/gtd -P 5984 -D user/xbnjwxg search U:5
         - if same authentication is set up:
-          GTD_DEBUG=5 bin/gtd -P 5984 -D user%2Fxbnjwxg -u user/thomas@apestaart.org search U:5
+          GTD_DEBUG=5 bin/gtd -P 5984 -D user/xbnjwxg -u user/thomas@apestaart.org search U:5
