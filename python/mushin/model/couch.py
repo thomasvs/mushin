@@ -165,6 +165,10 @@ class Thing(mapping.Document, log.Loggable):
 class Server:
     def __init__(self, host='localhost', port=5984, db='mushin',
             authenticator=None, username=None):
+        """
+        @type  db: C{str}
+        @param db: name of the database, not url-quoted
+        """
         from mushin.extern.paisley import client
         self._db = client.CouchDB(host, port)
         # FIXME: injecting username into db for authenticator
