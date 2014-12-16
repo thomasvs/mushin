@@ -147,22 +147,25 @@ class Displayer(object):
             else:
                 return '%dM' % (seconds / minute)
 
-        if thing.time is not None:
-            blocks.append(self._color(
-                'T:%s' % _format_time(thing.time), TIME_COLOR))
-        if thing.recurrence is not None:
-            blocks.append(self._color(
-                'R:%s' % _format_time(thing.recurrence), RECURRENCE_COLOR))
+        try:
+            if thing.time is not None:
+                blocks.append(self._color(
+                    'T:%s' % _format_time(thing.time), TIME_COLOR))
+            if thing.recurrence is not None:
+                blocks.append(self._color(
+                    'R:%s' % _format_time(thing.recurrence), RECURRENCE_COLOR))
 
-        if thing.start is not None:
-            blocks.append(self._color(
-                'S:%s' % thing.start.strftime('%Y-%m-%d'), START_COLOR))
-        if thing.due is not None:
-            blocks.append(self._color(
-                'D:%s' % thing.due.strftime('%Y-%m-%d'), DUE_COLOR))
-        if thing.end is not None:
-            blocks.append(self._color(
-                'E:%s' % thing.end.strftime('%Y-%m-%d'), END_COLOR))
+            if thing.start is not None:
+                blocks.append(self._color(
+                    'S:%s' % thing.start.strftime('%Y-%m-%d'), START_COLOR))
+            if thing.due is not None:
+                blocks.append(self._color(
+                    'D:%s' % thing.due.strftime('%Y-%m-%d'), DUE_COLOR))
+            if thing.end is not None:
+                blocks.append(self._color(
+                    'E:%s' % thing.end.strftime('%Y-%m-%d'), END_COLOR))
+        except ValueError:
+            log.warning("display", "Unable to display time on %s" % thing.id)
 
         if thing.complete:
             blocks.append(self._color('C:%s' % thing.complete, COMPLETE_COLOR))
