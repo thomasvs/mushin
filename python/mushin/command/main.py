@@ -596,9 +596,6 @@ You can get help on subcommands by using the -h option to the subcommand.
         """
         @rtype: L{couch.Server}
         """
-
-        # FIXME: should not be importing couchdb
-        from couchdb import client
         if self._server:
             return self._server
 
@@ -607,7 +604,10 @@ You can get help on subcommands by using the -h option to the subcommand.
                 db=self.dbName,
                 authenticator=InputAuthenticator(self._stdio),
                 username=self.username)
-        except client.ResourceNotFound:
+        except Exception, e:
+            # FIXME: we used to get couchdb.client.ResourceNotFound;
+	    # figure out how to detect nonexisting db's instead
+            # client.ResourceNotFound:
             raise command.CommandExited(
                 1, "Could not find database %s" % self.db)
 
