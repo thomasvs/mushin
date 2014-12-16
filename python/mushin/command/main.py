@@ -324,16 +324,19 @@ class Search(tcommand.TwistedCommand):
             # separate because filter has singular, Thing has plural
             for attribute in ['projects', 'contexts', 'statuses']:
                 if filter.has_key(attribute) and attribute != fattribute:
+                    which = filter[attribute]
                     self.debug('filtering on %s: %s' % (
-                        attribute, filter[attribute]))
+                        attribute, which))
 
-                    projects = filter[attribute]
                     new = []
                     for t in result:
                         # multiple values for an attribute should be anded
                         match = True
-                        for p in projects:
-                            if str(t[attribute]).find(p) == -1:
+                        for w in which:
+                            targets = getattr(t, attribute, [])
+                            # FIXME: lazy matching by partial string-matching
+                            # on the str of the list
+                            if str(targets).find(w) == -1:
                                 match = False
                                 break
                         if match:
