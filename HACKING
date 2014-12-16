@@ -156,3 +156,16 @@ To run against a local couchdb replicating from a remote hood.ie+couchdb:
 
 To run against the remote hood.ie+couchdb:
           GTD_DEBUG=5 bin/gtd -P 5986 -D user/xbnjwxg -u user/thomas@apestaart.org search U:5
+
+DATA MODEL
+----------
+ - in couchdb docs:
+   - any key can be non-existent; e.g. mushin-hoodie does not store contexts
+     if they're not there
+   - how to treat a 'null' value? equivalent to not there?
+   - empty string value ''
+
+ - in python model mapping?
+
+ - code suggestions
+   - in python: use getattr with a default empty value

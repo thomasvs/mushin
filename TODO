@@ -18,6 +18,19 @@ gtd (command line client):
   introducing these ?
 - add something to create the database first time
 - fix delete 0sst
+- fix delete:
+GTD> del 9rozer
+Unhandled error: [Failure instance: Traceback: <class 'twisted.web.error.Error'>: 409 {"error":"conflict","reason":"Document update conflict."}
+
+/usr/lib/python2.7/dist-packages/twisted/web/_newclient.py:1154:_bodyDataFinished_CONNECTED
+/home/thomasvs/dev/own/mushin/python/mushin/extern/paisley/client.py:117:connectionLost
+/usr/lib/python2.7/dist-packages/twisted/internet/defer.py:382:callback
+/usr/lib/python2.7/dist-packages/twisted/internet/defer.py:490:_startRunCallbacks
+--- <exception caught here> ---
+/usr/lib/python2.7/dist-packages/twisted/internet/defer.py:577:_runCallbacks
+/home/thomasvs/dev/own/mushin/python/mushin/extern/paisley/client.py:654:cb_process_resp
+]
+
 - bug when typing 'list' in cmd line interpreter - the error message is output
   on the same line as the command, instead of first getting a newline on stderr
 
