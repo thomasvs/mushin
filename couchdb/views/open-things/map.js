@@ -1,5 +1,5 @@
 function(doc) {
-  if (doc.type == 'thing' && doc.complete != 100) {
+  if (doc.type == 'thing' && doc.state == 1 && doc.complete != 100) {
     emit(doc.start, {
       description: doc.description,
       start: doc.start,

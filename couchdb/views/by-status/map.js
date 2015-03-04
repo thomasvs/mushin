@@ -1,5 +1,5 @@
 function(doc) {
-  if (doc.type == 'thing' && doc.complete != 100 && doc.statuses) {
+  if (doc.type == 'thing' && doc.complete != 100 && doc.state == 1 && doc.statuses) {
     doc.statuses.forEach(function(status) {
       emit([status, doc.start], {
         title: doc.title,
