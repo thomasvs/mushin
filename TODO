@@ -3,6 +3,9 @@ TODO:
 
 gtd (command line client):
 
+- now that mushin-hoodie added state (1 for active, 2 for archive),
+  add that to our data model, with the enum.  Make sure all views handle
+  an unset state as well.
 - make it possible to work in 'hoodie mode' on a replica of a hoodie db
   (for example my mushin-hoodie local copy)
 
