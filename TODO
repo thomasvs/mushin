@@ -37,7 +37,39 @@ Unhandled error: [Failure instance: Traceback: <class 'twisted.web.error.Error'>
 - bug when typing 'list' in cmd line interpreter - the error message is output
   on the same line as the command, instead of first getting a newline on stderr
 
-maemo-mushin (maemo GUI):
+- bug when specifying non-existent date:
+GTD> add @parida @cft pilot ready to go by may 1st? D:2015-04-31
+Unhandled error: [Failure instance: Traceback: <type 'exceptions.ValueError'>: day is out of range for month
+/usr/lib/python2.7/dist-packages/twisted/conch/recvline.py:257:handle_RETURN
+/home/thomasvs/dev/own/mushin/python/mushin/extern/command/manholecmd.py:271:lineReceived
+/usr/lib/python2.7/dist-packages/twisted/internet/defer.py:139:maybeDeferred
+/home/thomasvs/dev/own/mushin/python/mushin/extern/command/manholecmd.py:324:push
+--- <exception caught here> ---
+/usr/lib/python2.7/dist-packages/twisted/internet/defer.py:139:maybeDeferred
+/usr/lib/python2.7/cmd.py:221:onecmd
+/home/thomasvs/dev/own/mushin/python/mushin/extern/command/command.py:592:do_
+/home/thomasvs/dev/own/mushin/python/mushin/extern/command/command.py:363:parse
+/home/thomasvs/dev/own/mushin/python/mushin/common/tcommand.py:39:do
+/home/thomasvs/dev/own/mushin/python/mushin/extern/command/tcommand.py:47:do
+/home/thomasvs/dev/own/mushin/python/mushin/command/main.py:88:doLater
+/home/thomasvs/dev/own/mushin/python/mushin/common/parse.py:134:parse
+/home/thomasvs/dev/own/mushin/python/mushin/common/parse.py:174:parse_date
+]
+
+- deleting new thing fails:
+GTD> delete xl99pdb4
+Unhandled error: [Failure instance: Traceback: <class 'twisted.web.error.Error'>: 409 {"error":"conflict","reason":"Document update conflict."}
+
+/usr/lib/python2.7/dist-packages/twisted/web/_newclient.py:1154:_bodyDataFinished_CONNECTED
+/home/thomasvs/dev/own/mushin/python/mushin/extern/paisley/client.py:117:connectionLost
+/usr/lib/python2.7/dist-packages/twisted/internet/defer.py:382:callback
+/usr/lib/python2.7/dist-packages/twisted/internet/defer.py:490:_startRunCallbacks
+--- <exception caught here> ---
+/usr/lib/python2.7/dist-packages/twisted/internet/defer.py:577:_runCallbacks
+/home/thomasvs/dev/own/mushin/python/mushin/extern/paisley/client.py:654:cb_process_resp
+]
+
+-mushin (maemo GUI):
 
 - any exception from any gobject callback needs to be handled somehow with
   a dialog, to inform the user
