@@ -19,6 +19,11 @@ class Thing(mapping.Document, log.Loggable):
     # hoodie's createdBy
     createdBy = mapping.TextField()
 
+    # mushin-hoodie's state
+    # see app/scripts/services/thing.js
+    # 1 for ACTIVE, 2 for ARCHIVE
+    state = mapping.IntegerField()
+
     # attributes from Getting Things Done, David Allen
     projects = mapping.ListField(mapping.TextField())
     contexts = mapping.ListField(mapping.TextField())
