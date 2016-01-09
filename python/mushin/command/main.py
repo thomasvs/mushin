@@ -312,7 +312,9 @@ class Search(tcommand.TwistedCommand):
         d = view.queryView()
 
         def viewCb(result):
-            self.debug('viewCb')
+            result = list(result)
+
+            self.debug('viewCb: %d rows returned' % len(result))
             # now apply all filters in a row
             for attribute in ['urgency', 'importance', 'time']:
                 if filter.has_key(attribute) and attribute != fattribute:
@@ -345,7 +347,6 @@ class Search(tcommand.TwistedCommand):
                     result = new
 
             # now filter on title
-            result = list(result)
             if result and filter['title']:
                 self.debug('filtering on title %s' % filter['title'])
                 result = [t for t in result if t.title.find(filter['title']) > -1]
