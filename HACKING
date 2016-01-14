@@ -1,4 +1,5 @@
 NAMES
+-----
 
 mushin
 mizu
@@ -7,6 +8,7 @@ miliwa
 mlw
 
 COMMANDS
+--------
 
 from yagtd:
  - general
@@ -39,7 +41,7 @@ from yagtd:
      - end # date (same bug)
      - importance
      - recurrence
-     - start (same bug) 
+     - start (same bug)
      - time
      - urgency
    - manipulate
@@ -53,8 +55,9 @@ from yagtd:
    - replace/sub
    - show
 
- 
+
 INSTALL
+-------
 
 couchdb part:
 
@@ -77,6 +80,7 @@ couchdb part:
 
 
 QUESTIONS
+-------
 
  - where to store .js code that you want to use both server-side and
    client-side ? For example, date.js and its setRFC3339 function.
